@@ -1,0 +1,16 @@
+{
+  "name": "My Dev Container",
+  "dockerComposeFile": "../docker-compose.yaml",
+  "service": "node", // the service VS Code should attach to
+  "workspaceFolder": "/app",
+  "forwardPorts": [3000],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "postCreateCommand": "npm install"
+}

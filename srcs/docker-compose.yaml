@@ -1,0 +1,19 @@
+services:
+  node:
+    container_name: npm
+    build: ./requirements/node/.
+    env_file:
+      - .env
+    volumes:
+      - node_db:/app/data
+    ports:
+      - "3000:3000"
+    restart:
+      on-failure
+
+volumes:
+  node_db:
+    driver_opts:
+      type: 'none'
+      o: bind
+      device: /goinfre/ehedeman/docker/volumes/node_db/_data
