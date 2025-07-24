@@ -49,7 +49,7 @@ document.addEventListener("keyup", (e: KeyboardEvent) => {
 
 document.addEventListener("keydown", (e: KeyboardEvent) => {
   const scrollKeys: string[] = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', ' '];
-  if (scrollKeys.includes(e.key)) {
+  if (scrollKeys.indexOf(e.key)) {
     e.preventDefault();
   }
 });
