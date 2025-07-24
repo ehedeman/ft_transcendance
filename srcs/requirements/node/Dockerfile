@@ -40,9 +40,11 @@ COPY ./tools/tailwind.config.js ./
 COPY ./tools/package.json ./
 COPY ./tools/script.sh ./
 
-RUN rm -rf ./data
-RUN mkdir ./data
-COPY ./_data/* ./data/.
+# RUN rm -rf ./data
+# RUN mkdir ./data
+# COPY ./_data/frontend ./data/frontend/.
+# COPY ./_data/backend ./data/backend/.
+# COPY ./_data/public ./data/public/.
 
 RUN chmod +x ./script.sh
 
