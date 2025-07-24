@@ -40,6 +40,10 @@ COPY ./tools/tailwind.config.js ./
 COPY ./tools/package.json ./
 COPY ./tools/script.sh ./
 
+RUN rm -rf ./data
+RUN mkdir ./data
+COPY ./_data/* ./data/.
+
 RUN chmod +x ./script.sh
 
 # Copy package files and install dependencies

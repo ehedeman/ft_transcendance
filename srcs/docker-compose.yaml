@@ -16,4 +16,4 @@ volumes:
     driver_opts:
       type: 'none'
       o: bind
-      device: /goinfre/ehedeman/docker/volumes/node_db/_data
+      device: /goinfre/$USER/docker/volumes/srcs_node_db/_data
