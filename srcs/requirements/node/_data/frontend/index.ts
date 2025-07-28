@@ -1,6 +1,14 @@
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
+type Player = {
+  name: string;
+  gamesWon: number;
+  gamesLost: number;
+};
+
+let players: Player[] = [];
+
 canvas.width = 900;
 canvas.height = 600;
 canvas.style.background = "black";
@@ -33,9 +41,9 @@ const ballRadius: number = 10;
 let ballSpeedX: number = 4;
 let ballSpeedY: number = 3;
 
-let player1_name = "Charlie"; 
-let player2_name = "henry"; 
-let player1_score = 0; 
+let player1_name = players[0]?.name || "Player 1"; // Default to "Player 1" if not set
+let player2_name = players[1]?.name || "Player 2"; // Default to "Player 2" if not set
+let player1_score = 0;
 let player2_score = 0;
 let ballPaused = true;
 
@@ -47,9 +55,21 @@ document.addEventListener("keyup", (e: KeyboardEvent) => {
   keysPressed[e.key] = false;
 });
 
+document.getElementById("registerButton")?.addEventListener("click", () => {
+  const player_name = prompt("Enter your name:");
+  if (!player_name) {
+    alert("Name cannot be empty!");
+    return;
+  }
+  players.push({
+    name: player_name,
+    gamesWon: 0,
+    gamesLost: 0
+  });
+});
 
 document.addEventListener("keydown", (e: KeyboardEvent) => {
-  const scrollKeys: string[] = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', ' '];
+  const scrollKeys: string[] = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'];
   if (scrollKeys.indexOf(e.key)) {
     e.preventDefault();
   }
@@ -77,8 +97,7 @@ function drawCircle(x: number, y: number, radius: number): void {
 }
 
 
-function touchingPaddle1(): boolean 
-{
+function touchingPaddle1(): boolean {
   return (
     ballX - ballRadius < pad_player1X + pad_width &&
     ballX + ballRadius > pad_player1X &&
@@ -87,8 +106,7 @@ function touchingPaddle1(): boolean
   );
 }
 
-function touchingPaddle2(): boolean 
-{
+function touchingPaddle2(): boolean {
   return (
     ballX - ballRadius < pad_player2X + pad_width &&
     ballX + ballRadius > pad_player2X &&
@@ -114,8 +132,7 @@ document.addEventListener("keydown", (e: KeyboardEvent) => {
 });
 
 
-function calculateBallCoords(): void 
-{
+function calculateBallCoords(): void {
   if (ballPaused) return; // Skip updates if the ball is paused
   ballX += ballSpeedX;
   ballY += ballSpeedY;
@@ -141,30 +158,59 @@ function calculateBallCoords(): void
   // Check if ball passed player2 (right side)
   if (ballX + ballRadius > window_width) {
     player2_score++;
+
     resetBall();
   }
 }
 
-function updateGame(): void 
-{
+function searchPlayer(name: string): number {
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].name === name) {
+      return i;
+    }
+  }
+  return -1; // Player not found
+}
+
+function resetGame(): void {
+  player1_score = 0;
+  player2_score = 0;
+  // reset the name of the players
+}
+
+function updateGame(): void {
+  if (player1_score === 5) {
+    alert(player1_name + " wins!");
+    const playerIndex = searchPlayer(player1_name);
+    if (playerIndex >= 0) {
+      players[playerIndex].gamesWon++;
+    }
+    const playerIndex2 = searchPlayer(player2_name);
+    if (playerIndex2 >= 0) {
+      players[playerIndex2].gamesLost++;
+    }
+    resetGame();
+  }
+  player1_name = players[0]?.name || "Player 1";
+  player2_name = players[1]?.name || "Player 2";
   ctx.clearRect(0, 0, window_width, window_height);
-  ctx.font = "20px Arial"; ctx.fillStyle = "white"; 
-  ctx.fillText(player1_name + ": " + player1_score, 10, 25); 
-  ctx.fillText(player2_name + ": " + player2_score , 10, 50); 
-  if (keysPressed["ArrowUp"] && pad_player1Y > 0) pad_player1Y -= 5; 
-  if (keysPressed["ArrowDown"] && pad_player1Y + pad_height < window_height) 
-    pad_player1Y += 5; 
-  if (keysPressed["w"] && pad_player2Y > 0) 
-    pad_player2Y -= 5; 
-  if (keysPressed["s"] && pad_player2Y + pad_height < window_height) 
+  ctx.font = "20px Arial"; ctx.fillStyle = "white";
+  ctx.fillText(player1_name + ": " + player1_score, 10, 25);
+  ctx.fillText(player2_name + ": " + player2_score, 10, 50);
+  if (keysPressed["ArrowUp"] && pad_player1Y > 0) pad_player1Y -= 5;
+  if (keysPressed["ArrowDown"] && pad_player1Y + pad_height < window_height)
+    pad_player1Y += 5;
+  if (keysPressed["w"] && pad_player2Y > 0)
+    pad_player2Y -= 5;
+  if (keysPressed["s"] && pad_player2Y + pad_height < window_height)
     pad_player2Y += 5;
   calculateBallCoords();
   drawMiddlePath();
-  drawCircle(ballX, ballY, ballRadius); 
-  ctx.fillStyle = "white"; 
-  ctx.fillRect(pad_player1X, pad_player1Y, pad_width, pad_height); 
-  ctx.fillRect(pad_player2X, pad_player2Y, pad_width, pad_height); 
+  drawCircle(ballX, ballY, ballRadius);
+  ctx.fillStyle = "white";
+  ctx.fillRect(pad_player1X, pad_player1Y, pad_width, pad_height);
+  ctx.fillRect(pad_player2X, pad_player2Y, pad_width, pad_height);
   requestAnimationFrame(updateGame);
-} 
+}
 
- updateGame();
+updateGame();
