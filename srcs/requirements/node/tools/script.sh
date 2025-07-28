@@ -1,8 +1,8 @@
 #!/bin/sh
 
-mkdir data/public
-mkdir data/frontend
-mkdir data/backend
+# mkdir data/public
+# mkdir data/frontend
+# mkdir data/backend
 
 # mv ./index.js ./data/public/index.js
 # mv ./index.html ./data/public/index.html
@@ -16,14 +16,10 @@ mkdir data/backend
 npm init -y
 npm install fastify
 npm install @fastify/static@7
-npm install -D @types/fastify
 npm install --save-dev @types/node
 
 npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init
-tsc --init
 
 npx tsc
-
 node --version
 node $VOLUME_NAME/backend/server.js
