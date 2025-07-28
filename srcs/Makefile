@@ -1,4 +1,3 @@
-USER=ehedeman
 
 all:
 	docker compose -f ./docker-compose.yaml up --build

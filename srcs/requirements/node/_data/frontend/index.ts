@@ -18,7 +18,7 @@ const window_height: number = canvas.height;
 
 
 const pad_width: number = 10;
-const pad_height: number = 80;
+const pad_height: number = 200;
 
 let pad_player1X: number = window_width - 100;
 let pad_player1Y: number = window_height / 2 - pad_height / 2;
@@ -37,6 +37,7 @@ let player1_name = "Charlie";
 let player2_name = "henry"; 
 let player1_score = 0; 
 let player2_score = 0;
+let ballPaused = true;
 
 const keysPressed: { [key: string]: boolean } = {};
 document.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -100,13 +101,22 @@ function touchingPaddle2(): boolean
 function resetBall(): void {
   ballX = window_width / 2;
   ballY = window_height / 2;
-  ballSpeedX *= -1; // send ball toward the last scorer
-  ballSpeedY = 3 * (Math.random() > 0.5 ? 1 : -1); // slight randomness
+  ballPaused = true;
 }
 
 
+document.addEventListener("keydown", (e: KeyboardEvent) => {
+  if (e.key === " " && !canvas_focus && ballPaused) {
+    ballSpeedX *= -1; // send ball toward the last scorer
+    ballSpeedY = 3 * (Math.random() > 0.5 ? 1 : -1); // slight randomness
+    ballPaused = false; // unpause the ball
+  }
+});
+
+
 function calculateBallCoords(): void 
-{ 
+{
+  if (ballPaused) return; // Skip updates if the ball is paused
   ballX += ballSpeedX;
   ballY += ballSpeedY;
 
@@ -147,8 +157,9 @@ function updateGame(): void
   if (keysPressed["w"] && pad_player2Y > 0) 
     pad_player2Y -= 5; 
   if (keysPressed["s"] && pad_player2Y + pad_height < window_height) 
-    pad_player2Y += 5; calculateBallCoords(); 
-  drawMiddlePath(); 
+    pad_player2Y += 5;
+  calculateBallCoords();
+  drawMiddlePath();
   drawCircle(ballX, ballY, ballRadius); 
   ctx.fillStyle = "white"; 
   ctx.fillRect(pad_player1X, pad_player1Y, pad_width, pad_height); 
