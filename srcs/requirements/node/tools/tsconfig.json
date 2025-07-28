@@ -6,5 +6,6 @@
     "rootDir": "./data/frontend",
     "alwaysStrict": true,
     "strict": true
-  }
+  },
+  "include": ["./data/frontend"]
 }
