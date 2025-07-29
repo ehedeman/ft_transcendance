@@ -4,6 +4,12 @@ import fastifyStatic from '@fastify/static';
 
 const app = fastify();
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.register(fastifyStatic, {
 	root: path.join(__dirname, '../public'),
 	prefix: '/',
@@ -137,7 +143,15 @@ function resetGame(): void {
 
 app.get('/resetgame', async (request, reply) => {
 	resetGame();
-	reply.send({ status: 'Game reset' });
+	reply.type('application/json').send({
+		ballX: ballX,
+		ballY: ballY,
+		player1_y: pad_player1Y,
+		player2_y: pad_player2Y,
+		player1_score: player1_score,
+		player2_score: player2_score,
+		gamefinished: gameFinished,
+	});
 });
 
 function updateGame(): void {
