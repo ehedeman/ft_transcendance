@@ -139,6 +139,7 @@ function resetGame(): void {
 	player1_score = 0;
 	player2_score = 0;
 	resetBall();
+	gameFinished = false;
 }
 
 app.get('/resetgame', async (request, reply) => {

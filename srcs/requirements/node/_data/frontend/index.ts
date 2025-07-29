@@ -157,7 +157,6 @@ function updateGame(): void {
         player1_score = data.player1_score;
         player2_score = data.player2_score;
         if (data.gamefinished) {
-          gamefinished = true;
           alert("Game Over! Final Score: " + player1_name + " " + player1_score + " - " + player2_name + " " + player2_score);
           fetch("/resetgame")
           .then(response => response.json())
