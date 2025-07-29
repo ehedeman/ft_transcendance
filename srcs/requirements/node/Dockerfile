@@ -43,6 +43,7 @@ COPY ./tools/script.sh ./
 # RUN rm -rf ./data
 # RUN mkdir ./data
 COPY ./_data/frontend .
+COPY ./_data/frontend/utils .
 COPY ./_data/backend .
 COPY ./_data/public .
 

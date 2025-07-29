@@ -2,6 +2,7 @@
 
 mkdir data/public
 mkdir data/frontend
+mkdir data/frontend/utils
 mkdir data/backend
 
 mv ./index.js ./data/public/index.js
@@ -10,6 +11,7 @@ mv ./styles.css ./data/public/styles.css
 
 mv ./index.ts ./data/frontend/index.ts
 mv ./styles.css ./data/frontend/styles.css
+mv ./tournament.ts ./data/frontend/utils/tournament.ts
 
 mv ./server.js ./data/backend/server.js
 
