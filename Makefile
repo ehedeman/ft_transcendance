@@ -1,6 +1,6 @@
 
 all:
-	docker compose -f ./docker-compose.yaml up --build
+	docker compose -f ./srcs/docker-compose.yaml up --build
 
 #from scratch
 build:
@@ -10,5 +10,5 @@ build:
 	mkdir /goinfre/$(USER)/docker/volumes/srcs_node_db/_data/public
 
 down:
-	docker compose -f ./docker-compose.yaml down
+	docker compose -f ./srcs/docker-compose.yaml down
 

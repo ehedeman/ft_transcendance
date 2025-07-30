@@ -1,3 +1,7 @@
+//save file for possible structure when things are split.
+//doestnt work currently
+
+
 let canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 export let ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
@@ -6,8 +10,6 @@ export let ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 let playersGeneral: Player[] = [];
 
-let tournamentLoopActive: boolean = false;
-let gameLoopActive: boolean = true;
 
 canvas.width = 900;
 canvas.height = 600;
@@ -29,6 +31,7 @@ export let game: GameInfo = ({
 	player2PaddleY: canvas.height / 2 - 200 / 2,
 	window_height: canvas.height,
 	window_width: canvas.width,
+	tournamentActive: false,
 });
 
 export let ball: BallInfo = {
@@ -46,36 +49,8 @@ let player1_score = 0;
 let player2_score = 0;
 export let rounds = 5;	//amounts of rounds to play -> make uneven to avoid draw
 
-// import { tournamentEnd, tournamentGameLoop } from "./utils/tournament";
-// import { tournamentStart } from "./utils/tournament";
-
-let t: TournamentInfo = {
-  players: [],
-  currentlyPlaying: [],
-  matchesPlayed: [],
-  tournamentActive: false,
-  maxPlayers: 4,
-  //tournamentRounds: 4,
-  currentRound: 0,
-  stage: 0,
-};
-
-let defaultPlayer: TournamentPlayer = {
-	name: "default",
-	score: 0,
-	playerNumber: -1,
-	gamesWon: -1,
-	Place: -1,
-}
-
-let currentMatch: Match = {
-	round: 0,
-	player1: defaultPlayer,
-	player2: defaultPlayer,
-	winner: defaultPlayer,
-	loser: defaultPlayer
-}
-
+import { tournamentEnd, tournamentGameLoop } from "./utils/tournament";
+import { tournamentStart } from "./utils/tournament";
 
 /*---------------------------events declaration-----------------------------------*/
 
@@ -127,12 +102,12 @@ document.getElementById("tournamentButton")?.addEventListener("click", () =>
 
 	document.body.appendChild(resetButton);
 	// Example reset behavior
-	tournamentLoopActive = true;
+	game.tournamentActive = true;
+	tournamentStart();
 	resetButton.addEventListener("click", () =>
 	{
 		tournamentEnd(0);
 	});
-	tournamentStart();
 });
 
 document.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -150,143 +125,7 @@ document.addEventListener("keydown", (e: KeyboardEvent) => {
 	}
 });
 
-/*---------------------------tournament functions---------------------------------*/
 
-export function tournamentEnd(returnValue: number): number
-{
-	t.tournamentActive = false;
-	gameLoopActive = true;
-	tournamentLoopActive = false;
-	location.reload();	//restores the regular interface
-	if (t.players.length > 0)
-		t.players.splice(0, t.players.length);
-	return (returnValue);
-}
-
-
-function tournamentAddPlayers(): number 
-{
-	for (let i = 0; i < 4 ; i++) 
-	{
-		const input = "Enter name for player " + (i + 1) + ":";
-		const player_name = prompt(input);
-		if (player_name === "")
-		{
-			alert("Name cannot be empty!");
-			i--;
-			continue ;
-		}
-		else if (player_name === null)
-			return tournamentEnd(1);
-		t.players.push
-		({
-			name: player_name,
-			playerNumber: i + 1,
-			gamesWon: 0,
-			score: 0
-		});
-	}
-	return (0);
-}
-
-function tournamentFindPlayer(name: string): number
-{
-	for (let i = 0; i < t.players.length; i++) {
-		if (t.players[i].name === name) {
-			return i;
-		}
-	}
-	return -1; // Player not found
-}
-
-export function tournamentGameLoop(): void
-{
-	if (currentMatch.player1.score === rounds || 
-		 currentMatch.player2.score === rounds)
-	{
-		return ;
-	}
-
-	ctx.clearRect(0, 0, game.window_width, game.window_height);
-	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(currentMatch.player1.name + ": " + currentMatch.player1.score, 10, 25);
-	ctx.fillText(currentMatch.player1.name + ": " + currentMatch.player1.score, 10, 50);
-	calculatePaddleCoords();
-	calculateBallCoords();
-	drawMiddlePath();
-	drawCircle(ball.ballX, ball.ballY, ball.ballRadius);
-	ctx.fillStyle = "white";
-	ctx.fillRect(game.player1PaddleX, game.player1PaddleY, game.pad_width, game.pad_height);
-	ctx.fillRect(game.player2PaddleX, game.player2PaddleY, game.pad_width, game.pad_height);
-	requestAnimationFrame(tournamentGameLoop);
-}
-
-function tournamentPlayGame(): number 
-{
-	const amountRounds = t.tournamentRounds || 4;
-	for (let i = 0; i < amountRounds; i++)
-	{
-		let length = t.matchesPlayed.length;
-		if (i < 2)
-		{
-			t.matchesPlayed.push({
-				round: 0,
-				player1: t.players[i],
-				player2: t.players[i + 2],
-				winner: defaultPlayer,
-				loser: defaultPlayer
-			});	
-		}
-		else if (i > 1)	// loser vs loser | winner vs winner
-		{
-			const isWinnerMatch = (i === 2 || i === 3) ? 1 : 0;
-			// 1 -> winnerMatch, 0 -> loserMatch
-			t.matchesPlayed.push({
-				round: 0,
-				player1: defaultPlayer,
-				player2: defaultPlayer,
-				winner: defaultPlayer,
-				loser: defaultPlayer
-			});
-			for (let index = 0; index < t.players.length; index++) {
-				if ( t.players[index].gamesWon === isWinnerMatch)
-				{
-					if (t.matchesPlayed[length - 1].player1.name !== "default")
-						t.matchesPlayed[length - 1].player2 = t.players[index];
-					else
-						t.matchesPlayed[length - 1].player1 = t.players[index];
-				}
-			}
-			//making sure there have been two players found
-			if (t.matchesPlayed[length - 1].player1.name === "default" || 
-				t.matchesPlayed[length - 1].player2.name === "default")
-			{
-				alert("An error has occurred. Stopping tournament..");
-				return (tournamentEnd(1));
-			}
-		}
-		currentMatch = t.matchesPlayed[length - 1];
-		tournamentGameLoop();
-		if (currentMatch.player1.score === 5)
-			t.matchesPlayed[length - 1].winner = t.matchesPlayed[length - 1].player1;
-		else if (currentMatch.player2.score === 5)
-			t.matchesPlayed[length - 1].winner = t.matchesPlayed[length - 1].player2;
-		const winner = t.matchesPlayed[length - 1].winner?.name || "default";
-		if (winner !== "default")
-			t.players[tournamentFindPlayer(winner)].gamesWon = 1;
-	}
-	return 0;
-}
-
-export function tournamentStart(): void 
-{
-	gameLoopActive = false;
-	t.tournamentActive = true;
-	t.tournamentRounds = t.maxPlayers;
-	if (tournamentAddPlayers() === 1)
-		return ;
-	tournamentPlayGame();
-}
 
 /*---------------------------function declaration---------------------------------*/
 
@@ -363,20 +202,14 @@ function calculateBallCoords(): void {
 
 	// Check if ball passed player1 (left side)
 	if (ball.ballX - ball.ballRadius < 0) {
-		if (tournamentLoopActive)
-			currentMatch.player1.score++;
-		else
-			player1_score++;
+		player1_score++;
 		resetBall();
 		resetPlayer();
 	}
 
 	// Check if ball passed player2 (right side)
 	if (ball.ballX + ball.ballRadius > game.window_width) {
-		if (tournamentLoopActive)
-			currentMatch.player2.score++;
-		else
-			player2_score++;
+		player2_score++;
 		resetBall();
 		resetPlayer();
 	}
@@ -411,7 +244,7 @@ function resetGame(): void {
 }
 
 function updateGame(): void {
-if (!tournamentLoopActive && gameLoopActive)
+if (!game.tournamentActive)
 {	
 	if (player1_score === rounds) {
 		alert(player1_name + " wins!");
