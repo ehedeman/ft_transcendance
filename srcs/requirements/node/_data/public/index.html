@@ -13,6 +13,14 @@
     <button id="registerButton" style="position: absolute; z-index: 2;left: 45%; top: 10%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
       Register
     </button>
+    <div id="registrationModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+      <h2>Register Tournament Players</h2>
+      <form id="registrationForm">
+        <div id="playerInputs"></div>
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Start Tournament</button>
+        <button type="button" id="cancelRegistration" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
+      </form>
+    </div>
       <button id="tournamentButton" style="position: absolute; z-index: 2; left: 55%; top: 10%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
       Start Tournament
     </button>

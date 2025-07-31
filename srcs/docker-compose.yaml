@@ -5,7 +5,7 @@ services:
     env_file:
       - .env
     volumes:
-      - node_db:/app/data
+      - node_db:/app/$VOLUME_NAME
     ports:
       - "3000:3000"
     restart:
