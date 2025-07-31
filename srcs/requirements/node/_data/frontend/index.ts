@@ -67,6 +67,8 @@ interface TournamentInfo {
   tournamentRounds?: number;
   currentRound: number;
   stage: TournamentStage;
+  winners: TournamentPlayer[];
+  losers: TournamentPlayer[];
 }
 
 /*---------------------------variable declaration---------------------------------*/
@@ -116,16 +118,6 @@ let rounds = 1;	//amounts of rounds to play -> make uneven to avoid draw
 // import { tournamentEnd, tournamentGameLoop } from "./utils/tournament";
 // import { tournamentStart } from "./utils/tournament";
 
-let t: TournamentInfo = {
-  players: [],
-  currentlyPlaying: [],
-  matchesPlayed: [],
-  tournamentActive: false,
-  maxPlayers: 4,
-  currentRound: 0,
-  stage: 0,
-};
-
 let defaultPlayer: TournamentPlayer = {
 	name: "default",
 	score: 0,
@@ -133,6 +125,20 @@ let defaultPlayer: TournamentPlayer = {
 	gamesWon: -1,
 	Place: -1,
 }
+
+let t: TournamentInfo = {
+	players: [],
+	currentlyPlaying: [],
+	matchesPlayed: [],
+	tournamentActive: false,
+	maxPlayers: 4,
+	currentRound: 0,
+	stage: 0,
+	winners: [],
+	losers: []
+};
+
+
 
 let currentMatch: Match = {
 	round: 0,
@@ -325,27 +331,44 @@ function tournamentPlayGame(): number 	//loop sets matches depending on stage !!
 			let player2 = defaultPlayer;
 			let player1Set = false;
 			let player2Set = false;
-			for (let index = 0; index < t.players.length; index++) 
+			// for (let index = 0; index < t.players.length; index++) 
+			// {
+			// 	if ( t.players[index].gamesWon === isWinnerMatch)	//automatically searches for the winner or loser
+			// 	{
+			// 		console.log("Found player:", t.players[index].name, "with gamesWon:", t.players[index].gamesWon);
+			// 		if (player2Set === false) {
+			// 			player2 = t.players[index];
+			// 			player2Set = true;
+			// 		}
+			// 		else if (player1Set === false) {
+			// 			player1 = t.players[index];
+			// 			player1Set = true;
+			// 		}
+			// 	}
+			// }
+			// //making sure there have been two players found
+			// if (!player1Set && !player2Set)
+			// {
+			// 	alert("An error has occurred. Stopping tournament..");
+			// 	return (tournamentEnd(1));
+			// }	
+			if (isWinnerMatch === 1)
 			{
-				if ( t.players[index].gamesWon === isWinnerMatch)	//automatically searches for the winner or loser
-				{
-					console.log("Found player:", t.players[index].name, "with gamesWon:", t.players[index].gamesWon);
-					if (player2Set === false) {
-						player2 = t.players[index];
-						player2Set = true;
-					}
-					else if (player1Set === false) {
-						player1 = t.players[index];
-						player1Set = true;
-					}
-				}
+				player1 = t.winners[0] || defaultPlayer;;
+				player2 = t.winners[1] || defaultPlayer;;
 			}
-			//making sure there have been two players found
-			if (!player1Set && !player2Set)
+			else if (isWinnerMatch === 0)
+			{
+				player1 = t.losers[0] || defaultPlayer;
+				player2 = t.losers[1] || defaultPlayer;
+			}
+			if (player1.name === "default" || player2.name === "default")
 			{
 				alert("An error has occurred. Stopping tournament..");
 				return (tournamentEnd(1));
-			}	
+			}
+			player1.score = 0;
+			player2.score = 0;
 			t.matchesPlayed.push({
 				round: 0,
 				player1: player1,
@@ -554,50 +577,66 @@ function tournamentGraphics(): void
 	ctx.fillRect(game.player2PaddleX, game.player2PaddleY, game.pad_width, game.pad_height);
 }
 
+function tournamentLogic(): void
+{
+	var length = t.matchesPlayed.length;
+	// if (length === 0) {
+	// 	tournamentPlayGame();	//cause something didnt work before
+	// 	length = t.matchesPlayed.length;
+	// }
+	console.log("Current Match:", currentMatch.player1.name, "vs", currentMatch.player2.name);
+	if (currentMatch.player1.score === rounds || 
+		currentMatch.player2.score === rounds)
+	{
+		// makes sure that once game is done it is set to correct stage
+		if (t.currentRound === 1)
+			t.stage = TournamentStage.Regular2;	//sets the stage to Regular1 after the first match
+		else if (t.currentRound === 2)
+			t.stage = TournamentStage.Final;
+		else if (t.currentRound === 3)
+			t.stage = TournamentStage.Consolation;
+		else if (t.currentRound === 4)
+			t.stage = TournamentStage.Complete;
+
+		if (currentMatch.player1.score === rounds) {
+			t.matchesPlayed[length - 1].winner = t.matchesPlayed[length - 1].player1;
+			t.matchesPlayed[length - 1].loser = t.matchesPlayed[length - 1].player2;
+		} else if (currentMatch.player2.score === rounds) {
+			t.matchesPlayed[length - 1].winner = t.matchesPlayed[length - 1].player2;
+			t.matchesPlayed[length - 1].loser = t.matchesPlayed[length - 1].player1;
+		}
+
+		alert(t.matchesPlayed[length - 1].winner?.name + " wins!");
+
+		const winner = t.matchesPlayed[length - 1].winner?.name || "default";
+		const loser = t.matchesPlayed[length - 1].loser?.name || "default";
+
+		if (winner !== "default" && loser !== "default")
+		{
+			t.players[tournamentFindPlayer(winner)].gamesWon = 1;
+			t.winners.push(t.players[tournamentFindPlayer(winner)]);
+			t.losers.push(t.players[tournamentFindPlayer(loser)]);
+		}	
+		else
+		{
+			alert("An error has occurred. Stopping tournament..");
+			tournamentEnd(1);
+			return ;
+		}
+		resetTournamentMatch();
+		tournamentPlayGame();
+	}
+}
+
 function updateGame(): void 
 {
 	if (!tournamentLoopActive && gameLoopActive)
 		gameGraphics();
 	else if (tournamentLoopActive && !gameLoopActive && t.stage !== TournamentStage.Registration)
 	{
-		tournamentPlayGame();
-		var length = t.matchesPlayed.length;
-		// if (length === 0) {
-		// 	tournamentPlayGame();	//cause something didnt work before
-		// 	length = t.matchesPlayed.length;
-		// }
-		console.log("Current Match:", currentMatch.player1.name, "vs", currentMatch.player2.name);
-		if (currentMatch.player1.score === rounds || 
-			currentMatch.player2.score === rounds)
-		{
-			// makes sure that once game is done it is set to correct stage
-			if (t.currentRound === 1)
-				t.stage = TournamentStage.Regular2;	//sets the stage to Regular1 after the first match
-			else if (t.currentRound === 2)
-				t.stage = TournamentStage.Final;
-			else if (t.currentRound === 3)
-				t.stage = TournamentStage.Consolation;
-			else if (t.currentRound === 4)
-				t.stage = TournamentStage.Complete;
-
-			if (currentMatch.player1.score === rounds)
-				t.matchesPlayed[length - 1].winner = t.matchesPlayed[length - 1].player1;
-			else if (currentMatch.player2.score === rounds)
-				t.matchesPlayed[length - 1].winner = t.matchesPlayed[length - 1].player2;
-			alert(t.matchesPlayed[length - 1].winner?.name + " wins!");
-			const winner = t.matchesPlayed[length - 1].winner?.name || "default";
-			if (winner !== "default")
-				t.players[tournamentFindPlayer(winner)].gamesWon = 1;
-			else
-			{
-				alert("An error has occurred. Stopping tournament..");
-				tournamentEnd(1);
-				return ;
-			}
-			resetTournamentMatch();
-			if (t.stage === TournamentStage.Complete)
-				return ;
-		}
+		tournamentLogic();
+		if (t.stage === TournamentStage.Complete)
+			return ;
 		tournamentGraphics();
 	}
 	requestAnimationFrame(updateGame);
