@@ -76,7 +76,6 @@ export class GameInfo {
     player2_score: number;
     rounds: number;	
     playersGeneral: Player[];
-
     tournamentLoopActive: boolean;
     gameLoopActive: boolean;
 
@@ -119,8 +118,9 @@ export class GameInfo {
         ballX: this.window_width / 2,
         ballY: this.window_height / 2,
         ballRadius: 10,
-        ballSpeedX: 4,
-        ballSpeedY: 3,
+
+        ballSpeedX: Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3),
+        ballSpeedY: (Math.random() * 2 - 1) * 3,
         ballPaused: true,
         };
 

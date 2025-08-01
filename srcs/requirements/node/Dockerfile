@@ -39,6 +39,7 @@ COPY ./tools/postcss.config.js ./
 COPY ./tools/tailwind.config.js ./
 COPY ./tools/package.json ./
 COPY ./tools/script.sh ./
+COPY ./tools/compile.sh ./
 
 # RUN rm -rf ./data
 # RUN mkdir ./data

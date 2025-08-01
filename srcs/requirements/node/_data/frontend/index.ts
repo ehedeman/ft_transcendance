@@ -249,6 +249,8 @@ function searchPlayer(name: string, array: Player[]): number {
 function resetGame(game: GameInfo): void {
 	game.player1_score = 0;
 	game.player2_score = 0;
+	game.ball.ballSpeedX= Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
+	game.ball.ballSpeedY= (Math.random() * 2 - 1) * 3;
 	// reset the name of the playersGeneral
 }
 
