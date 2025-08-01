@@ -54,7 +54,7 @@ export interface TournamentInfo {
   losers: TournamentPlayer[];
 }
 
-import { canvas } from "index.ts";
+import { canvas } from "index.ts"; // TODO: have some question about this
 export class GameInfo {
     ctx: CanvasRenderingContext2D;
     canvas_focus: boolean;
