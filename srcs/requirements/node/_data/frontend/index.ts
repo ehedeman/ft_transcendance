@@ -38,8 +38,8 @@ let pad_player2Y: number = window_height / 2 - pad_height / 2;
 let ballX: number = window_width / 2;
 let ballY: number = window_height / 2;
 const ballRadius: number = 10;
-let ballSpeedX: number = 4;
-let ballSpeedY: number = 3;
+let ballSpeedX: number;
+let ballSpeedY: number;
 
 let player1_name = players[0]?.name || "Player 1"; // Default to "Player 1" if not set
 let player2_name = players[1]?.name || "Player 2"; // Default to "Player 2" if not set
@@ -129,6 +129,7 @@ function updateGame(): void {
   ctx.font = "20px Arial"; ctx.fillStyle = "white";
   ctx.fillText(player1_name + ": " + player1_score, 10, 25);
   ctx.fillText(player2_name + ": " + player2_score, 10, 50);
+  ctx.fillText("ballSpeedX: " + (ballSpeedX ? Math.abs(ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
   if (keysPressed["ArrowUp"] && pad_player1Y > 0) {
     fetch("/pressArrowUp");
   }
@@ -156,6 +157,7 @@ function updateGame(): void {
         pad_player2Y = data.player2_y;
         player1_score = data.player1_score;
         player2_score = data.player2_score;
+        ballSpeedX = data.ballSpeedX;// Update ball speed
         if (data.gamefinished) {
           alert("Game Over! Final Score: " + player1_name + " " + player1_score + " - " + player2_name + " " + player2_score);
           fetch("/resetgame")

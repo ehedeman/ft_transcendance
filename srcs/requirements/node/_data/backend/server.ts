@@ -72,6 +72,8 @@ function resetBall(): void {
 	ballPaused = true;
 	ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
 	ballSpeedY = (Math.random() * 2 - 1) * 3;
+	pad_player1Y = window_height / 2 - pad_height / 2;
+	pad_player2Y = window_height / 2 - pad_height / 2;
 }
 
 app.get('/pressspace', async (request, reply) => {
@@ -121,9 +123,19 @@ function calculateBallCoords(): void {
 
 	// Check paddle collisions
 	if (touchingPaddle1() && ballSpeedX > 0) {
-		ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
+		// ballSpeedX *= -1 - accaleration;
+		if (ballSpeedX < 30) {
+			ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
+		} else {
+			ballSpeedX *= -1; // Just reverse direction if already fast
+		}
 	} else if (touchingPaddle2() && ballSpeedX < 0) {
-		ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
+		// ballSpeedX *= -1 - accaleration;
+		if (ballSpeedX > -30) {
+			ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
+		} else {
+			ballSpeedX *= -1; // Just reverse direction if already fast
+		}
 	}
 
 	// Check if ball passed player1 (left side)
@@ -171,7 +183,7 @@ function updateGame(): void {
 
 setInterval(() => {
 	updateGame();
-}, 1000 / 60); // Update at 60 FPS
+}, 1000 / 60);
 
 app.get('/getstatus', async (request, reply) => {
 	reply.type('application/json').send({
@@ -182,6 +194,7 @@ app.get('/getstatus', async (request, reply) => {
 		player1_score: player1_score,
 		player2_score: player2_score,
 		gamefinished: gameFinished,
+		ballSpeedX: ballSpeedX,
 	});
 });
 
