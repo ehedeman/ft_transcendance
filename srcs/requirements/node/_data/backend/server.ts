@@ -63,28 +63,28 @@ app.get('/pressspace', async (request, reply) => {
 });
 
 app.get('/pressArrowUp', async (request, reply) => {
-	if (game.player1Paddle.y > 0) {
+	if (game.player1Paddle.y > 0 && !game.ball.ballPaused) {
 		game.player1Paddle.y -= 5; // Move paddle up
 	}
 	reply.send({ status: 'Paddle 1 moved up' });
 });
 
 app.get('/pressArrowDown', async (request, reply) => {
-	if (game.player1Paddle.y + game.player1Paddle.height < game.canvas.height) {
+	if (game.player1Paddle.y + game.player1Paddle.height < game.canvas.height && !game.ball.ballPaused) {
 		game.player1Paddle.y += 5; // Move paddle down
 	}
 	reply.send({ status: 'Paddle 1 moved down' });
 });
 
 app.get('/pressW', async (request, reply) => {
-	if (game.player2Paddle.y > 0) {
+	if (game.player2Paddle.y > 0 && !game.ball.ballPaused) {
 		game.player2Paddle.y -= 5; // Move paddle up
 	}
 	reply.send({ status: 'Paddle 2 moved up' });
 });
 
 app.get('/pressS', async (request, reply) => {
-	if (game.player2Paddle.y + game.player2Paddle.height < game.canvas.height) {
+	if (game.player2Paddle.y + game.player2Paddle.height < game.canvas.height && !game.ball.ballPaused) {
 		game.player2Paddle.y += 5; // Move paddle down
 	}
 	reply.send({ status: 'Paddle 2 moved down' });
@@ -154,9 +154,13 @@ app.get('/resetgame', async (request, reply) => {
 
 function updateGame(): void {
 	if (game.player1.playerscore === 5) {
+		game.player1.gamesWon++;
+		game.player2.gamesLost++;
 		gameFinished = true;
 	}
 	if (game.player2.playerscore === 5) {
+		game.player2.gamesWon++;
+		game.player1.gamesLost++;
 		gameFinished = true;
 	}
 	calculateBallCoords();
