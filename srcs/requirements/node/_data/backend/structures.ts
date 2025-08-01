@@ -18,7 +18,7 @@ export class Player {
     playerscore: number;
 
     constructor(name: string) {
-        this.name = "Anonymous";
+        this.name = name? name : "Anonymous";
         this.gamesWon = 0;
         this.gamesLost = 0;
         this.playerscore = 0;
@@ -58,13 +58,12 @@ export class playerPaddle {
 }
 
 export class GameInfo {
+    ball: BallInfo;
     player1Paddle: playerPaddle;
     player2Paddle: playerPaddle;
 
     player1: Player;
     player2: Player;
-
-    ball: BallInfo;
 
 	rounds: number;	//amounts of rounds to play -> make uneven to avoid draw
 
@@ -72,8 +71,14 @@ export class GameInfo {
 
     constructor() 
     {
-        this.player1Paddle.x = 100;
-        this.player2Paddle.x = canvas.width - 100;
+		this.canvas = new canvasInfo();
+		this.ball = new BallInfo();
+		this.player1Paddle = new playerPaddle();
+		this.player2Paddle = new playerPaddle();
+		this.player1 = new Player("Player 1");
+		this.player2 = new Player("Player 2");
+        this.player1Paddle.x = canvas.width - 100; // Right side
+        this.player2Paddle.x = 100; // Left side
     
         this.rounds = 1;	//amounts of rounds to play -> make uneven to avoid draw
 

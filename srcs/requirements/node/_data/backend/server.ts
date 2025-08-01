@@ -4,8 +4,10 @@ import fastifyStatic from '@fastify/static';
 
 const app = fastify();
 
-import path from 'path';
+// import path from 'path';
 import { fileURLToPath } from 'url';
+
+import { GameInfo } from './structures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,88 +25,67 @@ app.get('/ping', async () => {
 	return { pong: 'it works!' };
 });
 
-const window_width: number = 900;
-const window_height: number = 600;
-
-const pad_width: number = 10;
-const pad_height: number = 200;
-
-let ballX: number = window_width / 2;
-let ballY: number = window_height / 2;
-const ballRadius: number = 10;
-let ballSpeedX: number = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
-let ballSpeedY: number = (Math.random() * 2 - 1) * 3;
-
-let pad_player1X: number = window_width - 100;
-let pad_player1Y: number = window_height / 2 - pad_height / 2;
-
-let pad_player2X: number = 100;
-let pad_player2Y: number = window_height / 2 - pad_height / 2;
-
-let player1_score = 0;
-let player2_score = 0;
-
-let ballPaused = true;
+let game = new GameInfo();
 
 let gameFinished = false;
 
 function touchingPaddle1(): boolean {
 	return (
-		ballX - ballRadius < pad_player1X + pad_width &&
-		ballX + ballRadius > pad_player1X &&
-		ballY + ballRadius > pad_player1Y &&
-		ballY - ballRadius < pad_player1Y + pad_height
+		game.ball.ballX - game.ball.ballRadius < game.player1Paddle.x + game.player1Paddle.width &&
+		game.ball.ballX + game.ball.ballRadius > game.player1Paddle.x &&
+		game.ball.ballY + game.ball.ballRadius > game.player1Paddle.y &&
+		game.ball.ballY - game.ball.ballRadius < game.player1Paddle.y + game.player1Paddle.height
 	);
 }
 
 function touchingPaddle2(): boolean {
 	return (
-		ballX - ballRadius < pad_player2X + pad_width &&
-		ballX + ballRadius > pad_player2X &&
-		ballY + ballRadius > pad_player2Y &&
-		ballY - ballRadius < pad_player2Y + pad_height
+		game.ball.ballX - game.ball.ballRadius < game.player2Paddle.x + game.player2Paddle.width &&
+		game.ball.ballX + game.ball.ballRadius > game.player2Paddle.x &&
+		game.ball.ballY + game.ball.ballRadius > game.player2Paddle.y &&
+		game.ball.ballY - game.ball.ballRadius < game.player2Paddle.y + game.player2Paddle.height
 	);
 }
 
 function resetBall(): void {
-	ballX = window_width / 2;
-	ballY = window_height / 2;
-	ballPaused = true;
-	ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
-	ballSpeedY = (Math.random() * 2 - 1) * 3;
-	pad_player1Y = window_height / 2 - pad_height / 2;
-	pad_player2Y = window_height / 2 - pad_height / 2;
+	game.ball.ballX = game.canvas.width / 2;
+	game.ball.ballY = game.canvas.height / 2;
+	game.ball.ballPaused = true;
+	game.ball.ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
+	game.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
+	game.player1Paddle.y = game.canvas.height / 2 - game.player1Paddle.height / 2;
+	game.player2Paddle.y = game.canvas.height / 2 - game.player2Paddle.height / 2;
 }
 
 app.get('/pressspace', async (request, reply) => {
-	ballPaused = !ballPaused;
-	reply.send({ status: ballPaused ? 'Ball paused' : 'Ball unpaused' });
+	game.ball.ballPaused = !game.ball.ballPaused;
+	reply.send({ status: game.ball.ballPaused ? 'Ball paused' : 'Ball unpaused' });
 });
 
 app.get('/pressArrowUp', async (request, reply) => {
-	if (pad_player1Y > 0) {
-		pad_player1Y -= 5; // Move paddle up
+	if (game.player1Paddle.y > 0) {
+		game.player1Paddle.y -= 5; // Move paddle up
 	}
 	reply.send({ status: 'Paddle 1 moved up' });
 });
 
 app.get('/pressArrowDown', async (request, reply) => {
-	if (pad_player1Y + pad_height < window_height) {
-		pad_player1Y += 5; // Move paddle down
+	if (game.player1Paddle.y + game.player1Paddle.height < game.canvas.height) {
+		game.player1Paddle.y += 5; // Move paddle down
 	}
 	reply.send({ status: 'Paddle 1 moved down' });
 });
 
 app.get('/pressW', async (request, reply) => {
-	if (pad_player2Y > 0) {
-		pad_player2Y -= 5; // Move paddle up
+	if (game.player2Paddle.y > 0) {
+		game.player2Paddle.y -= 5; // Move paddle up
 	}
 	reply.send({ status: 'Paddle 2 moved up' });
 });
 
 app.get('/pressS', async (request, reply) => {
-	if (pad_player2Y + pad_height < window_height) {
-		pad_player2Y += 5; // Move paddle down
+	if (game.player2Paddle.y + game.player2Paddle.height < game.canvas.height) {
+		game.player2Paddle.y += 5; // Move paddle down
 	}
 	reply.send({ status: 'Paddle 2 moved down' });
 });
@@ -112,48 +93,48 @@ app.get('/pressS', async (request, reply) => {
 let accaleration = 0.1; // Speed increase factor
 
 function calculateBallCoords(): void {
-	if (ballPaused) return; // Skip updates if the ball is paused
-	ballX += ballSpeedX;
-	ballY += ballSpeedY;
+	if (game.ball.ballPaused) return; // Skip updates if the ball is paused
+	game.ball.ballX += game.ball.ballSpeedX;
+	game.ball.ballY += game.ball.ballSpeedY;
 
 	// Bounce off top and bottom
-	if (ballY - ballRadius < 0 || ballY + ballRadius > window_height) {
-		ballSpeedY *= -1;
+	if (game.ball.ballY - game.ball.ballRadius < 0 || game.ball.ballY + game.ball.ballRadius > game.canvas.height) {
+		game.ball.ballSpeedY *= -1;
 	}
 
 	// Check paddle collisions
-	if (touchingPaddle1() && ballSpeedX > 0) {
+	if (touchingPaddle1() && game.ball.ballSpeedX > 0) {
 		// ballSpeedX *= -1 - accaleration;
-		if (ballSpeedX < 30) {
-			ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
+		if (game.ball.ballSpeedX < 30) {
+			game.ball.ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
 		} else {
-			ballSpeedX *= -1; // Just reverse direction if already fast
+			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
-	} else if (touchingPaddle2() && ballSpeedX < 0) {
+	} else if (touchingPaddle2() && game.ball.ballSpeedX < 0) {
 		// ballSpeedX *= -1 - accaleration;
-		if (ballSpeedX > -30) {
-			ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
+		if (game.ball.ballSpeedX > -30) {
+			game.ball.ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
 		} else {
-			ballSpeedX *= -1; // Just reverse direction if already fast
+			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
 	}
 
 	// Check if ball passed player1 (left side)
-	if (ballX - ballRadius < 0) {
-		player1_score++;
+	if (game.ball.ballX - game.ball.ballRadius < 0) {
+		game.player1.playerscore++;
 		resetBall();
 	}
 
 	// Check if ball passed player2 (right side)
-	if (ballX + ballRadius > window_width) {
-		player2_score++;
+	if (game.ball.ballX + game.ball.ballRadius > game.canvas.width) {
+		game.player2.playerscore++;
 		resetBall();
 	}
 }
 
 function resetGame(): void {
-	player1_score = 0;
-	player2_score = 0;
+	game.player1.playerscore = 0;
+	game.player2.playerscore = 0;
 	resetBall();
 	gameFinished = false;
 }
@@ -161,21 +142,21 @@ function resetGame(): void {
 app.get('/resetgame', async (request, reply) => {
 	resetGame();
 	reply.type('application/json').send({
-		ballX: ballX,
-		ballY: ballY,
-		player1_y: pad_player1Y,
-		player2_y: pad_player2Y,
-		player1_score: player1_score,
-		player2_score: player2_score,
+		ballX: game.ball.ballX,
+		ballY: game.ball.ballY,
+		player1_y: game.player1Paddle.y,
+		player2_y: game.player2Paddle.y,
+		player1_score: game.player1.playerscore,
+		player2_score: game.player2.playerscore,
 		gamefinished: gameFinished,
 	});
 });
 
 function updateGame(): void {
-	if (player1_score === 5) {
+	if (game.player1.playerscore === 5) {
 		gameFinished = true;
 	}
-	if (player2_score === 5) {
+	if (game.player2.playerscore === 5) {
 		gameFinished = true;
 	}
 	calculateBallCoords();
@@ -187,14 +168,14 @@ setInterval(() => {
 
 app.get('/getstatus', async (request, reply) => {
 	reply.type('application/json').send({
-		ballX: ballX,
-		ballY: ballY,
-		player1_y: pad_player1Y,
-		player2_y: pad_player2Y,
-		player1_score: player1_score,
-		player2_score: player2_score,
+		ballX: game.ball.ballX,
+		ballY: game.ball.ballY,
+		player1_y: game.player1Paddle.y,
+		player2_y: game.player2Paddle.y,
+		player1_score: game.player1.playerscore,
+		player2_score: game.player2.playerscore,
 		gamefinished: gameFinished,
-		ballSpeedX: ballSpeedX,
+		ballSpeedX: game.ball.ballSpeedX,
 	});
 });
 
