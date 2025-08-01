@@ -1,157 +1,83 @@
-export type Player = {
+// import { canvas } from "../frontend/index.ts";
+
+export class canvasInfo {
+	width: number;
+	height: number;
+	constructor() {
+		this.width = 900;
+		this.height = 600;
+	}
+}
+
+let canvas = new canvasInfo();
+
+export class Player {
     name: string;
     gamesWon: number;
     gamesLost: number;
-};
+    playerscore: number;
 
-export type BallInfo = {
+    constructor(name: string) {
+        this.name = "Anonymous";
+        this.gamesWon = 0;
+        this.gamesLost = 0;
+        this.playerscore = 0;
+    }
+}
+
+export class BallInfo {
     ballX: number;
     ballY: number;
     ballRadius: number;
     ballSpeedX: number;
     ballSpeedY: number;
     ballPaused: boolean;
+
+    constructor() {
+        this.ballX = canvas.width / 2;
+        this.ballY = canvas.height / 2;
+        this.ballRadius = 10;
+        this.ballSpeedX = 0;
+        this.ballSpeedY = 0;
+        this.ballPaused = true;
+    }
 }
 
-export type TournamentPlayer = {
-    name: string;
-    score: number;
-    playerNumber: number;
-    gamesWon: number;
-    Place?: number;
+export class playerPaddle {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+
+    constructor() {
+        this.x = 0;
+        this.y = canvas.height / 2 - 200 / 2;
+        this.width = 10;
+        this.height = 200;
+    }
 }
 
-export type Match = {
-  round: number;
-  player1: TournamentPlayer;
-  player2: TournamentPlayer;
-  winner?: TournamentPlayer;
-  loser?: TournamentPlayer;
-};
-
-export enum TournamentStage {
-  Registration,
-  Playing,
-  Regular1,	//	first round -> player1 vs player3
-  Regular2, //	second round -> player2 vs player4
-  Final,		//	winner vs winner
-  Consolation,	//  loser vs loser
-  Complete
-}
-
-
-export interface TournamentInfo {
-  matchOrder: TournamentPlayer[];
-  players: TournamentPlayer[];
-  currentlyPlaying: TournamentPlayer[];
-  matchesPlayed: Match[];
-  tournamentActive: boolean;
-  maxPlayers: number;
-  tournamentRounds?: number;
-  currentRound: number;
-  stage: TournamentStage;
-  winners: TournamentPlayer[];
-  losers: TournamentPlayer[];
-}
-
-import { canvas } from "index.ts"; // TODO: have some question about this
 export class GameInfo {
-    ctx: CanvasRenderingContext2D;
-    canvas_focus: boolean;
-    player1PaddleX: number;
-    player1PaddleY: number;
-    player2PaddleX: number;
-    player2PaddleY: number;
-    pad_width: number;
-    pad_height: number;
-    window_width: number;
-    window_height: number;
-    player1StartCoordsX: number;
-    player1StartCoordsY: number;
-    player2StartCoordsX: number;
-    player2StartCoordsY: number;
+    player1Paddle: playerPaddle;
+    player2Paddle: playerPaddle;
 
-    player1_name: string;
-    player2_name: string;
-    player1_score: number;
-    player2_score: number;
-    rounds: number;	
-    playersGeneral: Player[];
-    tournamentLoopActive: boolean;
-    gameLoopActive: boolean;
+    player1: Player;
+    player2: Player;
 
     ball: BallInfo;
-    currentMatch: Match;
-    defaultPlayer: TournamentPlayer;
-    t: TournamentInfo;
+
+	rounds: number;	//amounts of rounds to play -> make uneven to avoid draw
+
+	canvas: canvasInfo;
 
     constructor() 
     {
-        this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-        this.canvas_focus = false;
-        this.pad_width = 10;
-        this.pad_height = 200;
-
-        this.player1StartCoordsX = canvas.width - 100;
-        this.player1StartCoordsY = canvas.height / 2 - 200 / 2;
-        this.player2StartCoordsX = 100;
-        this.player2StartCoordsY = canvas.height / 2 - 200 / 2;
-
-        this.player1PaddleX = canvas.width - 100;
-        this.player1PaddleY = canvas.height / 2 - 200 / 2;
-        this.player2PaddleX = 100;
-        this.player2PaddleY = canvas.height / 2 - 200 / 2;
-        this.window_height = canvas.height;
-        this.window_width = canvas.width;
-        this.playersGeneral= [];
+        this.player1Paddle.x = 100;
+        this.player2Paddle.x = canvas.width - 100;
     
-        this.player1_name = this.playersGeneral[0]?.name || "Player 1"; // Default to "Player 1" if not set
-        this.player2_name = this.playersGeneral[1]?.name || "Player 2"; // Default to "Player 2" if not set
-        this.player1_score = 0;
-        this.player2_score = 0;
         this.rounds = 1;	//amounts of rounds to play -> make uneven to avoid draw
-    
-        
 
-        this.tournamentLoopActive = false;
-        this.gameLoopActive = true;
-        this.ball = {
-        ballX: this.window_width / 2,
-        ballY: this.window_height / 2,
-        ballRadius: 10,
-
-        ballSpeedX: Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3),
-        ballSpeedY: (Math.random() * 2 - 1) * 3,
-        ballPaused: true,
-        };
-
-        this.defaultPlayer = {
-        name: "default",
-        score: 0,
-        playerNumber: -1,
-        gamesWon: -1,
-        Place: -1,
-        };
-
-        this.t = {
-            matchOrder: [],
-            players: [],
-            currentlyPlaying: [],
-            matchesPlayed: [],
-            tournamentActive: false,
-            maxPlayers: 4,
-            currentRound: 0,
-            stage: 0,
-            winners: [],
-            losers: []
-        };
-
-        this.currentMatch = {
-                round: 0,
-                player1: this.defaultPlayer,
-                player2: this.defaultPlayer,
-                winner: this.defaultPlayer,
-                loser: this.defaultPlayer
-        };
+        this.ball.ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
+        this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
     }
 }
