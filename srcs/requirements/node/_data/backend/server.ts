@@ -32,8 +32,8 @@ const pad_height: number = 200;
 let ballX: number = window_width / 2;
 let ballY: number = window_height / 2;
 const ballRadius: number = 10;
-let ballSpeedX: number = 4;
-let ballSpeedY: number = 3;
+let ballSpeedX: number = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
+let ballSpeedY: number = (Math.random() * 2 - 1) * 3;
 
 let pad_player1X: number = window_width - 100;
 let pad_player1Y: number = window_height / 2 - pad_height / 2;
@@ -70,6 +70,8 @@ function resetBall(): void {
 	ballX = window_width / 2;
 	ballY = window_height / 2;
 	ballPaused = true;
+	ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
+	ballSpeedY = (Math.random() * 2 - 1) * 3;
 }
 
 app.get('/pressspace', async (request, reply) => {
@@ -105,6 +107,8 @@ app.get('/pressS', async (request, reply) => {
 	reply.send({ status: 'Paddle 2 moved down' });
 });
 
+let accaleration = 0.1; // Speed increase factor
+
 function calculateBallCoords(): void {
 	if (ballPaused) return; // Skip updates if the ball is paused
 	ballX += ballSpeedX;
@@ -117,9 +121,9 @@ function calculateBallCoords(): void {
 
 	// Check paddle collisions
 	if (touchingPaddle1() && ballSpeedX > 0) {
-		ballSpeedX *= -1;
+		ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
 	} else if (touchingPaddle2() && ballSpeedX < 0) {
-		ballSpeedX *= -1;
+		ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
 	}
 
 	// Check if ball passed player1 (left side)

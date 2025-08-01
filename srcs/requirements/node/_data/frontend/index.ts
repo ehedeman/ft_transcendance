@@ -142,7 +142,7 @@ function updateGame(): void {
     fetch("/pressS");
   }
   drawMiddlePath();
-  drawCircle(ballX, ballY, ballRadius);
+  drawCircle(ballX, ballY, ballRadius);//this part needs to be updated
   ctx.fillStyle = "white";
   ctx.fillRect(pad_player1X, pad_player1Y, pad_width, pad_height);
   ctx.fillRect(pad_player2X, pad_player2Y, pad_width, pad_height);
