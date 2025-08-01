@@ -10,18 +10,29 @@
      <header>
       <h1 id="maintitle" style="position:absolute; z-index: 1; left: 50%; top: 0%; color:black; transform: translateX(-50%);" class="text-4xl font-bold mb-8">Pong Game</h1>
     </header>
-    <button id="registerButton" style="position: absolute; z-index: 2;left: 45%; top: 10%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+    <button id="loginButton" style="position: absolute; z-index: 2;left: 40%; top: 10%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+      Log in
+    </button>
+    <button id="registerButton" style="position: absolute; z-index: 2;left: 47%; top: 10%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
       Register
     </button>
-    <div id="registrationModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+    <div id="generalRegistrationModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
       <h2>Register Tournament Players</h2>
-      <form id="registrationForm">
-        <div id="playerInputs"></div>
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Start Tournament</button>
-        <button type="button" id="cancelRegistration" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
+      <form id="generalRegistrationForm">
+        <div id="generalPlayerInputs"></div>
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
+        <button type="button" id="generalCancelRegistration" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
       </form>
     </div>
-      <button id="tournamentButton" style="position: absolute; z-index: 2; left: 55%; top: 10%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+    <div id="tournamentRegistrationModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+      <h2>Register Tournament Players</h2>
+      <form id="tournamentRegistrationForm">
+        <div id="tournamentPlayerInputs"></div>
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Start Tournament</button>
+        <button type="button" id="tournamentCancelRegistration" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
+      </form>
+    </div>
+      <button id="tournamentButton" style="position: absolute; z-index: 2; left: 57%; top: 10%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
       Start Tournament
     </button>
     <canvas tabindex='1' id="gameCanvas" class="border-4 border-white" 

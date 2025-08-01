@@ -1,5 +1,7 @@
 export type Player = {
     name: string;
+    username: string;
+    password: string;
     gamesWon: number;
     gamesLost: number;
 };

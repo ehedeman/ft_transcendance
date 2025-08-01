@@ -41,51 +41,113 @@ document.addEventListener("keydown", (e: KeyboardEvent) => {
 	}
 });
 
-document.getElementById("registerButton")?.addEventListener("click", () => {
-	const player_name = prompt("Enter your name:");
-	if (player_name === "") {
-		alert("Name cannot be empty!");
-		return;
+function showGeneralRegistrationModal(game: GameInfo) {
+	const modal = document.getElementById("generalRegistrationModal") as HTMLDivElement;
+	const generalPlayerInputs = document.getElementById("generalPlayerInputs") as HTMLDivElement;
+	generalPlayerInputs.innerHTML = "";
+	const Inputs = ["Name", "Username", "Password"];
+	for (let i = 0; i < Inputs.length; i++) {
+		const input = document.createElement("input");
+		input.type = "text";
+		input.placeholder = Inputs[i];
+		input.required = true;
+		input.className = "mb-2 px-2 py-1 border rounded block";
+		generalPlayerInputs.appendChild(input);
 	}
-	else if (player_name === null) {
-		alert("Registration cancelled.");
-		return;
+	modal.style.display = "block";
+}
+
+function hideGeneralRegistrationModal() {
+	const modal = document.getElementById("generalRegistrationModal") as HTMLDivElement;
+	modal.style.display = "none";
+}
+
+document.getElementById("registerButton")?.addEventListener("click", () => 
+{
+	const registerButton = document.getElementById("registerButton");
+	const tournamentButton = document.getElementById("tournamentButton");
+	const loginButton = document.getElementById("loginButton");
+	if (registerButton) registerButton.style.display = "none";
+	if (tournamentButton) tournamentButton.style.display = "none";
+	if (loginButton) loginButton.style.display = "none";
+
+	showGeneralRegistrationModal(game);
+});
+
+document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
+	e.preventDefault();
+	const generalPlayerInputs = Array.from(document.querySelectorAll("#generalPlayerInputs input")) as HTMLInputElement[];
+	game.t.players = [];
+
+	var i = 0;
+	var pName: string = "";
+	var pUsername: string = "";
+	var pPassword: string = "";
+	for (const input of generalPlayerInputs)
+	{
+		if (!input.value.trim()) {
+			alert("Name cannot be empty!");
+			return;
+		}
+		switch (i) {
+			case 0:
+				pName = input.value.trim();
+				break;
+			case 1:
+				pUsername = input.value.trim();
+				break;
+			case 2:
+				pPassword = input.value.trim();
+				break;
+			default:
+				break;
+		}
+		i++;
 	}
-	game.playersGeneral.push({
-		name: player_name,
-		gamesWon: 0,
-		gamesLost: 0
-	});
+	if (pUsername != "" && pName != "" && pPassword != "")
+	{
+		game.playersGeneral.push({
+			name: pName,
+			username: pUsername,
+			password: pPassword,
+			gamesWon: 0,
+			gamesLost: 0,
+		});
+	}
+	hideGeneralRegistrationModal();
+	location.reload();
 });
 
 /*--------------------------register modal declaration----------------------------*/
 
 
-function showRegistrationModal(playerCount: number) {
-	const modal = document.getElementById("registrationModal") as HTMLDivElement;
-	const playerInputs = document.getElementById("playerInputs") as HTMLDivElement;
-	playerInputs.innerHTML = "";
+function showtournamentRegistrationModal(playerCount: number) {
+	const modal = document.getElementById("tournamentRegistrationModal") as HTMLDivElement;
+	const tournamentPlayerInputs = document.getElementById("tournamentPlayerInputs") as HTMLDivElement;
+	tournamentPlayerInputs.innerHTML = "";
 	for (let i = 0; i < playerCount; i++) {
 		const input = document.createElement("input");
 		input.type = "text";
 		input.placeholder = `Player ${i + 1} Name`;
 		input.required = true;
 		input.className = "mb-2 px-2 py-1 border rounded block";
-		playerInputs.appendChild(input);
+		tournamentPlayerInputs.appendChild(input);
 	}
 	modal.style.display = "block";
 }
 
-function hideRegistrationModal() {
-	const modal = document.getElementById("registrationModal") as HTMLDivElement;
+function hidetournamentRegistrationModal() {
+	const modal = document.getElementById("tournamentRegistrationModal") as HTMLDivElement;
 	modal.style.display = "none";
 }
 
 document.getElementById("tournamentButton")?.addEventListener("click", () => {
 	const registerButton = document.getElementById("registerButton");
 	const tournamentButton = document.getElementById("tournamentButton");
+	const loginButton = document.getElementById("loginButton");
 	if (registerButton) registerButton.style.display = "none";
 	if (tournamentButton) tournamentButton.style.display = "none";
+	if (loginButton) loginButton.style.display = "none";
 	const resetButton = document.createElement("button");
 	resetButton.id = "resetButton";
 	resetButton.textContent = "Reset Tournament";
@@ -97,14 +159,14 @@ document.getElementById("tournamentButton")?.addEventListener("click", () => {
 	resetButton.style.transform = "translateX(-50%)";
 	document.body.appendChild(resetButton);
 	resetButton.addEventListener("click", () => tournamentEnd(0, game));
-	showRegistrationModal(game.t.maxPlayers);
+	showtournamentRegistrationModal(game.t.maxPlayers);
 });
 
-document.getElementById("registrationForm")?.addEventListener("submit", (e) => {
+document.getElementById("tournamentRegistrationForm")?.addEventListener("submit", (e) => {
 	e.preventDefault();
-	const playerInputs = Array.from(document.querySelectorAll("#playerInputs input")) as HTMLInputElement[];
+	const tournamentPlayerInputs = Array.from(document.querySelectorAll("#tournamentPlayerInputs input")) as HTMLInputElement[];
 	game.t.players = [];
-	for (const input of playerInputs) {
+	for (const input of tournamentPlayerInputs) {
 		if (!input.value.trim()) {
 			alert("Name cannot be empty!");
 			return;
@@ -116,7 +178,7 @@ document.getElementById("registrationForm")?.addEventListener("submit", (e) => {
 			score: 0
 		});
 	}
-	hideRegistrationModal();
+	hidetournamentRegistrationModal();
 	game.t.stage = TournamentStage.Regular1;
 	game.tournamentLoopActive = true;
 	game.gameLoopActive = false;
@@ -124,8 +186,8 @@ document.getElementById("registrationForm")?.addEventListener("submit", (e) => {
 	// tournamentStart();
 });
 
-document.getElementById("cancelRegistration")?.addEventListener("click", () => {
-	hideRegistrationModal();
+document.getElementById("tournamentCancelRegistration")?.addEventListener("click", () => {
+	hidetournamentRegistrationModal();
 	tournamentEnd(1, game);
 });
 

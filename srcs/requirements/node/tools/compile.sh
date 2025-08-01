@@ -1,5 +1,8 @@
 #!bin/bash
 
+
+npx tsc
+
 # Target directory (adjust if needed)
 DIR="./$VOLUME_NAME/public"
 
