@@ -7,7 +7,7 @@ const app = fastify();
 // import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { GameInfo } from './structures.js';
+import { GameInfo } from './serverStructures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
