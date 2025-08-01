@@ -12,19 +12,6 @@ import { GameInfo } from './structures.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.register(fastifyStatic, {
-	root: path.join(__dirname, '../public'),
-	prefix: '/',
-});
-
-app.get('/', (request, reply) => {
-	reply.type('text/html').sendFile('index.html');
-});
-
-app.get('/ping', async () => {
-	return { pong: 'it works!' };
-});
-
 let game = new GameInfo();
 
 let gameFinished = false;
@@ -56,39 +43,6 @@ function resetBall(): void {
 	game.player1Paddle.y = game.canvas.height / 2 - game.player1Paddle.height / 2;
 	game.player2Paddle.y = game.canvas.height / 2 - game.player2Paddle.height / 2;
 }
-
-app.get('/pressspace', async (request, reply) => {
-	game.ball.ballPaused = !game.ball.ballPaused;
-	reply.send({ status: game.ball.ballPaused ? 'Ball paused' : 'Ball unpaused' });
-});
-
-app.get('/pressArrowUp', async (request, reply) => {
-	if (game.player1Paddle.y > 0 && !game.ball.ballPaused) {
-		game.player1Paddle.y -= 5; // Move paddle up
-	}
-	reply.send({ status: 'Paddle 1 moved up' });
-});
-
-app.get('/pressArrowDown', async (request, reply) => {
-	if (game.player1Paddle.y + game.player1Paddle.height < game.canvas.height && !game.ball.ballPaused) {
-		game.player1Paddle.y += 5; // Move paddle down
-	}
-	reply.send({ status: 'Paddle 1 moved down' });
-});
-
-app.get('/pressW', async (request, reply) => {
-	if (game.player2Paddle.y > 0 && !game.ball.ballPaused) {
-		game.player2Paddle.y -= 5; // Move paddle up
-	}
-	reply.send({ status: 'Paddle 2 moved up' });
-});
-
-app.get('/pressS', async (request, reply) => {
-	if (game.player2Paddle.y + game.player2Paddle.height < game.canvas.height && !game.ball.ballPaused) {
-		game.player2Paddle.y += 5; // Move paddle down
-	}
-	reply.send({ status: 'Paddle 2 moved down' });
-});
 
 let accaleration = 0.1; // Speed increase factor
 
@@ -139,19 +93,6 @@ function resetGame(): void {
 	gameFinished = false;
 }
 
-app.get('/resetgame', async (request, reply) => {
-	resetGame();
-	reply.type('application/json').send({
-		ballX: game.ball.ballX,
-		ballY: game.ball.ballY,
-		player1_y: game.player1Paddle.y,
-		player2_y: game.player2Paddle.y,
-		player1_score: game.player1.playerscore,
-		player2_score: game.player2.playerscore,
-		gamefinished: gameFinished,
-	});
-});
-
 function updateGame(): void {
 	if (game.player1.playerscore === 5) {
 		game.player1.gamesWon++;
@@ -169,6 +110,65 @@ function updateGame(): void {
 setInterval(() => {
 	updateGame();
 }, 1000 / 60);
+
+app.register(fastifyStatic, {
+	root: path.join(__dirname, '../public'),
+	prefix: '/',
+});
+
+app.get('/', (request, reply) => {
+	reply.type('text/html').sendFile('index.html');
+});
+
+app.get('/ping', async () => {
+	return { pong: 'it works!' };
+});
+
+app.get('/pressspace', async (request, reply) => {
+	game.ball.ballPaused = !game.ball.ballPaused;
+	reply.send({ status: game.ball.ballPaused ? 'Ball paused' : 'Ball unpaused' });
+});
+
+app.get('/pressArrowUp', async (request, reply) => {
+	if (game.player1Paddle.y > 0 && !game.ball.ballPaused) {
+		game.player1Paddle.y -= 5; // Move paddle up
+	}
+	reply.send({ status: 'Paddle 1 moved up' });
+});
+
+app.get('/pressArrowDown', async (request, reply) => {
+	if (game.player1Paddle.y + game.player1Paddle.height < game.canvas.height && !game.ball.ballPaused) {
+		game.player1Paddle.y += 5; // Move paddle down
+	}
+	reply.send({ status: 'Paddle 1 moved down' });
+});
+
+app.get('/pressW', async (request, reply) => {
+	if (game.player2Paddle.y > 0 && !game.ball.ballPaused) {
+		game.player2Paddle.y -= 5; // Move paddle up
+	}
+	reply.send({ status: 'Paddle 2 moved up' });
+});
+
+app.get('/pressS', async (request, reply) => {
+	if (game.player2Paddle.y + game.player2Paddle.height < game.canvas.height && !game.ball.ballPaused) {
+		game.player2Paddle.y += 5; // Move paddle down
+	}
+	reply.send({ status: 'Paddle 2 moved down' });
+});
+
+app.get('/resetgame', async (request, reply) => {
+	resetGame();
+	reply.type('application/json').send({
+		ballX: game.ball.ballX,
+		ballY: game.ball.ballY,
+		player1_y: game.player1Paddle.y,
+		player2_y: game.player2Paddle.y,
+		player1_score: game.player1.playerscore,
+		player2_score: game.player2.playerscore,
+		gamefinished: gameFinished,
+	});
+});
 
 app.get('/getstatus', async (request, reply) => {
 	reply.type('application/json').send({
