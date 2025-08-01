@@ -1,5 +1,5 @@
 
-import { GameInfo, TournamentStage } from "./structures";
+import { GameInfo, TournamentPlayer, TournamentStage } from "./structures";
 
 
 function t_resetPlayer(game: GameInfo): void {
@@ -59,6 +59,8 @@ export function tournamentPlayGame(game: GameInfo): number 	//loop sets matches 
 {
 	var index = 0;
 	var length = game.t.matchesPlayed.length;
+	if (game.t.currentRound === 0)
+		setMatchOrder(game);
 	if (game.t.stage !== TournamentStage.Registration && game.t.stage !== TournamentStage.Playing && game.t.stage !== TournamentStage.Complete)
 	{
 		if (game.t.stage === TournamentStage.Regular1 || game.t.stage === TournamentStage.Regular2)
@@ -67,8 +69,8 @@ export function tournamentPlayGame(game: GameInfo): number 	//loop sets matches 
 			// works cause we calculate the matches by taking the current and every second player
 			game.t.matchesPlayed.push({
 				round: 0,
-				player1: game.t.players[index],
-				player2: game.t.players[index + 2],
+				player1: game.t.matchOrder[index],
+				player2: game.t.matchOrder[index + 2],
 				winner: game.defaultPlayer,
 				loser: game.defaultPlayer
 			});
@@ -117,6 +119,42 @@ export function tournamentPlayGame(game: GameInfo): number 	//loop sets matches 
 		return (tournamentEnd(0, game));
 	}
 	return 0;
+}
+
+function playerInMatch(game: GameInfo, player: TournamentPlayer): boolean
+{
+	for (let index = 0; index < game.t.matchOrder.length; index++)
+	{
+		if (player.playerNumber === game.t.matchOrder[index].playerNumber)
+			return true;
+	}
+	return false;
+}
+
+function setMatchOrder(game: GameInfo): void
+{
+	var allSorted = false;
+	while (!allSorted)
+	{
+		var i = Math.floor(Math.random() * 3);	// get int max. 3
+		if (i < 0)
+			i = 0;
+		if (!playerInMatch(game, game.t.players[i]))// if not sorted, sort
+			game.t.matchOrder.push(game.t.players[i]);
+		else
+		{
+			for (let index = 0; index < 4; index++) //if sorted, search for other player to be sorted
+			{
+				if (!playerInMatch(game, game.t.players[index])) //if next player found then end
+				{
+					game.t.matchOrder.push(game.t.players[index]);
+					break;
+				}
+			}
+		}
+		if (game.t.matchOrder.length === 4)	//if all players have been sorted
+				allSorted = true;
+	}
 }
 
 export function tournamentLogic(game: GameInfo): void

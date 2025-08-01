@@ -41,6 +41,7 @@ export enum TournamentStage {
 
 
 export interface TournamentInfo {
+  matchOrder: TournamentPlayer[];
   players: TournamentPlayer[];
   currentlyPlaying: TournamentPlayer[];
   matchesPlayed: Match[];
@@ -133,6 +134,7 @@ export class GameInfo {
         };
 
         this.t = {
+            matchOrder: [],
             players: [],
             currentlyPlaying: [],
             matchesPlayed: [],
