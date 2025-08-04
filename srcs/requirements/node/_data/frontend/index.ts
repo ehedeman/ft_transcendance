@@ -1,13 +1,9 @@
+import { Player, canvasInfo, BallInfo, playerPaddle, GameInfo } from "./frontendStructures.js";
+
+let game = new GameInfo();
+
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-
-type Player = {
-	name: string;
-	gamesWon: number;
-	gamesLost: number;
-};
-
-let players: Player[] = [];
 
 canvas.width = 900;
 canvas.height = 600;
@@ -19,36 +15,6 @@ canvas.addEventListener("click", () => canvas_focus = true);
 document.addEventListener("click", (e: MouseEvent) => {
 	if (e.target !== canvas) canvas_focus = false;
 });
-
-
-const window_width: number = canvas.width;
-const window_height: number = canvas.height;
-
-
-const pad_width: number = 10;
-const pad_height: number = 200;
-
-let pad_player1X: number = window_width - 100;
-let pad_player1Y: number = window_height / 2 - pad_height / 2;
-
-let pad_player2X: number = 100;
-let pad_player2Y: number = window_height / 2 - pad_height / 2;
-
-
-let ballX: number = window_width / 2;
-let ballY: number = window_height / 2;
-const ballRadius: number = 10;
-let ballSpeedX: number;
-let ballSpeedY: number;
-
-let player1_name = players[0]?.name || "Player 1"; // Default to "Player 1" if not set
-let player2_name = players[1]?.name || "Player 2"; // Default to "Player 2" if not set
-let player1_score = 0;
-let player2_score = 0;
-let ballPaused = true;
-
-let gamefinished = false;
-
 const keysPressed: { [key: string]: boolean } = {};
 document.addEventListener("keydown", (e: KeyboardEvent) => {
   keysPressed[e.key] = true;
@@ -56,34 +22,41 @@ document.addEventListener("keydown", (e: KeyboardEvent) => {
 document.addEventListener("keyup", (e: KeyboardEvent) => {
   keysPressed[e.key] = false;
 });
-
-document.getElementById("registerButton")?.addEventListener("click", () => {
-	const player_name = prompt("Enter your name:");
-	if (!player_name) {
-		alert("Name cannot be empty!");
-		return;
-	}
-	players.push({
-		name: player_name,
-		gamesWon: 0,
-		gamesLost: 0
-	});
-});
-
 document.addEventListener("keydown", (e: KeyboardEvent) => {
 	const scrollKeys: string[] = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'];
 	if (scrollKeys.indexOf(e.key) !== -1) {
 		e.preventDefault();
 	}
 });
+document.addEventListener("keydown", (e: KeyboardEvent) => {
+	if (e.key === " " && !canvas_focus) {
+		fetch("/pressspace");
+	}
+});
+
+let gamefinished = false;
+
+document.getElementById("registerButton")?.addEventListener("click", () => { // TODO: don't forget that add enough players to play a game
+	const player_name = prompt("Enter your name:");
+	if (!player_name) {
+		alert("Name cannot be empty!");
+		return;
+	}
+	game.players.push({
+		name: player_name ? player_name : "Anonymous",
+		gamesWon: 0,
+		gamesLost: 0,
+		playerscore: 0
+	});
+});
 
 function drawMiddlePath(): void {
 	ctx.strokeStyle = "white";
 	ctx.lineWidth = 2;
-	for (let y = 0; y < window_height; y += 20) {
+	for (let y = 0; y < game.canvas.height; y += 20) {
 		ctx.beginPath();
-		ctx.moveTo(window_width / 2, y);
-		ctx.lineTo(window_width / 2, y + 10);
+		ctx.moveTo(game.canvas.width / 2, y);
+		ctx.lineTo(game.canvas.width / 2, y + 10);
 		ctx.stroke();
 	}
 }
@@ -96,15 +69,9 @@ function drawCircle(x: number, y: number, radius: number): void {
 	ctx.closePath();
 }
 
-document.addEventListener("keydown", (e: KeyboardEvent) => {
-	if (e.key === " " && !canvas_focus) {
-		fetch("/pressspace");
-	}
-});
-
 function searchPlayer(name: string): number {
-	for (let i = 0; i < players.length; i++) {
-		if (players[i].name === name) {
+	for (let i = 0; i < game.players.length; i++) {
+		if (game.players[i].name === name) {
 			return i;
 		}
 	}
@@ -132,55 +99,57 @@ function getGameStatus(): void {
 		fetch("/getstatus")
 		.then(response => response.json())
 		.then(data => {
-			ballX = data.ballX;
-			ballY = data.ballY;
-			pad_player1Y = data.player1_y;
-			pad_player2Y = data.player2_y;
-			player1_score = data.player1_score;
-			player2_score = data.player2_score;
-			ballSpeedX = data.ballSpeedX;// Update ball speed
+			game.ball.ballX = data.ballX;
+			game.ball.ballY = data.ballY;
+			game.player1Paddle.y = data.player1_y;
+			game.player2Paddle.y = data.player2_y;
+			game.players[0].playerscore = data.player1_score;
+			game.players[1].playerscore = data.player2_score;
+			game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
 			if (data.gamefinished) {
-				alert("Game Over! Final Score: " + player1_name + " " + player1_score + " - " + player2_name + " " + player2_score);
+				alert("Game Over! Final Score: " + game.players[0].name + " " + game.players[0].playerscore + " - " + game.players[1].name + " " + game.players[1].playerscore);
 				fetch("/resetgame")
 				.then(response => response.json())
 				.then(data => {
-					ballX = data.ballX;
-					ballY = data.ballY;
-					pad_player1Y = data.player1_y;
-					pad_player2Y = data.player2_y;
-					player1_score = data.player1_score;
-					player2_score = data.player2_score;
+					game.ball.ballX = data.ballX;
+					game.ball.ballY = data.ballY;
+					game.player1Paddle.y = data.player1_y;
+					game.player2Paddle.y = data.player2_y;
+					game.players[0].playerscore = data.player1_score;
+					game.players[1].playerscore = data.player2_score;
 				});
 			}
 		});
 	}
 }
 
-function updateGame(): void {
-	if (player1_score === 5) {
-		const playerIndex = searchPlayer(player1_name);
-		if (playerIndex >= 0) {
-			players[playerIndex].gamesWon++;
-		}
-		const playerIndex2 = searchPlayer(player2_name);
-		if (playerIndex2 >= 0) {
-			players[playerIndex2].gamesLost++;
-		}
+function singlePlayerGame(): void {
+	if (game.players[0].playerscore === 5) {
+		game.players[0].gamesWon++;
+		game.players[1].gamesLost++;
 	}
-	player1_name = players[0]?.name || "Player 1";
-	player2_name = players[1]?.name || "Player 2";
-	ctx.clearRect(0, 0, window_width, window_height);
+	if (game.players[1].playerscore === 5) {
+		game.players[1].gamesWon++;
+		game.players[0].gamesLost++;
+	}
+	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(player1_name + ": " + player1_score, 10, 25);
-	ctx.fillText(player2_name + ": " + player2_score, 10, 50);
-	ctx.fillText("ballSpeedX: " + (ballSpeedX ? Math.abs(ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
+	ctx.fillText(game.players[0].name + ": " + game.players[0].playerscore, 10, 25);
+	ctx.fillText(game.players[1].name + ": " + game.players[1].playerscore, 10, 50);
+	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
 	calculatePaddleCoords();
 	drawMiddlePath();
-	drawCircle(ballX, ballY, ballRadius);//this part needs to be updated
+	drawCircle(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
 	ctx.fillStyle = "white";
-	ctx.fillRect(pad_player1X, pad_player1Y, pad_width, pad_height);
-	ctx.fillRect(pad_player2X, pad_player2Y, pad_width, pad_height);
+	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
+	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
 	getGameStatus();
+}
+
+function updateGame(): void {
+	if (game.players.length >= 2) {
+		singlePlayerGame();
+	}
 	requestAnimationFrame(updateGame);
 }
 updateGame();
