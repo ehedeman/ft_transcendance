@@ -1,0 +1,2 @@
+TODO: in the TournamentInfo interface, change the array of the matchOrder, winners and loses. other not yet sure
+TODO: make the tournamentLogic function better, at least not so long and unreadable.

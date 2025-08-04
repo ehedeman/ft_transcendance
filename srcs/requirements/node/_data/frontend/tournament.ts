@@ -161,6 +161,7 @@ export function tournamentLogic(game: GameInfo): void
 {
 	var length = game.t.matchesPlayed.length;
 
+	alert("Current Match:" + game.currentMatch.player1.name + " vs " + game.currentMatch.player2.name);
 	console.log("Current Match:", game.currentMatch.player1.name, "vs", game.currentMatch.player2.name);
 
 	if (game.currentMatch.player1.score === game.rounds || 

@@ -111,8 +111,23 @@ function searchPlayer(name: string): number {
   return -1; // Player not found
 }
 
+function calculatePaddleCoords():void
+{
+	if (keysPressed["ArrowUp"]) {
+    	fetch("/pressArrowUp");
+	}
+	if (keysPressed["ArrowDown"]) {
+		fetch("/pressArrowDown");
+	}
+	if (keysPressed["w"]) {
+		fetch("/pressW");
+	}
+	if (keysPressed["s"]) {
+		fetch("/pressS");
+	}
+}
+
 function updateGame(): void {
-  console.log("updateGame running"); 
   if (player1_score === 5) {
     const playerIndex = searchPlayer(player1_name);
     if (playerIndex >= 0) {
@@ -130,18 +145,7 @@ function updateGame(): void {
   ctx.fillText(player1_name + ": " + player1_score, 10, 25);
   ctx.fillText(player2_name + ": " + player2_score, 10, 50);
   ctx.fillText("ballSpeedX: " + (ballSpeedX ? Math.abs(ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
-  if (keysPressed["ArrowUp"] && pad_player1Y > 0) {
-    fetch("/pressArrowUp");
-  }
-  if (keysPressed["ArrowDown"] && pad_player1Y + pad_height < window_height) {
-    fetch("/pressArrowDown");
-  }
-  if (keysPressed["w"] && pad_player2Y > 0) {
-    fetch("/pressW");
-  }
-  if (keysPressed["s"] && pad_player2Y + pad_height < window_height) {
-    fetch("/pressS");
-  }
+  calculatePaddleCoords();
   drawMiddlePath();
   drawCircle(ballX, ballY, ballRadius);//this part needs to be updated
   ctx.fillStyle = "white";
