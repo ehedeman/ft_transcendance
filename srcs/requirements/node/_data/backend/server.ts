@@ -94,12 +94,12 @@ function resetGame(): void {
 }
 
 function updateGame(): void {
-	if (game.player1.playerscore === 5) {
+	if (game.player1.playerscore === game.rounds) {
 		game.player1.gamesWon++;
 		game.player2.gamesLost++;
 		gameFinished = true;
 	}
-	if (game.player2.playerscore === 5) {
+	if (game.player2.playerscore === game.rounds) {
 		game.player2.gamesWon++;
 		game.player1.gamesLost++;
 		gameFinished = true;

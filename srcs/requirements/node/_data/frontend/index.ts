@@ -147,7 +147,7 @@ function singlePlayerGame(): void {
 }
 
 function updateGame(): void {
-	if (game.players.length >= 2) {
+	if (game.players.length >= 2 && !game.tournamentLoopActive) {
 		singlePlayerGame();
 	}
 	requestAnimationFrame(updateGame);

@@ -62,9 +62,9 @@ export class GameInfo {
 
     players: Player[];
 
-	rounds: number;	//amounts of rounds to play -> make uneven to avoid draw
-
 	canvas: canvasInfo;
+
+	tournamentLoopActive: boolean;
 
     constructor() 
     {
@@ -77,13 +77,10 @@ export class GameInfo {
     
         this.player1Paddle.x = canvas.width - 100; // Right side
         this.player2Paddle.x = 100; // Left side
-    
-        this.rounds = 1;	//amounts of rounds to play -> make uneven to avoid draw
 
         this.ball.ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
         this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
 
-		// this.players.push(new Player("Player 1"));
-		// this.players.push(new Player("Player 2"));
+		this.tournamentLoopActive = false;
     }
 }
