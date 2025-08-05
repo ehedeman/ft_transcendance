@@ -262,21 +262,20 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(loginPlayer),
 			})
-				// .then((response) => 
-				// {
-				// 	if (!response.ok) 
-				// 	{
-				// 		alert("Login failed. Please try again.");
-				// 		return;
-				// 	}
+			.then((response) => {
+				if (!response.ok) {
+					alert("Login failed. Please try again.");
+					return;
+				}
+				alert("Login successful!");
 				// return response.json();
-				// })
-				.then((data) => {
-					console.log("Login successful:", data);
-				})
-				.catch(error => {
-					console.error("Error during Login:", error);
-				});
+			})
+			.then((data) => {
+				console.log("Login successful:", data);
+			})
+			.catch(error => {
+				console.error("Error during Login:", error);
+			});
 			game.t.players.push({ name: username, score: 0 });
 			hidetournamentRegistrationModal();
 			resolve(loginPlayer);
@@ -289,6 +288,17 @@ async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 	const players: PlayerLogin[] = [];
 	for (let i = 1; i <= 4; i++) {
 		const player = await registerPlayer(i, game);
+		fetch("/login", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(player),
+		})
+		.then((response) => {
+			if (!response.ok) {
+				tournamentEnd(0, game);
+				return;
+			}
+		})
 		players.push(player);
 		game.players.push({ name: players[players.length - 1].username, gamesLost: 0, gamesWon: 0, playerscore: 0 });
 	}
