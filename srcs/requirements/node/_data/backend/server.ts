@@ -14,6 +14,8 @@ const __dirname = path.dirname(__filename);
 
 let game = new GameInfo();
 
+//export let rounds = game.rounds;
+
 let gameFinished = false;
 
 function touchingPaddle1(): boolean {

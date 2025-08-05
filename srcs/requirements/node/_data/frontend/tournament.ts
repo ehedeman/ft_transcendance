@@ -1,29 +1,40 @@
 
-import { GameInfo, TournamentPlayer, TournamentStage } from "./structures.ts";
+import { GameInfo, TournamentPlayer, TournamentStage } from "./frontendStructures.js";
+//import { rounds } from "../backend/server.js";
 
 
-function t_resetPlayer(game: GameInfo): void {
-	game.player1PaddleX = game.player1StartCoordsX;
-	game.player1PaddleY = game.player1StartCoordsY;
-
-	game.player2PaddleX = game.player2StartCoordsX;
-	game.player2PaddleY = game.player2StartCoordsY;
-}
-
-function t_resetBall(game: GameInfo): void 
+let rounds = 3;
+function tournamentFinished(game:GameInfo): void
 {
-	game.ball.ballX = game.window_width / 2;
-	game.ball.ballY = game.window_height / 2;
-	game.ball.ballSpeedX= Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
-	game.ball.ballSpeedY= (Math.random() * 2 - 1) * 3;
-	game.ball.ballPaused = true;
+	var last = -1;
+	var third = -1;
+	var second = -1;
+	var first = -1;
+	if (game.t.matches[3].winner)	//winner of consolation match
+		third = tournamentFindPlayer(game.t.matches[3].winner?.name, game);
+	if (game.t.matches[3].loser)	//loser of consolation match
+		last = tournamentFindPlayer(game.t.matches[3].loser?.name, game);
+	if (game.t.matches[2].winner)	//winner of final match
+		first = tournamentFindPlayer(game.t.matches[2].winner?.name, game);
+	if (game.t.matches[2].loser)	//loser of final match
+		second = tournamentFindPlayer(game.t.matches[2].loser?.name, game);
+	if (last !== -1 && first !== -1 && third !== -1 && second !== -1 )
+	{
+			var lastPlace = game.t.players[last];
+			var thirdPlace = game.t.players[third];
+			var secondPlace = game.t.players[second];
+			var firstPlace = game.t.players[first];
+			// const placements: TournamentPlayer[] = [
+			// { name: firstPlace.name, score: firstPlace.score },
+			// { username: "Bob", score: 100 },
+			// { username: "Charlie", score: 80 },
+			// { username: "Dana", score: 60 }
+	}
 }
 
 export function tournamentEnd(returnValue: number, game: GameInfo): number
 {
 	game.t.currentRound = 0;
-	game.t.tournamentActive = false;
-	game.gameLoopActive = true;
 	game.tournamentLoopActive = false;
 	location.reload();	//restores the regular interface
 	if (game.t.players.length > 0)
@@ -31,18 +42,6 @@ export function tournamentEnd(returnValue: number, game: GameInfo): number
 	return (returnValue);
 }
 
-function resetTournamentMatch(game: GameInfo): void
-{
-	game.currentMatch.player1 = game.defaultPlayer;
-	game.currentMatch.player2 = game.defaultPlayer;
-	game.currentMatch.player1.score = 0;
-	game.currentMatch.player2.score = 0;
-	game.currentMatch.winner = game.defaultPlayer;
-	game.currentMatch.loser = game.defaultPlayer;
-	game.ball.ballPaused = true; // pause the ball after each match
-	t_resetBall(game);
-	t_resetPlayer(game);
-}
 
 function tournamentFindPlayer(name: string, game: GameInfo): number
 {
@@ -58,21 +57,21 @@ function tournamentFindPlayer(name: string, game: GameInfo): number
 export function tournamentPlayGame(game: GameInfo): number 	//loop sets matches depending on stage !!! does not change the stage !!!
 {
 	var index = 0;
-	var length = game.t.matchesPlayed.length;
+	var length = game.t.matches.length;
+	console.log("Iteration CurrentRound: ", game.t.currentRound, " Current stage: ", game.t.stage);
 	if (game.t.currentRound === 0)
 		setMatchOrder(game);
-	if (game.t.stage !== TournamentStage.Registration && game.t.stage !== TournamentStage.Playing && game.t.stage !== TournamentStage.Complete)
+	if (game.t.stage !== TournamentStage.Registration && game.t.stage !== TournamentStage.Complete)
 	{
 		if (game.t.stage === TournamentStage.Regular1 || game.t.stage === TournamentStage.Regular2)
 		{
 			index = game.t.currentRound;
 			// works cause we calculate the matches by taking the current and every second player
-			game.t.matchesPlayed.push({
-				round: 0,
+			game.t.matches.push({
 				player1: game.t.matchOrder[index],
 				player2: game.t.matchOrder[index + 2],
-				winner: game.defaultPlayer,
-				loser: game.defaultPlayer
+				winner: game.t.defaultPlayer,
+				loser: game.t.defaultPlayer
 			});
 		}
 		else if (game.t.stage === TournamentStage.Final || game.t.stage === TournamentStage.Consolation)	// loser vs loser | winner vs winner
@@ -80,42 +79,40 @@ export function tournamentPlayGame(game: GameInfo): number 	//loop sets matches 
 			const isWinnerMatch = game.t.stage === TournamentStage.Final ? 1 : 0;
 			console.log("isWinnerMatch:", isWinnerMatch, "stage:", game.t.stage);
 			// 1 -> winnerMatch, 0 -> loserMatch
-			let player1 = game.defaultPlayer;
-			let player2 = game.defaultPlayer;
+			let player1 = game.t.defaultPlayer;
+			let player2 = game.t.defaultPlayer;
 	
 			if (isWinnerMatch === 1)
 			{
-				player1 = game.t.winners[0] || game.defaultPlayer;;
-				player2 = game.t.winners[1] || game.defaultPlayer;;
+				player1 = game.t.winners[0] || game.t.defaultPlayer;;
+				player2 = game.t.winners[1] || game.t.defaultPlayer;;
 			}
 			else if (isWinnerMatch === 0)
 			{
-				player1 = game.t.losers[0] || game.defaultPlayer;
-				player2 = game.t.losers[1] || game.defaultPlayer;
+				player1 = game.t.losers[0] || game.t.defaultPlayer;
+				player2 = game.t.losers[1] || game.t.defaultPlayer;
 			}
 			if (player1.name === "default" || player2.name === "default")
 			{
 				alert("An error has occurred. Stopping tournament..");
 				return (tournamentEnd(1, game));
 			}
-			player1.score = 0;
-			player2.score = 0;
-			game.t.matchesPlayed.push({
-				round: 0,
-				player1: player1,
-				player2: player2,
-				winner: game.defaultPlayer,
-				loser: game.defaultPlayer
+				player1.score = 0;
+				player2.score = 0;
+				game.t.matches.push({
+					player1: player1,
+					player2: player2,
+					winner: game.t.defaultPlayer,
+					loser: game.t.defaultPlayer
 			});
 		}
-		length = game.t.matchesPlayed.length;
-		game.t.stage = TournamentStage.Playing; //to make sure we don't loop through the same match again
-		game.currentMatch = game.t.matchesPlayed[length - 1];
+		length = game.t.matches.length;
+		game.t.matches[length -1] = game.t.matches[length - 1];
 		game.t.currentRound++;
 	}
 	else if (game.t.stage === TournamentStage.Complete)
 	{
-		alert("Tournament is complete!");
+		tournamentFinished(game);
 		return (tournamentEnd(0, game));
 	}
 	return 0;
@@ -125,7 +122,7 @@ function playerInMatch(game: GameInfo, player: TournamentPlayer): boolean
 {
 	for (let index = 0; index < game.t.matchOrder.length; index++)
 	{
-		if (player.playerNumber === game.t.matchOrder[index].playerNumber)
+		if (player.name === game.t.matchOrder[index].name)
 			return true;
 	}
 	return false;
@@ -159,13 +156,12 @@ function setMatchOrder(game: GameInfo): void
 
 export function tournamentLogic(game: GameInfo): void
 {
-	var length = game.t.matchesPlayed.length;
+	var length = game.t.matches.length;
 
-	alert("Current Match:" + game.currentMatch.player1.name + " vs " + game.currentMatch.player2.name);
-	console.log("Current Match:", game.currentMatch.player1.name, "vs", game.currentMatch.player2.name);
+	console.log("Current Match:", game.t.matches[length -1].player1.name, "vs", game.t.matches[length -1].player2.name);
 
-	if (game.currentMatch.player1.score === game.rounds || 
-		game.currentMatch.player2.score === game.rounds)
+	if (game.t.matches[length -1].player1.score === rounds || 
+		game.t.matches[length -1].player2.score === rounds)
 	{
 		// makes sure that once game is done it is set to correct stage
 		console.log("Current round:", game.t.currentRound);
@@ -178,30 +174,29 @@ export function tournamentLogic(game: GameInfo): void
 		else if (game.t.currentRound === 4)
 			game.t.stage = TournamentStage.Complete;
 
-		if (game.currentMatch.player1.score === game.rounds) 
+		if (game.t.matches[length -1].player1.score === rounds) 
 		{  //sets the winner and loser of the current match
-			game.t.matchesPlayed[length - 1].winner = game.t.matchesPlayed[length - 1].player1;
-			game.t.matchesPlayed[length - 1].loser = game.t.matchesPlayed[length - 1].player2;
+			game.t.matches[length - 1].winner = game.t.matches[length - 1].player1;
+			game.t.matches[length - 1].loser = game.t.matches[length - 1].player2;
 		}
-		else if (game.currentMatch.player2.score === game.rounds) 
+		else if (game.t.matches[length -1].player2.score === rounds) 
 		{
-			game.t.matchesPlayed[length - 1].winner = game.t.matchesPlayed[length - 1].player2;
-			game.t.matchesPlayed[length - 1].loser = game.t.matchesPlayed[length - 1].player1;
+			game.t.matches[length - 1].winner = game.t.matches[length - 1].player2;
+			game.t.matches[length - 1].loser = game.t.matches[length - 1].player1;
 		}
 
-		alert(game.t.matchesPlayed[length - 1].winner?.name + " wins!");
+		alert(game.t.matches[length - 1].winner?.name + " wins!");
 
 		if (game.t.stage < TournamentStage.Consolation)  // if tournament is complete, we set the winners and losers
 		{
-			const winner = game.t.matchesPlayed[length - 1].winner?.name || "default";
-			const loser = game.t.matchesPlayed[length - 1].loser?.name || "default";
+			const winner = game.t.matches[length - 1].winner?.name || "default";
+			const loser = game.t.matches[length - 1].loser?.name || "default";
 
 			if (winner !== "default" && loser !== "default")
 			{
-				game.t.players[tournamentFindPlayer(winner, game)].gamesWon = 1;
 				game.t.winners.push(game.t.players[tournamentFindPlayer(winner, game)]);    //adds players to general winners and losers
 				game.t.losers.push(game.t.players[tournamentFindPlayer(loser,game)]);
-			}	
+			}
 			else
 			{
 				alert("An error has occurred. Stopping tournament..");
@@ -209,7 +204,7 @@ export function tournamentLogic(game: GameInfo): void
 				return ;
 			}
 		}
-		resetTournamentMatch(game);
+		game.ball.ballPaused = true; 
 		tournamentPlayGame(game);
 	}
 }

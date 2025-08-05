@@ -7,6 +7,20 @@ export class canvasInfo {
 	}
 }
 
+//just for login/registration, not the game
+export type PlayerRegistration = {
+		name: string;
+		username: string;
+		password: string;
+		country: string;
+};
+
+export type PlayerLogin = {
+		username: string;
+		password: string;
+};
+
+
 let canvas = new canvasInfo();// maybe I can delete this
 
 export class Player {
@@ -55,10 +69,62 @@ export class playerPaddle {
     }
 }
 
+
+export type TournamentPlayer = {
+		name: string;
+		score: number;
+};
+
+export type Match = {
+	player1: TournamentPlayer;
+	player2: TournamentPlayer;
+	winner: TournamentPlayer;
+	loser: TournamentPlayer;
+};
+
+export enum TournamentStage {
+	Registration,
+	Playing,
+	Regular1,	//	first round -> player1 vs player3
+	Regular2, //	second round -> player2 vs player4
+	Final,		//	winner vs winner
+	Consolation,	//  loser vs loser
+	Complete
+}
+
+export class Tournament {
+    matchOrder: TournamentPlayer[];
+	players: TournamentPlayer[];
+	matches: Match[];
+	currentRound: number;
+	stage: TournamentStage;
+	winners: TournamentPlayer[];
+	losers: TournamentPlayer[];
+    defaultPlayer: TournamentPlayer;
+    constructor ()
+    {
+        this.matchOrder = [];
+        this.players = [];
+        this.matches = [];
+        this.currentRound = 0;
+        this.stage = TournamentStage.Registration;
+        this.winners = [];
+        this.losers = [];
+        this.defaultPlayer = {
+			name: "default",
+			score: 0,
+		};
+    }
+}
+
+
+
 export class GameInfo {
     ball: BallInfo;
     player1Paddle: playerPaddle;
     player2Paddle: playerPaddle;
+
+    t: Tournament;
 
     players: Player[];
 
@@ -72,6 +138,8 @@ export class GameInfo {
         this.ball = new BallInfo();
         this.player1Paddle = new playerPaddle();
         this.player2Paddle = new playerPaddle();
+        
+        this.t = new Tournament();
 
 		this.players = [];
     
@@ -82,5 +150,7 @@ export class GameInfo {
         this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
 
 		this.tournamentLoopActive = false;
+        
     }
 }
+
