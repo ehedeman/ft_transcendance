@@ -2,6 +2,7 @@ import fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
 
+
 const app = fastify();
 
 // import path from 'path';
@@ -14,7 +15,8 @@ const __dirname = path.dirname(__filename);
 
 let game = new GameInfo();
 
-//export let rounds = game.rounds;
+
+let rounds = 1;
 
 let gameFinished = false;
 
@@ -96,14 +98,18 @@ function resetGame(): void {
 }
 
 function updateGame(): void {
-	if (game.player1.playerscore === game.rounds) {
+	if (game.player1.playerscore === rounds) {
 		game.player1.gamesWon++;
 		game.player2.gamesLost++;
+		game.player1.playerscore = 0;
+		game.player2.playerscore = 0;
 		gameFinished = true;
 	}
-	if (game.player2.playerscore === game.rounds) {
+	if (game.player2.playerscore === rounds) {
 		game.player2.gamesWon++;
 		game.player1.gamesLost++;
+		game.player1.playerscore = 0;
+		game.player2.playerscore = 0;
 		gameFinished = true;
 	}
 	calculateBallCoords();

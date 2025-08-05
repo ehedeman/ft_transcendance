@@ -1,9 +1,9 @@
 
 import { GameInfo, TournamentPlayer, TournamentStage } from "./frontendStructures.js";
-//import { rounds } from "../backend/server.js";
+// import { rounds } from "./server.js";
 
 
-let rounds = 3;
+let rounds = 1;
 function tournamentFinished(game:GameInfo): void
 {
 	var last = -1;

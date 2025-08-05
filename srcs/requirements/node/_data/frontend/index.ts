@@ -1,9 +1,9 @@
 import { Player, canvasInfo, BallInfo, playerPaddle, GameInfo, TournamentStage, PlayerLogin, PlayerRegistration } from "./frontendStructures.js";
 import { tournamentEnd, tournamentLogic, tournamentPlayGame } from "./tournament.js";
-//import { rounds } from "../backend/server.js";
+// import e{ rounds } from "./server.js";
 
 
-let rounds = 3;
+let rounds = 1;
 
 let game = new GameInfo();
 
@@ -393,6 +393,15 @@ function drawCircle(x: number, y: number, radius: number): void {
 	ctx.fillStyle = "white";
 	ctx.fill();
 	ctx.closePath();
+}
+
+function searchPlayer(name: string): number {
+	for (let i = 0; i < game.players.length; i++) {
+		if (game.players[i].name === name) {
+			return i;
+		}
+	}
+	return -1; // Player not found
 }
 
 function calculatePaddleCoords():void
