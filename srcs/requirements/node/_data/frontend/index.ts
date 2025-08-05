@@ -22,10 +22,10 @@ document.addEventListener("click", (e: MouseEvent) => {
 });
 const keysPressed: { [key: string]: boolean } = {};
 document.addEventListener("keydown", (e: KeyboardEvent) => {
-  keysPressed[e.key] = true;
+	keysPressed[e.key] = true;
 });
 document.addEventListener("keyup", (e: KeyboardEvent) => {
-  keysPressed[e.key] = false;
+	keysPressed[e.key] = false;
 });
 document.addEventListener("keydown", (e: KeyboardEvent) => {
 	const scrollKeys: string[] = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'];
@@ -122,20 +122,20 @@ document.getElementById("generalRegistrationForm")?.addEventListener("submit", (
 		},
 		body: JSON.stringify(newPlayer)
 	})
-	.then(response => {
-		if (!response.ok) {
-			alert("Registration failed. Please try again.");
-			return;
-		}
-		console.log("Registration successful:", response);
-		alert("Registration successful! You can now log in.");
-		hideGeneralRegistrationModal();
+		.then(response => {
+			if (!response.ok) {
+				alert("Registration failed. Please try again.");
+				return;
+			}
+			console.log("Registration successful:", response);
+			alert("Registration successful! You can now log in.");
+			hideGeneralRegistrationModal();
 			location.reload();// This will reload the page after registration
-		return response.json();
-	})
-	.catch(error => {
-		console.error("Error during Registration:", error);
-	});
+			return response.json();
+		})
+		.catch(error => {
+			console.error("Error during Registration:", error);
+		});
 });
 
 
@@ -202,21 +202,21 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 		},
 		body: JSON.stringify(loginPlayer)
 	})
-	.then(response => {
-		if (!response.ok) {
-			const message: string = response.status === 401 ? 'Username or password is incorrect' : 'Login failed. Please try again.';
-			alert(message);
-			return;
-		}
-		alert("Login successful!");
-		hideGeneralLoginModal();
-		location.reload();// This will reload the page after login
-		return response.json();
-	})
-	.catch(error => {
-		console.error("Error during Login:", error);
-	});
-	
+		.then(response => {
+			if (!response.ok) {
+				const message: string = response.status === 401 ? 'Username or password is incorrect' : 'Login failed. Please try again.';
+				alert(message);
+				return;
+			}
+			alert("Login successful!");
+			hideGeneralLoginModal();
+			location.reload();// This will reload the page after login
+			return response.json();
+		})
+		.catch(error => {
+			console.error("Error during Login:", error);
+		});
+
 });
 
 document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
@@ -262,21 +262,21 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(loginPlayer),
 			})
-			// .then((response) => 
-			// {
-			// 	if (!response.ok) 
-			// 	{
-			// 		alert("Login failed. Please try again.");
-			// 		return;
-			// 	}
-			// return response.json();
-			// })
+				// .then((response) => 
+				// {
+				// 	if (!response.ok) 
+				// 	{
+				// 		alert("Login failed. Please try again.");
+				// 		return;
+				// 	}
+				// return response.json();
+				// })
 				.then((data) => {
-				console.log("Login successful:", data);
-			})
-			.catch(error => {
-				console.error("Error during Login:", error);
-			});
+					console.log("Login successful:", data);
+				})
+				.catch(error => {
+					console.error("Error during Login:", error);
+				});
 			game.t.players.push({ name: username, score: 0 });
 			hidetournamentRegistrationModal();
 			resolve(loginPlayer);
@@ -300,10 +300,10 @@ async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 
 function showtournamentRegistrationModal(playerNr: number): void {
 
-    const modal = document.getElementById("tournamentRegistrationModal")!;
-    const usernameInput = document.getElementById("tournamentUsername") as HTMLInputElement;
-    const passwordInput = document.getElementById("tournamentPassword") as HTMLInputElement;
-    const header = document.getElementById("tournamentRegisterHeader") as HTMLHeadingElement;
+	const modal = document.getElementById("tournamentRegistrationModal")!;
+	const usernameInput = document.getElementById("tournamentUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("tournamentPassword") as HTMLInputElement;
+	const header = document.getElementById("tournamentRegisterHeader") as HTMLHeadingElement;
 
 	header.textContent = `Register Tournament Player ${playerNr}`;
 	usernameInput.value = "";
@@ -316,7 +316,7 @@ function showtournamentRegistrationModal(playerNr: number): void {
 	usernameInput.required = true;
 	passwordInput.required = true;
 
-    modal.style.display = "block";
+	modal.style.display = "block";
 }
 
 
@@ -395,7 +395,7 @@ function searchPlayer(name: string): number {
 
 function calculatePaddleCoords(): void {
 	if (keysPressed["ArrowUp"]) {
-    	fetch("/pressArrowUp");
+		fetch("/pressArrowUp");
 	}
 	if (keysPressed["ArrowDown"]) {
 		fetch("/pressArrowDown");
@@ -412,40 +412,40 @@ function getGameStatus(): void {
 	if (!gamefinished) {
 		var length = game.t.matches.length;
 		fetch("/getstatus")
-		.then(response => response.json())
-		.then(data => {
-			game.ball.ballX = data.ballX;
-			game.ball.ballY = data.ballY;
-			game.player1Paddle.y = data.player1_y;
-			game.player2Paddle.y = data.player2_y;
+			.then(response => response.json())
+			.then(data => {
+				game.ball.ballX = data.ballX;
+				game.ball.ballY = data.ballY;
+				game.player1Paddle.y = data.player1_y;
+				game.player2Paddle.y = data.player2_y;
 				if (game.tournamentLoopActive) {
 					game.t.matches[length - 1].player1.score = data.player1_score;
 					game.t.matches[length - 1].player2.score = data.player2_score;
-			}
+				}
 				else {
-				game.players[0].playerscore = data.player1_score;
-				game.players[1].playerscore = data.player2_score;
-			}
-			game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
-			if (data.gamefinished) {
-				fetch("/resetgame")
-				.then(response => response.json())
-				.then(data => {
-					game.ball.ballX = data.ballX;
-					game.ball.ballY = data.ballY;
-					game.player1Paddle.y = data.player1_y;
-					game.player2Paddle.y = data.player2_y;
+					game.players[0].playerscore = data.player1_score;
+					game.players[1].playerscore = data.player2_score;
+				}
+				game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
+				if (data.gamefinished) {
+					fetch("/resetgame")
+						.then(response => response.json())
+						.then(data => {
+							game.ball.ballX = data.ballX;
+							game.ball.ballY = data.ballY;
+							game.player1Paddle.y = data.player1_y;
+							game.player2Paddle.y = data.player2_y;
 							if (game.tournamentLoopActive) {
 								game.t.matches[length - 1].player1.score = data.player1_score;
 								game.t.matches[length - 1].player2.score = data.player2_score;
-					}
+							}
 							else {
-						game.players[0].playerscore = data.player1_score;
-						game.players[1].playerscore = data.player2_score;
-					}
-				});
-			}
-		});
+								game.players[0].playerscore = data.player1_score;
+								game.players[1].playerscore = data.player2_score;
+							}
+						});
+				}
+			});
 	}
 }
 
@@ -479,7 +479,7 @@ function tournamentGame(): number {
 	tournamentLogic(game);
 	var length = game.t.matches.length;
 	if (game.t.stage === TournamentStage.Complete)
-			return 1;
+		return 1;
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	ctx.font = "20px Arial"; ctx.fillStyle = "white";
 	ctx.fillText(game.t.matches[length - 1].player1.name + ": " + game.t.matches[length - 1].player1.score, 10, 25);
@@ -491,7 +491,7 @@ function tournamentGame(): number {
 	ctx.fillStyle = "white";
 	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
 	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
-	
+
 	return 0;
 }
 
