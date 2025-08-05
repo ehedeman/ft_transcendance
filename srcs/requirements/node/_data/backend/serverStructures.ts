@@ -86,3 +86,9 @@ export class GameInfo {
         this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
     }
 }
+export type loginInfo = {
+    name: string;
+    username: string;
+    password: string;
+    country: string;
+};

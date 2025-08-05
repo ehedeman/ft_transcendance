@@ -97,7 +97,7 @@ document.getElementById("registerButton")?.addEventListener("click", () =>
 
 document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
 	e.preventDefault();
-	const nameInput = document.getElementById("name") as HTMLInputElement;
+	const nameInput = document.getElementById("registerName") as HTMLInputElement;
 	const usernameInput = document.getElementById("registerUsername") as HTMLInputElement;
 	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
 	const countryInput = document.getElementById("registerCountry") as HTMLInputElement;
@@ -105,40 +105,38 @@ document.getElementById("generalRegistrationForm")?.addEventListener("submit", (
 	const username = usernameInput.value.trim();
 	const password = passwordInput.value.trim();
 	const country = countryInput.value.trim();
-	if (!username || !password || !name) {
-		alert("Name, username and password cannot be empty!");
+	if (!username || !password || !name || !country) {
+		alert("Name, username, password and country cannot be empty!");
 		return;
 	}
-	if (username != "" && password != "" && name != "")
-	{
-		var newPlayer: PlayerRegistration = {
-			name: name,
-			username: username,
-			password: password,
-			country: country,
-		};
-		fetch("/register", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify(newPlayer)
-		})
-		.then(response => {
-			if (!response.ok) {
-				alert("Registration failed. Please try again.");
-				return;
-			} return response.json();
-		})
-		.then(data => {
-			console.log("Registration successful:", data);
-		})
-		.catch(error => {
-			console.error("Error during Registration:", error);
-		});
-	}
-	hideGeneralRegistrationModal();
-	location.reload();
+
+	const newPlayer: PlayerRegistration = {
+		name,
+		username,
+		password,
+		country,
+	};
+	fetch("/register", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(newPlayer)
+	})
+	.then(response => {
+		if (!response.ok) {
+			alert("Registration failed. Please try again.");
+			return;
+		}
+		console.log("Registration successful:", response);
+		alert("Registration successful! You can now log in.");
+		hideGeneralRegistrationModal();
+		location.reload();
+		return response.json();
+	})
+	.catch(error => {
+		console.error("Error during Registration:", error);
+	});
 });
 
 

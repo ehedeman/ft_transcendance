@@ -2,19 +2,19 @@ import fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
 
-
 const app = fastify();
 
 // import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { GameInfo } from './serverStructures.js';
+import { GameInfo, loginInfo } from './serverStructures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let game = new GameInfo();
 
+let loginInformation: loginInfo[] = [];
 
 let rounds = 1;
 
@@ -189,6 +189,23 @@ app.get('/getstatus', async (request, reply) => {
 		gamefinished: gameFinished,
 		ballSpeedX: game.ball.ballSpeedX,
 	});
+});
+
+app.post("/register", async (request, reply) => {
+	const { name, username, password, country } = request.body as loginInfo; // Quick fix, but less type-safe
+	const newUser = { name, username, password, country } as loginInfo;
+	for (const user of loginInformation) {
+		if (user.username === username || user.name === name) {
+			reply.status(400).send({ status: 400, message: 'Username already exists'});
+			return;
+		}
+	}
+	loginInformation.push(newUser);
+	console.log(`User ${username} registered successfully`);
+	// for (const user of loginInformation) {
+	// 	console.log(`Registered user: ${user.username}, Name: ${user.name}, Country: ${user.country}`);
+	// }
+	reply.send({ status: 200, message: 'User registered successfully' });
 });
 
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
