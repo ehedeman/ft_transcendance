@@ -7,7 +7,7 @@ export class canvasInfo {
 	}
 }
 
-let canvas = new canvasInfo();
+let canvas = new canvasInfo();// maybe I can delete this
 
 export class Player {
     name: string;

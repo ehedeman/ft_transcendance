@@ -35,21 +35,29 @@ document.addEventListener("keydown", (e: KeyboardEvent) => {
 });
 
 let gamefinished = false;
-
+/*--------------------------two players game register----------------------------*/
 document.getElementById("registerButton")?.addEventListener("click", () => { // TODO: don't forget that add enough players to play a game
-	const player_name = prompt("Enter your name:");
-	if (!player_name) {
-		alert("Name cannot be empty!");
-		return;
+	if (!game.tournamentLoopActive) {
+		const player_name = prompt("Enter your name:");
+		if (!player_name) {
+			alert("Name cannot be empty!");
+			return;
+		}
+		game.players.push({
+			name: player_name ? player_name : "Anonymous",
+			gamesWon: 0,
+			gamesLost: 0,
+			playerscore: 0
+		});
 	}
-	game.players.push({
-		name: player_name ? player_name : "Anonymous",
-		gamesWon: 0,
-		gamesLost: 0,
-		playerscore: 0
-	});
 });
 
+/*--------------------------multi player game register----------------------------*/
+
+function tournamentRegisterLogic(): void {
+
+}
+/*--------------------------game logic----------------------------*/
 function drawMiddlePath(): void {
 	ctx.strokeStyle = "white";
 	ctx.lineWidth = 2;
@@ -145,6 +153,8 @@ function singlePlayerGame(): void {
 	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
 	getGameStatus();
 }
+
+
 
 function updateGame(): void {
 	if (game.players.length >= 2 && !game.tournamentLoopActive) {
