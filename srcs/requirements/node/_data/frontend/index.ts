@@ -326,6 +326,7 @@ function hidetournamentRegistrationModal() {
 }
 
 document.getElementById("tournamentButton")?.addEventListener("click", () => {
+	game.tournamentLoopActive = true;
 	const registerButton = document.getElementById("registerButton");
 	const tournamentButton = document.getElementById("tournamentButton");
 	const loginButton = document.getElementById("loginButton");
