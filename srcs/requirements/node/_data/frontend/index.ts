@@ -193,34 +193,32 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 		alert("Username and password cannot be empty!");
 		return;
 	}
-	if (username != "" && password != "")
-	{
-		var loginPlayer: PlayerLogin = {
-			username: username,
-			password: password,
-		};
-		fetch("/login", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify(loginPlayer)
-		})
-		.then(response => {
-			if (!response.ok) {
-				alert("Login failed. Please try again.");
-				return;
-			} return response.json();
-		})
-		.then(data => {
-			console.log("Login successful:", data);
-		})
-		.catch(error => {
-			console.error("Error during Login:", error);
-		});
-	}
-	hideGeneralLoginModal();
-	location.reload();
+	var loginPlayer: PlayerLogin = {
+		username: username,
+		password: password,
+	};
+	fetch("/login", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(loginPlayer)
+	})
+	.then(response => {
+		if (!response.ok) {
+			const message: string = response.status === 401 ? 'Username or password is incorrect' : 'Login failed. Please try again.';
+			alert(message);
+			return;
+		}
+		alert("Login successful!");
+		hideGeneralLoginModal();
+		location.reload();
+		return response.json();
+	})
+	.catch(error => {
+		console.error("Error during Login:", error);
+	});
+	
 });
 
 document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {

@@ -208,6 +208,16 @@ app.post("/register", async (request, reply) => {
 	reply.send({ status: 200, message: 'User registered successfully' });
 });
 
+app.post("/login", async (request, reply) => {
+	const { username, password } = request.body as { username: string; password: string };
+	const user = loginInformation.find(user => user.username === username && user.password === password);
+	if (!user) {
+		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
+		return;
+	}
+	reply.send({ status: 200, message: 'Login successful', user });
+});
+
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
 	if (err) throw err;
 	console.log(`Server running at ${address}`);
