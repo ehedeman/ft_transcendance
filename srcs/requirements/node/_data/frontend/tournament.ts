@@ -97,14 +97,16 @@ export function tournamentPlayGame(game: GameInfo): number 	//loop sets matches 
 				alert("An error has occurred. Stopping tournament..");
 				return (tournamentEnd(1, game));
 			}
-				player1.score = 0;
-				player2.score = 0;
-				game.t.matches.push({
-					player1: player1,
-					player2: player2,
-					winner: game.t.defaultPlayer,
-					loser: game.t.defaultPlayer
+			player1.score = 0;
+			player2.score = 0;
+			game.t.matches.push({
+				player1: player1,
+				player2: player2,
+				winner: game.t.defaultPlayer,
+				loser: game.t.defaultPlayer
 			});
+			console.log(player1.name, ": ", player1.score);
+			console.log(player2.name, ": ", player2.score);
 		}
 		length = game.t.matches.length;
 		game.t.matches[length -1] = game.t.matches[length - 1];

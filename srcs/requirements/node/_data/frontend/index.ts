@@ -442,8 +442,6 @@ function getGameStatus(): void {
 			}
 			game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
 			if (data.gamefinished) {
-				if (!game.tournamentLoopActive)
-					alert("Game Over! Final Score: " + game.players[0].name + " " + game.players[0].playerscore + " - " + game.players[1].name + " " + game.players[1].playerscore);
 				fetch("/resetgame")
 				.then(response => response.json())
 				.then(data => {
@@ -451,8 +449,16 @@ function getGameStatus(): void {
 					game.ball.ballY = data.ballY;
 					game.player1Paddle.y = data.player1_y;
 					game.player2Paddle.y = data.player2_y;
-					game.players[0].playerscore = data.player1_score;
-					game.players[1].playerscore = data.player2_score;
+					if (game.tournamentLoopActive)
+					{
+						game.t.matches[length -1].player1.score = data.player1_score;
+						game.t.matches[length -1].player2.score = data.player2_score;
+					}
+					else
+					{
+						game.players[0].playerscore = data.player1_score;
+						game.players[1].playerscore = data.player2_score;
+					}
 				});
 			}
 		});
@@ -463,10 +469,12 @@ function singlePlayerGame(): void {
 	if (game.players[0].playerscore === rounds) {
 		game.players[0].gamesWon++;
 		game.players[1].gamesLost++;
+		alert("Game Over! Final Score: " + game.players[0].name + " " + game.players[0].playerscore + " - " + game.players[1].name + " " + game.players[1].playerscore);
 	}
 	if (game.players[1].playerscore === rounds) {
 		game.players[1].gamesWon++;
 		game.players[0].gamesLost++;
+		alert("Game Over! Final Score: " + game.players[0].name + " " + game.players[0].playerscore + " - " + game.players[1].name + " " + game.players[1].playerscore);
 	}
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	ctx.font = "20px Arial"; ctx.fillStyle = "white";
@@ -507,8 +515,9 @@ function updateGame(): void {
 	if (game.players.length >= 2 && !game.tournamentLoopActive) {
 		singlePlayerGame();
 	}
-	else if (game.tournamentLoopActive) {
-		if (tournamentGame() === 1)
+	else if (game.tournamentLoopActive && game.t.stage !== TournamentStage.Registration) {
+		tournamentGame();
+		if (game.t.stage === TournamentStage.Complete)
 			return ;
 	}
 	requestAnimationFrame(updateGame);
