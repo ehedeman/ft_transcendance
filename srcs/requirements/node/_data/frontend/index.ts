@@ -395,15 +395,6 @@ function drawCircle(x: number, y: number, radius: number): void {
 	ctx.closePath();
 }
 
-function searchPlayer(name: string): number {
-	for (let i = 0; i < game.players.length; i++) {
-		if (game.players[i].name === name) {
-			return i;
-		}
-	}
-	return -1; // Player not found
-}
-
 function calculatePaddleCoords():void
 {
 	if (keysPressed["ArrowUp"]) {
