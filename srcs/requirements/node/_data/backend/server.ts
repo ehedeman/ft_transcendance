@@ -278,6 +278,46 @@ app.get('/getstatus', async (request, reply) => {
 	});
 });
 
+// Debug endpoint to view database contents
+app.get('/debug/users', async (request, reply) => {
+	try {
+		const stmt = db.prepare(`SELECT id, Full_Name, Alias, avatar_url, status, created_at FROM users`);
+		const users = stmt.all();
+		reply.send({ users });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+// Debug endpoint to show tables
+app.get('/debug/tables', async (request, reply) => {
+	try {
+		const stmt = db.prepare(`SELECT name FROM sqlite_master WHERE type='table'`);
+		const tables = stmt.all();
+		reply.send({ tables });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+// Delete user endpoint
+app.delete('/debug/users/:username', async (request, reply) => {
+	try {
+		const { username } = request.params as { username: string };
+		const stmt = db.prepare(`DELETE FROM users WHERE Alias = ?`);
+		const result = stmt.run(username);
+		
+		if (result.changes === 0) {
+			reply.status(404).send({ error: 'User not found' });
+		} else {
+			reply.send({ message: `User '${username}' deleted successfully`, deletedRows: result.changes });
+		}
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+
 app.post("/register", async (request, reply) => {
 	const { name, username, password, country } = request.body as loginInfo;
 
