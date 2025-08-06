@@ -1,6 +1,9 @@
 import fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
+import Database from 'better-sqlite3';
+import bcrypt from 'bcrypt'; // for hashing password
+const saltRounds = 10;
 
 const app = fastify();
 
@@ -11,6 +14,65 @@ import { GameInfo, loginInfo } from './serverStructures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Ensure data directory exists
+import { mkdirSync } from 'fs';
+const dataDir = path.join(__dirname, 'data');
+try {
+	mkdirSync(dataDir, { recursive: true });
+} catch (err) {
+	// Directory already exists, ignore
+}
+
+const db = new Database(path.join(__dirname, 'data', 'users.db'));
+
+// Create tables if they don't exist
+db.exec(`
+CREATE TABLE IF NOT EXISTS users (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	Full_Name TEXT UNIQUE NOT NULL,
+	Alias TEXT UNIQUE NOT NULL,
+	password_hash TEXT NOT NULL,
+	avatar_url TEXT DEFAULT '/avatars/default.png',
+	status TEXT DEFAULT 'offline',
+	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS friends (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	user_id INTEGER NOT NULL,
+	friend_id INTEGER NOT NULL,
+	status TEXT DEFAULT 'pending',
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (friend_id) REFERENCES users(id),
+	UNIQUE (user_id, friend_id)
+);
+
+CREATE TABLE IF NOT EXISTS matches (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	player1_id INTEGER NOT NULL,
+	player2_id INTEGER NOT NULL,
+	winner_id INTEGER,
+	score_player1 INTEGER DEFAULT 0,
+	score_player2 INTEGER DEFAULT 0,
+	Match_type TEXT DEFAULT 'Friendly',
+	match_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (player1_id) REFERENCES users(id),
+	FOREIGN KEY (player2_id) REFERENCES users(id),
+	FOREIGN KEY (winner_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS user_stats (
+	user_id INTEGER PRIMARY KEY,
+	wins INTEGER DEFAULT 0,
+	losses INTEGER DEFAULT 0,
+	matches_played INTEGER DEFAULT 0,
+	FOREIGN KEY (user_id) REFERENCES users(id)
+);
+`);
+
 
 let game = new GameInfo();
 
@@ -217,31 +279,76 @@ app.get('/getstatus', async (request, reply) => {
 });
 
 app.post("/register", async (request, reply) => {
-	const { name, username, password, country } = request.body as loginInfo; // Quick fix, but less type-safe
-	const newUser = { name, username, password, country } as loginInfo;
-	for (const user of loginInformation) {
-		if (user.username === username || user.name === name) {
-			reply.status(400).send({ status: 400, message: 'Username already exists'});
-			return;
+	const { name, username, password, country } = request.body as loginInfo;
+
+	const alias = username;
+	const fullName = name;
+	const password_hash = await bcrypt.hash(password, saltRounds);
+
+	try {
+		const stmt = db.prepare(`
+			INSERT INTO users (Full_name, Alias, password_hash)
+			VALUES (?, ?, ?)
+		`);
+		stmt.run(fullName, alias, password_hash);
+
+		reply.send({ status: 200, message: 'User registered successfully' });
+	} catch (err: any) {
+		if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+			reply.status(400).send({ status: 400, message: 'User already exists' });
+		} else {
+			reply.status(500).send({ status: 500, message: 'Server error' });
 		}
 	}
-	loginInformation.push(newUser);
-	console.log(`User ${username} registered successfully`);
-	// for (const user of loginInformation) {
-	// 	console.log(`Registered user: ${user.username}, Name: ${user.name}, Country: ${user.country}`);
-	// }
-	reply.send({ status: 200, message: 'User registered successfully' });
 });
+
+// app.post("/register", async (request, reply) => {
+// 	const { name, username, password, country } = request.body as loginInfo; // Quick fix, but less type-safe
+// 	const newUser = { name, username, password, country } as loginInfo;
+// 	for (const user of loginInformation) {
+// 		if (user.username === username || user.name === name) {
+// 			reply.status(400).send({ status: 400, message: 'Username already exists'});
+// 			return;
+// 		}
+// 	}
+// 	loginInformation.push(newUser);
+// 	console.log(`User ${username} registered successfully`);
+// 	// for (const user of loginInformation) {
+// 	// 	console.log(`Registered user: ${user.username}, Name: ${user.name}, Country: ${user.country}`);
+// 	// }
+// 	reply.send({ status: 200, message: 'User registered successfully' });
+// });
 
 app.post("/login", async (request, reply) => {
 	const { username, password } = request.body as { username: string; password: string };
-	const user = loginInformation.find(user => user.username === username && user.password === password);
+
+	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
+	const user = stmt.get(username) as any;
+
 	if (!user) {
 		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
 		return;
 	}
-	reply.send({ status: 200, message: 'Login successful', user });
+
+	const match = await bcrypt.compare(password, user.password_hash);
+	if (!match) {
+		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
+		return;
+	}
+
+	reply.send({ status: 200, message: 'Login successful', user: { id: user.id, alias: user.Alias } });
 });
+
+
+// app.post("/login", async (request, reply) => {
+// 	const { username, password } = request.body as { username: string; password: string };
+// 	const user = loginInformation.find(user => user.username === username && user.password === password);
+// 	if (!user) {
+// 		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
+// 		return;
+// 	}
+// 	reply.send({ status: 200, message: 'Login successful', user });
+// });
 
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
 	if (err) throw err;
