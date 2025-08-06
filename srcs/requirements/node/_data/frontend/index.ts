@@ -33,9 +33,38 @@ document.addEventListener("keydown", (e: KeyboardEvent) => {
 		e.preventDefault();
 	}
 });
+// Combined keyboard controls - work regardless of canvas focus during gameplay
 document.addEventListener("keydown", (e: KeyboardEvent) => {
-	if (e.key === " " && !canvas_focus) {
+	// Spacebar for pause/unpause
+	if (e.key === " ") {
+		e.preventDefault();
 		fetch("/pressspace");
+		return;
+	}
+	
+	// Paddle movement controls - work when canvas is focused or when no modals are open
+	const modalsOpen = document.querySelector('.modal:not([style*="display: none"])') !== null;
+	if (modalsOpen) return; // Don't interfere with modal inputs
+	
+	switch(e.key) {
+		case "ArrowUp":
+			e.preventDefault();
+			fetch("/pressArrowUp");
+			break;
+		case "ArrowDown":
+			e.preventDefault();
+			fetch("/pressArrowDown");
+			break;
+		case "w":
+		case "W":
+			e.preventDefault();
+			fetch("/pressW");
+			break;
+		case "s":
+		case "S":
+			e.preventDefault();
+			fetch("/pressS");
+			break;
 	}
 });
 
@@ -202,19 +231,26 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 		},
 		body: JSON.stringify(loginPlayer)
 	})
-		.then(response => {
-			if (!response.ok) {
-				const message: string = response.status === 401 ? 'Username or password is incorrect' : 'Login failed. Please try again.';
+		.then(response => response.json())
+		.then(data => {
+			if (data.status !== 200) {
+				const message: string = data.status === 401 ? 'Username or password is incorrect' : 'Login failed. Please try again.';
 				alert(message);
 				return;
 			}
 			alert("Login successful!");
+			
+			// Store session information
+			localStorage.setItem('sessionId', data.sessionId);
+			localStorage.setItem('userId', data.user.id);
+			localStorage.setItem('username', data.user.alias);
+			
 			hideGeneralLoginModal();
-			location.reload();// This will reload the page after login
-			return response.json();
+			showLoggedInUI(data.user.alias);
 		})
 		.catch(error => {
 			console.error("Error during Login:", error);
+			alert("Login failed. Please try again.");
 		});
 
 });
@@ -231,6 +267,246 @@ document.getElementById("showLoginPassword")?.addEventListener("click", () => {
 	} else {
 		passwordInput.type = "password";
 	}
+});
+
+// Session management functions
+function showLoggedInUI(username: string) {
+	// Hide login/register buttons
+	const loginButton = document.getElementById("loginButton");
+	const registerButton = document.getElementById("registerButton");
+	const tournamentButton = document.getElementById("tournamentButton");
+	
+	if (loginButton) loginButton.style.display = "none";
+	if (registerButton) registerButton.style.display = "none";
+	if (tournamentButton) tournamentButton.style.display = "none";
+	
+	// Create and show logged-in UI
+	const mainTitle = document.getElementById("maintitle");
+	if (mainTitle) {
+		mainTitle.textContent = `Welcome, ${username}!`;
+	}
+	
+	// Create game controls
+	createLoggedInControls();
+}
+
+function createLoggedInControls() {
+	// Remove existing controls if any
+	const existingControls = document.getElementById("gameControls");
+	if (existingControls) {
+		existingControls.remove();
+	}
+	
+	// Create new control panel
+	const controlPanel = document.createElement("div");
+	controlPanel.id = "gameControls";
+	controlPanel.style.cssText = `
+		position: absolute;
+		top: 15%;
+		left: 10%;
+		background: rgba(0, 0, 0, 0.8);
+		padding: 20px;
+		border-radius: 10px;
+		color: white;
+		z-index: 5;
+	`;
+	
+	controlPanel.innerHTML = `
+		<h3 style="margin-bottom: 15px; color: white;">Game Controls</h3>
+		<button id="startGameButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-2 block">
+			Start Game
+		</button>
+		<button id="pauseGameButton" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mb-2 block">
+			Pause/Resume
+		</button>
+		<button id="resetGameButton" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-2 block">
+			Reset Game
+		</button>
+		<button id="logoutButton" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mb-2 block">
+			Logout
+		</button>
+		<div style="margin-top: 15px; font-size: 12px; color: #ccc;">
+			<p><strong>Controls:</strong></p>
+			<p>Player 1: Arrow Keys ↑↓</p>
+			<p>Player 2: W/S Keys</p>
+			<p>Space: Pause/Resume</p>
+		</div>
+	`;
+	
+	document.body.appendChild(controlPanel);
+	
+	// Add event listeners
+	setupGameControlListeners();
+}
+
+function setupGameControlListeners() {
+	const startGameButton = document.getElementById("startGameButton");
+	const pauseGameButton = document.getElementById("pauseGameButton");
+	const resetGameButton = document.getElementById("resetGameButton");
+	const logoutButton = document.getElementById("logoutButton");
+	
+	startGameButton?.addEventListener("click", startGame);
+	pauseGameButton?.addEventListener("click", () => fetch("/pressspace"));
+	resetGameButton?.addEventListener("click", () => fetch("/resetgame"));
+	logoutButton?.addEventListener("click", logout);
+}
+
+function startGame() {
+	const sessionId = localStorage.getItem('sessionId');
+	if (!sessionId) {
+		alert("Session expired. Please log in again.");
+		location.reload();
+		return;
+	}
+	
+	fetch("/start-game", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({ sessionId })
+	})
+	.then(response => response.json())
+	.then(data => {
+		if (data.status === 200) {
+			alert("Game started! Use arrow keys and W/S to control paddles.");
+			// Start the game loop if not already running
+			if (!gameLoop) {
+				startGameLoop();
+			}
+		} else {
+			alert("Failed to start game: " + data.message);
+		}
+	})
+	.catch(error => {
+		console.error("Error starting game:", error);
+		alert("Failed to start game.");
+	});
+}
+
+function logout() {
+	const sessionId = localStorage.getItem('sessionId');
+	
+	fetch("/logout", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({ sessionId })
+	})
+	.then(() => {
+		// Clear local storage
+		localStorage.removeItem('sessionId');
+		localStorage.removeItem('userId');
+		localStorage.removeItem('username');
+		
+		// Reload page to show login screen
+		location.reload();
+	})
+	.catch(error => {
+		console.error("Error during logout:", error);
+		// Still clear local storage and reload
+		localStorage.clear();
+		location.reload();
+	});
+}
+
+// Check for existing session on page load
+function checkExistingSession() {
+	const sessionId = localStorage.getItem('sessionId');
+	const username = localStorage.getItem('username');
+	
+	if (sessionId && username) {
+		fetch(`/check-session/${sessionId}`)
+		.then(response => response.json())
+		.then(data => {
+			if (data.status === 200) {
+				showLoggedInUI(username);
+			} else {
+				// Session invalid, clear storage
+				localStorage.clear();
+			}
+		})
+		.catch(error => {
+			console.error("Error checking session:", error);
+			localStorage.clear();
+		});
+	}
+}
+
+// Game loop management
+let gameLoop: number | null = null;
+
+function startGameLoop() {
+	if (gameLoop) return; // Already running
+	
+	gameLoop = setInterval(() => {
+		handleContinuousMovement();
+		updateGameDisplay();
+	}, 1000 / 60) as unknown as number;
+}
+
+function handleContinuousMovement() {
+	// Check for continuous paddle movement
+	const modalsOpen = document.querySelector('.modal:not([style*="display: none"])') !== null;
+	if (modalsOpen) return; // Don't interfere with modal inputs
+	
+	if (keysPressed["ArrowUp"]) {
+		fetch("/pressArrowUp").catch(() => {}); // Silent catch to avoid console spam
+	}
+	if (keysPressed["ArrowDown"]) {
+		fetch("/pressArrowDown").catch(() => {});
+	}
+	if (keysPressed["w"] || keysPressed["W"]) {
+		fetch("/pressW").catch(() => {});
+	}
+	if (keysPressed["s"] || keysPressed["S"]) {
+		fetch("/pressS").catch(() => {});
+	}
+}
+
+function updateGameDisplay() {
+	fetch("/getstatus")
+	.then(response => response.json())
+	.then(data => {
+		// Update canvas with game state
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		
+		// Draw ball
+		ctx.fillStyle = "white";
+		ctx.beginPath();
+		ctx.arc(data.ballX, data.ballY, 10, 0, Math.PI * 2);
+		ctx.fill();
+		
+		// Draw paddles
+		ctx.fillRect(20, data.player1_y, 10, 100);
+		ctx.fillRect(canvas.width - 30, data.player2_y, 10, 100);
+		
+		// Draw scores
+		ctx.font = "30px Arial";
+		ctx.fillText(data.player1_score.toString(), canvas.width / 4, 50);
+		ctx.fillText(data.player2_score.toString(), 3 * canvas.width / 4, 50);
+		
+		// Draw center line
+		ctx.setLineDash([5, 15]);
+		ctx.beginPath();
+		ctx.moveTo(canvas.width / 2, 0);
+		ctx.lineTo(canvas.width / 2, canvas.height);
+		ctx.stroke();
+		
+		if (data.gamefinished) {
+			ctx.font = "40px Arial";
+			ctx.fillText("Game Over!", canvas.width / 2 - 100, canvas.height / 2);
+		}
+	})
+	.catch(error => {
+		console.error("Error updating game:", error);
+	});
+}
+
+// Initialize session check when page loads
+document.addEventListener('DOMContentLoaded', () => {
+	checkExistingSession();
 });
 
 

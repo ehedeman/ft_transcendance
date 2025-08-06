@@ -7,6 +7,21 @@ const saltRounds = 10;
 
 const app = fastify();
 
+// Simple session management (in production, use proper session store)
+interface UserSession {
+	userId: number;
+	username: string;
+	sessionId: string;
+	loginTime: Date;
+}
+
+const activeSessions = new Map<string, UserSession>();
+
+// Generate session ID
+function generateSessionId(): string {
+	return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
+
 // import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -225,29 +240,37 @@ app.get('/pressspace', async (request, reply) => {
 });
 
 app.get('/pressArrowUp', async (request, reply) => {
-	if (game.player1Paddle.y > 0 && !game.ball.ballPaused) {
-		game.player1Paddle.y -= 5; // Move paddle up
+	if (game.player1Paddle.y > 0) {
+		game.player1Paddle.y -= 15; // Increased movement speed
+		if (game.player1Paddle.y < 0) game.player1Paddle.y = 0; // Prevent going off screen
 	}
 	reply.send({ status: 'Paddle 1 moved up' });
 });
 
 app.get('/pressArrowDown', async (request, reply) => {
-	if (game.player1Paddle.y + game.player1Paddle.height < game.canvas.height && !game.ball.ballPaused) {
-		game.player1Paddle.y += 5; // Move paddle down
+	if (game.player1Paddle.y + game.player1Paddle.height < game.canvas.height) {
+		game.player1Paddle.y += 15; // Increased movement speed
+		if (game.player1Paddle.y + game.player1Paddle.height > game.canvas.height) {
+			game.player1Paddle.y = game.canvas.height - game.player1Paddle.height; // Prevent going off screen
+		}
 	}
 	reply.send({ status: 'Paddle 1 moved down' });
 });
 
 app.get('/pressW', async (request, reply) => {
-	if (game.player2Paddle.y > 0 && !game.ball.ballPaused) {
-		game.player2Paddle.y -= 5; // Move paddle up
+	if (game.player2Paddle.y > 0) {
+		game.player2Paddle.y -= 15; // Increased movement speed
+		if (game.player2Paddle.y < 0) game.player2Paddle.y = 0; // Prevent going off screen
 	}
 	reply.send({ status: 'Paddle 2 moved up' });
 });
 
 app.get('/pressS', async (request, reply) => {
-	if (game.player2Paddle.y + game.player2Paddle.height < game.canvas.height && !game.ball.ballPaused) {
-		game.player2Paddle.y += 5; // Move paddle down
+	if (game.player2Paddle.y + game.player2Paddle.height < game.canvas.height) {
+		game.player2Paddle.y += 15; // Increased movement speed
+		if (game.player2Paddle.y + game.player2Paddle.height > game.canvas.height) {
+			game.player2Paddle.y = game.canvas.height - game.player2Paddle.height; // Prevent going off screen
+		}
 	}
 	reply.send({ status: 'Paddle 2 moved down' });
 });
@@ -317,7 +340,6 @@ app.delete('/debug/users/:username', async (request, reply) => {
 	}
 });
 
-
 // Update user endpoint
 app.put('/debug/users/:username', async (request, reply) => {
 	try {
@@ -377,7 +399,6 @@ app.put('/debug/users/:username', async (request, reply) => {
 		}
 	}
 });
-
 
 // Update user password endpoint
 app.put('/debug/users/:username/password', async (request, reply) => {
@@ -472,7 +493,90 @@ app.post("/login", async (request, reply) => {
 		return;
 	}
 
-	reply.send({ status: 200, message: 'Login successful', user: { id: user.id, alias: user.Alias } });
+	// Create session
+	const sessionId = generateSessionId();
+	const session: UserSession = {
+		userId: user.id,
+		username: user.Alias,
+		sessionId: sessionId,
+		loginTime: new Date()
+	};
+	activeSessions.set(sessionId, session);
+
+	// Update user status to online
+	const updateStmt = db.prepare(`UPDATE users SET status = 'online', updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
+	updateStmt.run(user.id);
+
+	reply.send({ 
+		status: 200, 
+		message: 'Login successful', 
+		user: { id: user.id, alias: user.Alias },
+		sessionId: sessionId
+	});
+});
+
+// Check session endpoint
+app.get('/check-session/:sessionId', async (request, reply) => {
+	const { sessionId } = request.params as { sessionId: string };
+	
+	const session = activeSessions.get(sessionId);
+	if (!session) {
+		reply.status(401).send({ status: 401, message: 'Invalid session' });
+		return;
+	}
+
+	reply.send({ 
+		status: 200, 
+		message: 'Valid session', 
+		user: { id: session.userId, alias: session.username },
+		loginTime: session.loginTime
+	});
+});
+
+// Logout endpoint
+app.post('/logout', async (request, reply) => {
+	const { sessionId } = request.body as { sessionId: string };
+	
+	const session = activeSessions.get(sessionId);
+	if (session) {
+		// Update user status to offline
+		const updateStmt = db.prepare(`UPDATE users SET status = 'offline', updated_at = CURRENT_TIMESTAMP WHERE id = ?`);
+		updateStmt.run(session.userId);
+		
+		// Remove session
+		activeSessions.delete(sessionId);
+	}
+
+	reply.send({ status: 200, message: 'Logged out successfully' });
+});
+
+// Start game endpoint (requires valid session)
+app.post('/start-game', async (request, reply) => {
+	const { sessionId } = request.body as { sessionId: string };
+	
+	const session = activeSessions.get(sessionId);
+	if (!session) {
+		reply.status(401).send({ status: 401, message: 'Invalid session' });
+		return;
+	}
+
+	// Reset the game state for a new game
+	resetGame();
+	
+	reply.send({ 
+		status: 200, 
+		message: 'Game started successfully',
+		player: { id: session.userId, alias: session.username },
+		gameState: {
+			ballX: game.ball.ballX,
+			ballY: game.ball.ballY,
+			player1_y: game.player1Paddle.y,
+			player2_y: game.player2Paddle.y,
+			player1_score: game.player1.playerscore,
+			player2_score: game.player2.playerscore,
+			gamefinished: gameFinished
+		}
+	});
 });
 
 
