@@ -1,10 +1,52 @@
-
+import { ctx } from "./index.js";
 import { GameInfo, TournamentPlayer, TournamentStage } from "./frontendStructures.js";
 // import { rounds } from "./server.js";
+import { handleKeydown, handleKeyup } from "./index.js";
 
+type tournamentPlacements = {
+	username: string;
+	place: number;
+}
 
 let rounds = 1;
-function tournamentFinished(game:GameInfo): void
+
+export function showWinnerScreen(game: GameInfo, winner: string)
+{
+	document.removeEventListener('keydown', handleKeydown);
+	document.removeEventListener('keyup', handleKeyup);
+	const winnerScreen = document.getElementById("WinnerScreen");
+	if (winnerScreen)
+	{
+		winnerScreen.style.display = "block";
+		const text = document.getElementById("WinnerScreenText");
+		if (text)
+			text.textContent = winner + " won!";
+	}
+}
+
+function showTournamentResults(placements: tournamentPlacements[], game: GameInfo): void
+{
+	game.t.finishScreenRunning = true;
+	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
+	const TournamentContinue = document.getElementById("tournamentFinishContinue");
+	const resetButton = document.getElementById("tournamentResetButton");
+	if (TournamentContinue) TournamentContinue.style.display = "block";
+	if (resetButton) resetButton.style.display = "none";
+	
+	const results = document.getElementById("tournamentResults") as HTMLBodyElement;
+	const placementList = document.getElementById("placementList") as HTMLBodyElement;
+
+	placementList.innerHTML = "";
+	placements.forEach((player, index) => {
+		const listItem = document.createElement("li");
+		listItem.textContent = `${player.username}`;
+   		placementList.appendChild(listItem);
+ 	});
+
+	results.style.display = "block";
+}
+
+export function tournamentFinished(game:GameInfo): void
 {
 	var last = -1;
 	var third = -1;
@@ -20,15 +62,17 @@ function tournamentFinished(game:GameInfo): void
 		second = tournamentFindPlayer(game.t.matches[2].loser?.name, game);
 	if (last !== -1 && first !== -1 && third !== -1 && second !== -1 )
 	{
-			var lastPlace = game.t.players[last];
-			var thirdPlace = game.t.players[third];
-			var secondPlace = game.t.players[second];
-			var firstPlace = game.t.players[first];
-			// const placements: TournamentPlayer[] = [
-			// { name: firstPlace.name, score: firstPlace.score },
-			// { username: "Bob", score: 100 },
-			// { username: "Charlie", score: 80 },
-			// { username: "Dana", score: 60 }
+		var lastPlace = game.t.players[last];
+		var thirdPlace = game.t.players[third];
+		var secondPlace = game.t.players[second];
+		var firstPlace = game.t.players[first];
+		const placements: tournamentPlacements[] = [
+		{ username: firstPlace.name, place: 1 },
+		{ username: secondPlace.name, place: 2 },
+		{ username: thirdPlace.name, place: 3 },
+		{ username: lastPlace.name, place: 4 }
+		];
+		showTournamentResults(placements, game);
 	}
 }
 
@@ -36,7 +80,6 @@ export function tournamentEnd(returnValue: number, game: GameInfo): number
 {
 	game.t.currentRound = 0;
 	game.tournamentLoopActive = false;
-	location.reload();	//restores the regular interface
 	if (game.t.players.length > 0)
 		game.t.players.splice(0, game.t.players.length);
 	return (returnValue);
@@ -114,8 +157,9 @@ export function tournamentPlayGame(game: GameInfo): number 	//loop sets matches 
 	}
 	else if (game.t.stage === TournamentStage.Complete)
 	{
-		tournamentFinished(game);
-		return (tournamentEnd(0, game));
+		// tournamentFinished(game);
+		// return (tournamentEnd(0, game));
+		return (0);
 	}
 	return 0;
 }
@@ -156,17 +200,17 @@ function setMatchOrder(game: GameInfo): void
 	}
 }
 
-export function tournamentLogic(game: GameInfo): void
+export function tournamentLogic(game: GameInfo): number
 {
 	var length = game.t.matches.length;
 
-	console.log("Current Match:", game.t.matches[length -1].player1.name, "vs", game.t.matches[length -1].player2.name);
+	//console.log("Current Match:", game.t.matches[length -1].player1.name, "vs", game.t.matches[length -1].player2.name);
 
 	if (game.t.matches[length -1].player1.score === rounds || 
 		game.t.matches[length -1].player2.score === rounds)
 	{
 		// makes sure that once game is done it is set to correct stage
-		console.log("Current round:", game.t.currentRound);
+		// console.log("Current round:", game.t.currentRound);
 		if (game.t.currentRound === 1)
 			game.t.stage = TournamentStage.Regular2;	//sets the stage to the oncoming stage
 		else if (game.t.currentRound === 2)
@@ -187,7 +231,7 @@ export function tournamentLogic(game: GameInfo): void
 			game.t.matches[length - 1].loser = game.t.matches[length - 1].player1;
 		}
 
-		alert(game.t.matches[length - 1].winner?.name + " wins!");
+		showWinnerScreen(game, game.t.matches[length - 1].winner.name);
 
 		if (game.t.stage < TournamentStage.Consolation)  // if tournament is complete, we set the winners and losers
 		{
@@ -202,11 +246,12 @@ export function tournamentLogic(game: GameInfo): void
 			else
 			{
 				alert("An error has occurred. Stopping tournament..");
-				tournamentEnd(1, game);
-				return ;
+				return tournamentEnd(1, game);
 			}
 		}
 		game.ball.ballPaused = true; 
-		tournamentPlayGame(game);
+		if (tournamentPlayGame(game) === 0)
+			return (1);
 	}
+	return (0);
 }

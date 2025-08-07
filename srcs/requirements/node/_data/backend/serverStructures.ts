@@ -80,7 +80,7 @@ export class GameInfo {
         this.player1Paddle.x = canvas.width - 100; // Right side
         this.player2Paddle.x = 100; // Left side
     
-        this.rounds = 3;	//amounts of rounds to play -> make uneven to avoid draw
+        this.rounds = 1;	//amounts of rounds to play -> make uneven to avoid draw
 
         this.ball.ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
         this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;

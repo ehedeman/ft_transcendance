@@ -1,14 +1,14 @@
 import { Player, canvasInfo, BallInfo, playerPaddle, GameInfo, TournamentStage, PlayerLogin, PlayerRegistration } from "./frontendStructures.js";
 import { tournamentEnd, tournamentLogic, tournamentPlayGame } from "./tournament.js";
 // import e{ rounds } from "./server.js";
-
+import { tournamentFinished, showWinnerScreen } from "./tournament.js";
 
 let rounds = 1;
 
 let game = new GameInfo();
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+export const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 canvas.width = 900;
 canvas.height = 600;
@@ -17,27 +17,34 @@ canvas.style.background = "black";
 
 let canvas_focus: boolean = false;
 canvas.addEventListener("click", () => canvas_focus = true);
+
 document.addEventListener("click", (e: MouseEvent) => {
 	if (e.target !== canvas) canvas_focus = false;
 });
+
 const keysPressed: { [key: string]: boolean } = {};
-document.addEventListener("keydown", (e: KeyboardEvent) => {
-	keysPressed[e.key] = true;
-});
-document.addEventListener("keyup", (e: KeyboardEvent) => {
-	keysPressed[e.key] = false;
-});
-document.addEventListener("keydown", (e: KeyboardEvent) => {
+
+export function handleKeydown(e: KeyboardEvent): void
+{
+	if (e.key === " " && !canvas_focus) {
+		fetch("/pressspace");
+	}
+
 	const scrollKeys: string[] = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'];
 	if (scrollKeys.indexOf(e.key) !== -1) {
 		e.preventDefault();
 	}
-});
-document.addEventListener("keydown", (e: KeyboardEvent) => {
-	if (e.key === " " && !canvas_focus) {
-		fetch("/pressspace");
-	}
-});
+
+	keysPressed[e.key] = true;
+}
+
+export function handleKeyup(e: KeyboardEvent): void
+{
+	keysPressed[e.key] = false;
+}
+
+document.addEventListener("keydown", handleKeydown);
+document.addEventListener("keyup", handleKeyup);
 
 let gamefinished = false;
 /*--------------------------two players game register----------------------------*/
@@ -84,7 +91,8 @@ function hideGeneralRegistrationModal() {
 	modal.style.display = "none";
 }
 
-document.getElementById("registerButton")?.addEventListener("click", () => {
+document.getElementById("registerButton")?.addEventListener("click", () => 
+{
 	const registerButton = document.getElementById("registerButton");
 	const tournamentButton = document.getElementById("tournamentButton");
 	const loginButton = document.getElementById("loginButton");
@@ -170,7 +178,8 @@ function hideGeneralLoginModal() {
 	modal.style.display = "none";
 }
 
-document.getElementById("loginButton")?.addEventListener("click", () => {
+document.getElementById("loginButton")?.addEventListener("click", () => 
+{
 	const registerButton = document.getElementById("registerButton");
 	const tournamentButton = document.getElementById("tournamentButton");
 	const loginButton = document.getElementById("loginButton");
@@ -284,7 +293,8 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
 }
 
 
-async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
+async function tournamentRegisterPlayers (game: GameInfo): Promise<void> 
+{
 	const players: PlayerLogin[] = [];
 	for (let i = 1; i <= 4; i++) {
 		const player = await registerPlayer(i, game);
@@ -296,6 +306,7 @@ async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 		.then((response) => {
 			if (!response.ok) {
 				tournamentEnd(0, game);
+				location.reload();
 				return;
 			}
 		})
@@ -305,6 +316,8 @@ async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 	//uncommment once database is ready
 	game.t.stage = TournamentStage.Regular1;
 	game.tournamentLoopActive = true;
+	document.addEventListener("keydown", handleKeydown);
+	document.addEventListener("keyup", handleKeyup);
 	tournamentPlayGame(game);
 }
 
@@ -335,8 +348,69 @@ function hidetournamentRegistrationModal() {
 	modal.style.display = "none";
 }
 
+document.getElementById("tournamentFinishContinue")?.addEventListener("click", () => {
+	//game.t.finishScreenRunning = false;
+	tournamentEnd(0, game);
+	location.reload();
+});
+
+document.getElementById("tournamentResetButton")?.addEventListener("click", () => {
+	// tournamentEnd(0, game);
+	location.reload();
+});
+
+document.getElementById("WinnerScreenContinue")?.addEventListener("click", () => {
+	fetch("/gameContinue");
+	if (game.tournamentLoopActive && game.t.stage === TournamentStage.Complete)
+		tournamentFinished(game);
+	const winnerScreen = document.getElementById("WinnerScreen");
+	if (winnerScreen) winnerScreen.style.display = "none";
+	document.addEventListener("keydown", handleKeydown);
+	document.addEventListener("keyup", handleKeyup);
+	getGameStatus();
+});
+
+
+document.getElementById("playSelect")?.addEventListener("change",(event:Event) => {
+	const playSelect = document.getElementById("playSelect") as HTMLSelectElement;
+	const target = event.target as HTMLSelectElement;
+	const selectedOption = target.value;
+	if (playSelect)
+		playSelect.selectedIndex = 0;
+	if (selectedOption) {
+		switch (selectedOption) {
+			// case "play":
+			// 	break ;
+			case "tournament":
+				document.removeEventListener('keydown', handleKeydown);
+				document.removeEventListener('keyup', handleKeyup);
+				const registerButton = document.getElementById("registerButton");
+				const select = document.getElementById("playSelect");
+				const loginButton = document.getElementById("loginButton");
+
+				if (registerButton) registerButton.style.display = "none";
+				if (select) select.style.display = "none";
+				if (loginButton) loginButton.style.display = "none";
+
+				const resetButton = document.getElementById("tournamentResetButton");
+				if (resetButton) resetButton.style.display = "block";
+				tournamentRegisterPlayers(game);
+				break;
+			case "multiplayer":
+				
+				break
+			case "1v1":
+				
+				break
+			default:
+				break;
+		}
+	}
+});
+
 document.getElementById("tournamentButton")?.addEventListener("click", () => {
-	game.tournamentLoopActive = true;
+	document.removeEventListener('keydown', handleKeydown);
+	document.removeEventListener('keyup', handleKeyup);
 	const registerButton = document.getElementById("registerButton");
 	const tournamentButton = document.getElementById("tournamentButton");
 	const loginButton = document.getElementById("loginButton");
@@ -345,17 +419,8 @@ document.getElementById("tournamentButton")?.addEventListener("click", () => {
 	if (tournamentButton) tournamentButton.style.display = "none";
 	if (loginButton) loginButton.style.display = "none";
 
-	const resetButton = document.createElement("button");
-	resetButton.id = "resetButton";
-	resetButton.textContent = "Reset Tournament";
-	resetButton.className = "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4";
-	resetButton.style.position = "absolute";
-	resetButton.style.zIndex = "2";
-	resetButton.style.left = "50%";
-	resetButton.style.top = "10%";
-	resetButton.style.transform = "translateX(-50%)";
-	document.body.appendChild(resetButton);
-	resetButton.addEventListener("click", () => tournamentEnd(0, game));
+	const resetButton = document.getElementById("tournamentResetButton");
+	if (resetButton) resetButton.style.display = "block";
 
 	tournamentRegisterPlayers(game);
 });
@@ -364,10 +429,11 @@ document.getElementById("tournamentButton")?.addEventListener("click", () => {
 document.getElementById("CancelGeneralTournament")?.addEventListener("click", () => {
 	hidetournamentRegistrationModal();
 	tournamentEnd(1, game);
+	location.reload();	//restores the regular interface
 });
 
-document.getElementById("showRegisterPassword")?.addEventListener("click", () => {
-	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
+document.getElementById("showTournamentPassword")?.addEventListener("click", () => {
+	const passwordInput = document.getElementById("tournamentPassword") as HTMLInputElement;
 	if (passwordInput.type === "password") {
 		passwordInput.type = "text";
 	} else {
@@ -395,16 +461,8 @@ function drawCircle(x: number, y: number, radius: number): void {
 	ctx.closePath();
 }
 
-function searchPlayer(name: string): number {
-	for (let i = 0; i < game.players.length; i++) {
-		if (game.players[i].name === name) {
-			return i;
-		}
-	}
-	return -1; // Player not found
-}
-
-function calculatePaddleCoords(): void {
+function calculatePaddleCoords(): void
+{
 	if (keysPressed["ArrowUp"]) {
 		fetch("/pressArrowUp");
 	}
@@ -423,40 +481,44 @@ function getGameStatus(): void {
 	if (!gamefinished) {
 		var length = game.t.matches.length;
 		fetch("/getstatus")
-			.then(response => response.json())
-			.then(data => {
-				game.ball.ballX = data.ballX;
-				game.ball.ballY = data.ballY;
-				game.player1Paddle.y = data.player1_y;
-				game.player2Paddle.y = data.player2_y;
-				if (game.tournamentLoopActive) {
-					game.t.matches[length - 1].player1.score = data.player1_score;
-					game.t.matches[length - 1].player2.score = data.player2_score;
-				}
-				else {
-					game.players[0].playerscore = data.player1_score;
-					game.players[1].playerscore = data.player2_score;
-				}
-				game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
-				if (data.gamefinished) {
-					fetch("/resetgame")
-						.then(response => response.json())
-						.then(data => {
-							game.ball.ballX = data.ballX;
-							game.ball.ballY = data.ballY;
-							game.player1Paddle.y = data.player1_y;
-							game.player2Paddle.y = data.player2_y;
-							if (game.tournamentLoopActive) {
-								game.t.matches[length - 1].player1.score = data.player1_score;
-								game.t.matches[length - 1].player2.score = data.player2_score;
-							}
-							else {
-								game.players[0].playerscore = data.player1_score;
-								game.players[1].playerscore = data.player2_score;
-							}
-						});
-				}
-			});
+		.then(response => response.json())
+		.then(data => {
+			game.ball.ballX = data.ballX;
+			game.ball.ballY = data.ballY;
+			game.player1Paddle.y = data.player1_y;
+			game.player2Paddle.y = data.player2_y;
+			if (game.tournamentLoopActive && length)
+			{
+				game.t.matches[length -1].player1.score = data.player1_score;
+				game.t.matches[length -1].player2.score = data.player2_score;
+			}
+			else
+			{
+				game.players[0].playerscore = data.player1_score;
+				game.players[1].playerscore = data.player2_score;
+			}
+			game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
+			if (data.gamefinished) {
+				fetch("/resetgame")
+				.then(response => response.json())
+				.then(data => {
+					game.ball.ballX = data.ballX;
+					game.ball.ballY = data.ballY;
+					game.player1Paddle.y = data.player1_y;
+					game.player2Paddle.y = data.player2_y;
+					if (game.tournamentLoopActive)
+					{
+						game.t.matches[length -1].player1.score = data.player1_score;
+						game.t.matches[length -1].player2.score = data.player2_score;
+					}
+					else
+					{
+						game.players[0].playerscore = data.player1_score;
+						game.players[1].playerscore = data.player2_score;
+					}
+				});
+			}
+		});
 	}
 }
 
@@ -464,12 +526,12 @@ function singlePlayerGame(): void {
 	if (game.players[0].playerscore === rounds) {
 		game.players[0].gamesWon++;
 		game.players[1].gamesLost++;
-		alert("Game Over! Final Score: " + game.players[0].name + " " + game.players[0].playerscore + " - " + game.players[1].name + " " + game.players[1].playerscore);
+		showWinnerScreen(game, game.players[0].name);
 	}
 	if (game.players[1].playerscore === rounds) {
 		game.players[1].gamesWon++;
 		game.players[0].gamesLost++;
-		alert("Game Over! Final Score: " + game.players[0].name + " " + game.players[0].playerscore + " - " + game.players[1].name + " " + game.players[1].playerscore);
+		showWinnerScreen(game, game.players[1].name);
 	}
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	ctx.font = "20px Arial"; ctx.fillStyle = "white";
@@ -487,14 +549,15 @@ function singlePlayerGame(): void {
 
 function tournamentGame(): number {
 	getGameStatus();
-	tournamentLogic(game);
+	if (tournamentLogic(game) === 1)
+		return (0);
 	var length = game.t.matches.length;
 	if (game.t.stage === TournamentStage.Complete)
-		return 1;
+			return 1;
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(game.t.matches[length - 1].player1.name + ": " + game.t.matches[length - 1].player1.score, 10, 25);
-	ctx.fillText(game.t.matches[length - 1].player2.name + ": " + game.t.matches[length - 1].player2.score, 10, 50);
+	ctx.fillText(game.t.matches[length -1].player1.name + ": " + game.t.matches[length -1].player1.score, 10, 25);
+	ctx.fillText(game.t.matches[length -1].player2.name + ": " + game.t.matches[length -1].player2.score, 10, 50);
 	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
 	calculatePaddleCoords();
 	drawMiddlePath();
@@ -507,13 +570,14 @@ function tournamentGame(): number {
 }
 
 function updateGame(): void {
-	if (game.players.length >= 2 && !game.tournamentLoopActive) {
-		singlePlayerGame();
-	}
-	else if (game.tournamentLoopActive && game.t.stage !== TournamentStage.Registration) {
-		tournamentGame();
-		if (game.t.stage === TournamentStage.Complete)
-			return;
+	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration)
+	{
+		if (game.players.length >= 2 && !game.tournamentLoopActive) {
+			singlePlayerGame();
+		}
+		else if (game.tournamentLoopActive) {
+			tournamentGame();
+		}
 	}
 	requestAnimationFrame(updateGame);
 }
