@@ -1,6 +1,7 @@
 {
   "name": "my-node-app",
   "version": "1.0.0",
+  "type": "module",
   "description": "A simple Node.js application",
   "main": "index.js",
   "scripts": {
@@ -9,6 +10,9 @@
   "author": "marlon",
   "license": "MIT",
   "dependencies": {
+    "@fastify/static": "^7.0.0",
+    "bcrypt": "^5.1.0",
+    "better-sqlite3": "^12.2.0",
     "fastify": "^4.0.0"
   }
 }

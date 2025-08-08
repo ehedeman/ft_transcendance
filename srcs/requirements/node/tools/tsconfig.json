@@ -1,11 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "ES6",
+    "module": "ESnext",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "target": "esnext",
     "outDir": "./data/public",
-    "rootDir": "./data/frontend",
+    "rootDir": "./",
     "alwaysStrict": true,
-    "strict": true
-  },
-  "include": ["./data/frontend"]
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "noEmit": false,
+    "types": ["node"]
+    // "typeRoots": ["./node_modules/@types"]
+  }
 }

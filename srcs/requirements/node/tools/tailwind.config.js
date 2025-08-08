@@ -1,5 +1,5 @@
 module.exports = {
-  content: ['./$VOLUME_NAME/public/index.html', './$VOLUME_NAME/frontend/**/*.{ts,js}'],
+  content: ['./data/public/index.html', './data/frontend/**/*.{ts,js}'],
   theme: {
     extend: {},
   },

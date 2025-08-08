@@ -1,331 +1,590 @@
+import { Player, canvasInfo, BallInfo, playerPaddle, GameInfo, TournamentStage, PlayerLogin, PlayerRegistration } from "./frontendStructures.js";
+import { tournamentEnd, tournamentLogic, tournamentPlayGame } from "./tournament.js";
+// import e{ rounds } from "./server.js";
+import { tournamentFinished, showWinnerScreen } from "./tournament.js";
 
-import { GameInfo, Player, TournamentStage } from "./utils/structures";
-import { tournamentEnd, tournamentLogic, tournamentPlayGame } from "./utils/tournament";
-
-export let canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-canvas.width = 900;
-canvas.height = 600;
+let rounds = 1;
 
 let game = new GameInfo();
 
+const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
+export const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+canvas.width = 900;
+canvas.height = 600;
 canvas.style.background = "black";
 
 
-/*---------------------------events declaration-----------------------------------*/
+let canvas_focus: boolean = false;
+canvas.addEventListener("click", () => canvas_focus = true);
 
-canvas.addEventListener("click", () => game.canvas_focus = true);
 document.addEventListener("click", (e: MouseEvent) => {
-	if (e.target !== canvas) game.canvas_focus = false;
+	if (e.target !== canvas) canvas_focus = false;
 });
 
 const keysPressed: { [key: string]: boolean } = {};
-document.addEventListener("keydown", (e: KeyboardEvent) => {
-	keysPressed[e.key] = true;
-});
-document.addEventListener("keyup", (e: KeyboardEvent) => {
-	keysPressed[e.key] = false;
-});
 
-document.addEventListener("keydown", (e: KeyboardEvent) => {
+export function handleKeydown(e: KeyboardEvent): void
+{
+	if (e.key === " " && !canvas_focus) {
+		fetch("/pressspace");
+	}
+
 	const scrollKeys: string[] = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'];
 	if (scrollKeys.indexOf(e.key) !== -1) {
 		e.preventDefault();
 	}
-});
 
-document.addEventListener("keydown", (e: KeyboardEvent) => {
 	keysPressed[e.key] = true;
-	// Start the ball movement when space is pressed
-	if (e.code === "Space" && game.ball.ballPaused) {
-		game.ball.ballPaused = false;
-	}
-});
+}
 
-document.getElementById("registerButton")?.addEventListener("click", () => {
-	const player_name = prompt("Enter your name:");
-	if (player_name === "") {
-		alert("Name cannot be empty!");
-		return;
-	}
-	else if (player_name === null) {
-		alert("Registration cancelled.");
-		return;
-	}
-	game.playersGeneral.push({
-		name: player_name,
-		gamesWon: 0,
-		gamesLost: 0
-	});
-});
+export function handleKeyup(e: KeyboardEvent): void
+{
+	keysPressed[e.key] = false;
+}
 
-/*--------------------------register modal declaration----------------------------*/
+document.addEventListener("keydown", handleKeydown);
+document.addEventListener("keyup", handleKeyup);
+
+let gamefinished = false;
+/*--------------------------two players game register----------------------------*/
 
 
-function showRegistrationModal(playerCount: number) {
-	const modal = document.getElementById("registrationModal") as HTMLDivElement;
-	const playerInputs = document.getElementById("playerInputs") as HTMLDivElement;
-	playerInputs.innerHTML = "";
-	for (let i = 0; i < playerCount; i++) {
-		const input = document.createElement("input");
-		input.type = "text";
-		input.placeholder = `Player ${i + 1} Name`;
-		input.required = true;
-		input.className = "mb-2 px-2 py-1 border rounded block";
-		playerInputs.appendChild(input);
-	}
+
+
+/*--------------------------registration modal declaration--------------------------*/
+
+
+
+
+
+function showGeneralRegistrationModal(game: GameInfo) {
+	const modal = document.getElementById("generalRegistrationModal") as HTMLDivElement;
+	const usernameInput = document.getElementById("registerUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
+	const countryInput = document.getElementById("registerCountry") as HTMLInputElement;
+	const nameInput = document.getElementById("registerName") as HTMLInputElement;
+	nameInput.value = "";
+	usernameInput.value = "";
+	passwordInput.value = "";
+	countryInput.value = "";
+	usernameInput.type = "text";
+	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
+	nameInput.type = "text";
+	nameInput.className = "mb-2 px-2 py-1 border rounded block";
+	countryInput.type = "text";
+	countryInput.className = "mb-2 px-2 py-1 border rounded block";
+	passwordInput.type = "password";
+	usernameInput.placeholder = "Username";
+	passwordInput.placeholder = "Password";
+	countryInput.placeholder = "Country";
+	nameInput.placeholder = "Name";
+	usernameInput.required = true;
+	passwordInput.required = true;
+	nameInput.required = true;
+	countryInput.required = true;
 	modal.style.display = "block";
 }
 
-function hideRegistrationModal() {
-	const modal = document.getElementById("registrationModal") as HTMLDivElement;
+function hideGeneralRegistrationModal() {
+	const modal = document.getElementById("generalRegistrationModal") as HTMLDivElement;
 	modal.style.display = "none";
 }
 
-document.getElementById("tournamentButton")?.addEventListener("click", () => {
+document.getElementById("registerButton")?.addEventListener("click", () => 
+{
 	const registerButton = document.getElementById("registerButton");
 	const tournamentButton = document.getElementById("tournamentButton");
+	const loginButton = document.getElementById("loginButton");
 	if (registerButton) registerButton.style.display = "none";
 	if (tournamentButton) tournamentButton.style.display = "none";
-	const resetButton = document.createElement("button");
-	resetButton.id = "resetButton";
-	resetButton.textContent = "Reset Tournament";
-	resetButton.className = "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4";
-	resetButton.style.position = "absolute";
-	resetButton.style.zIndex = "2";
-	resetButton.style.left = "50%";
-	resetButton.style.top = "10%";
-	resetButton.style.transform = "translateX(-50%)";
-	document.body.appendChild(resetButton);
-	resetButton.addEventListener("click", () => tournamentEnd(0, game));
-	showRegistrationModal(game.t.maxPlayers);
+	if (loginButton) loginButton.style.display = "none";
+	showGeneralRegistrationModal(game);
 });
 
-document.getElementById("registrationForm")?.addEventListener("submit", (e) => {
+document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
 	e.preventDefault();
-	const playerInputs = Array.from(document.querySelectorAll("#playerInputs input")) as HTMLInputElement[];
-	game.t.players = [];
-	for (const input of playerInputs) {
-		if (!input.value.trim()) {
-			alert("Name cannot be empty!");
-			return;
-		}
-		game.t.players.push({
-			name: input.value.trim(),
-			playerNumber: game.t.players.length + 1,
-			gamesWon: 0,
-			score: 0
-		});
+	const nameInput = document.getElementById("registerName") as HTMLInputElement;
+	const usernameInput = document.getElementById("registerUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
+	const countryInput = document.getElementById("registerCountry") as HTMLInputElement;
+	const name = nameInput.value.trim();
+	const username = usernameInput.value.trim();
+	const password = passwordInput.value.trim();
+	const country = countryInput.value.trim();
+	if (!username || !password || !name || !country) {
+		alert("Name, username, password and country cannot be empty!");
+		return;
 	}
-	hideRegistrationModal();
+
+	const newPlayer: PlayerRegistration = {
+		name,
+		username,
+		password,
+		country,
+	};
+	fetch("/register", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(newPlayer)
+	})
+		.then(response => {
+			if (!response.ok) {
+				alert("Registration failed. Please try again.");
+				return;
+			}
+			console.log("Registration successful:", response);
+			alert("Registration successful! You can now log in.");
+			hideGeneralRegistrationModal();
+			location.reload();// This will reload the page after registration
+			return response.json();
+		})
+		.catch(error => {
+			console.error("Error during Registration:", error);
+		});
+});
+
+
+document.getElementById("generalCancelRegistration")?.addEventListener("click", () => {
+	hideGeneralRegistrationModal();
+	location.reload();
+});
+
+
+/*-----------------------------login modal declaration------------------------------*/
+
+
+
+function showGeneralLoginModal(game: GameInfo) {
+	const modal = document.getElementById("generalLoginModal") as HTMLDivElement;
+	const usernameInput = document.getElementById("loginUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("loginPassword") as HTMLInputElement;
+	usernameInput.value = "";
+	passwordInput.value = "";
+	usernameInput.type = "text";
+	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
+	passwordInput.type = "password";
+	usernameInput.placeholder = "Username";
+	passwordInput.placeholder = "Password";
+	usernameInput.required = true;
+	passwordInput.required = true;
+	modal.style.display = "block";
+}
+
+function hideGeneralLoginModal() {
+	const modal = document.getElementById("generalLoginModal") as HTMLDivElement;
+	modal.style.display = "none";
+}
+
+document.getElementById("loginButton")?.addEventListener("click", () => 
+{
+	const registerButton = document.getElementById("registerButton");
+	const tournamentButton = document.getElementById("tournamentButton");
+	const loginButton = document.getElementById("loginButton");
+	if (registerButton) registerButton.style.display = "none";
+	if (tournamentButton) tournamentButton.style.display = "none";
+	if (loginButton) loginButton.style.display = "none";
+
+	showGeneralLoginModal(game);
+});
+
+document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
+	e.preventDefault();
+	const usernameInput = document.getElementById("loginUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("loginPassword") as HTMLInputElement;
+	const username = usernameInput.value.trim();
+	const password = passwordInput.value.trim();
+	if (!username || !password) {
+		alert("Username and password cannot be empty!");
+		return;
+	}
+	var loginPlayer: PlayerLogin = {
+		username: username,
+		password: password,
+	};
+	fetch("/login", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(loginPlayer)
+	})
+		.then(response => {
+			if (!response.ok) {
+				const message: string = response.status === 401 ? 'Username or password is incorrect' : 'Login failed. Please try again.';
+				alert(message);
+				return;
+			}
+			alert("Login successful!");
+			hideGeneralLoginModal();
+			game.players.push({
+				name: loginPlayer.username,
+				gamesLost: 0,
+				gamesWon: 0,
+				playerscore: 0,
+			}
+			);
+			location.reload();// This will reload the page after login
+			return response.json();
+		})
+		.catch(error => {
+			console.error("Error during Login:", error);
+		});
+});
+
+document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
+	hideGeneralLoginModal();
+	location.reload();
+});
+
+document.getElementById("showLoginPassword")?.addEventListener("click", () => {
+	const passwordInput = document.getElementById("loginPassword") as HTMLInputElement;
+	if (passwordInput.type === "password") {
+		passwordInput.type = "text";
+	} else {
+		passwordInput.type = "password";
+	}
+});
+
+
+
+
+/*--------------------------tournament modal declaration----------------------------*/
+
+
+function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
+	return new Promise((resolve) => {
+		const tournamentForm = document.getElementById("tournamentRegistrationForm") as HTMLFormElement;
+		showtournamentRegistrationModal(i);
+		tournamentForm.onsubmit = (e: Event) => {
+			e.preventDefault();
+			const usernameInput = document.getElementById("tournamentUsername") as HTMLInputElement;
+			const passwordInput = document.getElementById("tournamentPassword") as HTMLInputElement;
+			const username = usernameInput.value.trim();
+			const password = passwordInput.value.trim();
+
+			if (!username || !password) {
+				alert("Username and password cannot be empty!");
+				return;
+			}
+
+			const loginPlayer: PlayerLogin = { username, password };
+
+			fetch("/login", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(loginPlayer),
+			})
+			.then((response) => {
+				if (!response.ok) {
+					alert("Login failed. Please try again.");
+					return;
+				}
+				alert("Login successful!");
+				// return response.json();
+			})
+			.then((data) => {
+				console.log("Login successful:", data);
+			})
+			.catch(error => {
+				console.error("Error during Login:", error);
+			});
+			game.t.players.push({ name: username, score: 0 });
+			hidetournamentRegistrationModal();
+			resolve(loginPlayer);
+		};
+	});
+}
+
+
+async function tournamentRegisterPlayers (game: GameInfo): Promise<void> 
+{
+	const players: PlayerLogin[] = [];
+	for (let i = 1; i <= 4; i++) {
+		const player = await registerPlayer(i, game);
+		fetch("/login", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(player),
+		})
+		.then((response) => {
+			if (!response.ok) {
+				tournamentEnd(0, game);
+				location.reload();
+				return;
+			}
+		})
+		players.push(player);
+		game.players.push({ name: players[players.length - 1].username, gamesLost: 0, gamesWon: 0, playerscore: 0 });
+	}
+	//uncommment once database is ready
 	game.t.stage = TournamentStage.Regular1;
 	game.tournamentLoopActive = true;
-	game.gameLoopActive = false;
+	document.addEventListener("keydown", handleKeydown);
+	document.addEventListener("keyup", handleKeyup);
 	tournamentPlayGame(game);
-	// tournamentStart();
-});
-
-document.getElementById("cancelRegistration")?.addEventListener("click", () => {
-	hideRegistrationModal();
-	tournamentEnd(1, game);
-});
-
-/*---------------------------function declaration---------------------------------*/
-
-function drawMiddlePath(): void {
-	game.ctx.strokeStyle = "white";
-	game.ctx.lineWidth = 2;
-	for (let y = 0; y < game.window_height; y += 20) {
-		game.ctx.beginPath();
-		game.ctx.moveTo(game.window_width / 2, y);
-		game.ctx.lineTo(game.window_width / 2, y + 10);
-		game.ctx.stroke();
-	}
 }
 
+function showtournamentRegistrationModal(playerNr: number): void {
+
+	const modal = document.getElementById("tournamentRegistrationModal")!;
+	const usernameInput = document.getElementById("tournamentUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("tournamentPassword") as HTMLInputElement;
+	const header = document.getElementById("tournamentRegisterHeader") as HTMLHeadingElement;
+
+	header.textContent = `Register Tournament Player ${playerNr}`;
+	usernameInput.value = "";
+	passwordInput.value = "";
+	usernameInput.type = "text";
+	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
+	passwordInput.type = "password";
+	usernameInput.placeholder = "Username";
+	passwordInput.placeholder = "Password";
+	usernameInput.required = true;
+	passwordInput.required = true;
+
+	modal.style.display = "block";
+}
+
+
+function hidetournamentRegistrationModal() {
+	const modal = document.getElementById("tournamentRegistrationModal") as HTMLDivElement;
+	modal.style.display = "none";
+}
+
+document.getElementById("tournamentFinishContinue")?.addEventListener("click", () => {
+	//game.t.finishScreenRunning = false;
+	tournamentEnd(0, game);
+	location.reload();
+});
+
+document.getElementById("tournamentResetButton")?.addEventListener("click", () => {
+	// tournamentEnd(0, game);
+	location.reload();
+});
+
+document.getElementById("WinnerScreenContinue")?.addEventListener("click", () => {
+	fetch("/gameContinue");
+	if (game.tournamentLoopActive && game.t.stage === TournamentStage.Complete)
+		tournamentFinished(game);
+	const winnerScreen = document.getElementById("WinnerScreen");
+	if (winnerScreen) winnerScreen.style.display = "none";
+	document.addEventListener("keydown", handleKeydown);
+	document.addEventListener("keyup", handleKeyup);
+	getGameStatus();
+});
+
+
+document.getElementById("playSelect")?.addEventListener("change",(event:Event) => {
+	const playSelect = document.getElementById("playSelect") as HTMLSelectElement;
+	const target = event.target as HTMLSelectElement;
+	const selectedOption = target.value;
+	if (playSelect)
+		playSelect.selectedIndex = 0;
+	if (selectedOption) {
+		switch (selectedOption) {
+			// case "play":
+			// 	break ;
+			case "tournament":
+				document.removeEventListener('keydown', handleKeydown);
+				document.removeEventListener('keyup', handleKeyup);
+				const registerButton = document.getElementById("registerButton");
+				const select = document.getElementById("playSelect");
+				const loginButton = document.getElementById("loginButton");
+
+				if (registerButton) registerButton.style.display = "none";
+				if (select) select.style.display = "none";
+				if (loginButton) loginButton.style.display = "none";
+
+				const resetButton = document.getElementById("tournamentResetButton");
+				if (resetButton) resetButton.style.display = "block";
+				tournamentRegisterPlayers(game);
+				break;
+			case "multiplayer":
+				
+				break
+			case "1v1":
+				
+				break
+			default:
+				break;
+		}
+	}
+});
+
+document.getElementById("tournamentButton")?.addEventListener("click", () => {
+	document.removeEventListener('keydown', handleKeydown);
+	document.removeEventListener('keyup', handleKeyup);
+	const registerButton = document.getElementById("registerButton");
+	const tournamentButton = document.getElementById("tournamentButton");
+	const loginButton = document.getElementById("loginButton");
+
+	if (registerButton) registerButton.style.display = "none";
+	if (tournamentButton) tournamentButton.style.display = "none";
+	if (loginButton) loginButton.style.display = "none";
+
+	const resetButton = document.getElementById("tournamentResetButton");
+	if (resetButton) resetButton.style.display = "block";
+
+	tournamentRegisterPlayers(game);
+});
+
+
+document.getElementById("CancelGeneralTournament")?.addEventListener("click", () => {
+	hidetournamentRegistrationModal();
+	tournamentEnd(1, game);
+	location.reload();	//restores the regular interface
+});
+
+document.getElementById("showTournamentPassword")?.addEventListener("click", () => {
+	const passwordInput = document.getElementById("tournamentPassword") as HTMLInputElement;
+	if (passwordInput.type === "password") {
+		passwordInput.type = "text";
+	} else {
+		passwordInput.type = "password";
+	}
+});
+
+/*--------------------------game logic----------------------------*/
+function drawMiddlePath(): void {
+	ctx.strokeStyle = "white";
+	ctx.lineWidth = 2;
+	for (let y = 0; y < game.canvas.height; y += 20) {
+		ctx.beginPath();
+		ctx.moveTo(game.canvas.width / 2, y);
+		ctx.lineTo(game.canvas.width / 2, y + 10);
+		ctx.stroke();
+	}
+}
 
 function drawCircle(x: number, y: number, radius: number): void {
-	game.ctx.beginPath();
-	game.ctx.arc(x, y, radius, 0, Math.PI * 2);
-	game.ctx.fillStyle = "white";
-	game.ctx.fill();
-	game.ctx.closePath();
+	ctx.beginPath();
+	ctx.arc(x, y, radius, 0, Math.PI * 2);
+	ctx.fillStyle = "white";
+	ctx.fill();
+	ctx.closePath();
 }
 
-
-function touchingPaddle1(): boolean {
-	return (
-		game.ball.ballX - game.ball.ballRadius < game.player1PaddleX + game.pad_width &&
-		game.ball.ballX + game.ball.ballRadius > game.player1PaddleX &&
-		game.ball.ballY + game.ball.ballRadius > game.player1PaddleY &&
-		game.ball.ballY - game.ball.ballRadius < game.player1PaddleY + game.pad_height
-	);
-}
-
-function touchingPaddle2(): boolean {
-	return (
-		game.ball.ballX - game.ball.ballRadius < game.player2PaddleX + game.pad_width &&
-		game.ball.ballX + game.ball.ballRadius > game.player2PaddleX &&
-		game.ball.ballY + game.ball.ballRadius > game.player2PaddleY &&
-		game.ball.ballY - game.ball.ballRadius < game.player2PaddleY + game.pad_height
-	);
-}
-
-function resetPlayer(game: GameInfo): void {
-	game.player1PaddleX = game.player1StartCoordsX;
-	game.player1PaddleY = game.player1StartCoordsY;
-
-	game.player2PaddleX = game.player2StartCoordsX;
-	game.player2PaddleY = game.player2StartCoordsY;
-}
-
-function resetBall(game: GameInfo): void 
+function calculatePaddleCoords(): void
 {
-	game.ball.ballX = game.window_width / 2;
-	game.ball.ballY = game.window_height / 2;
-	game.ball.ballPaused = true;
-}
-
-
-function calculateBallCoords(): void {
-	if (game.ball.ballPaused) return; // Skip updates if the ball is paused
-	game.ball.ballX += game.ball.ballSpeedX;
-	game.ball.ballY += game.ball.ballSpeedY;
-
-	// Bounce off top and bottom
-	if (game.ball.ballY - game.ball.ballRadius < 0 || game.ball.ballY + game.ball.ballRadius > game.window_height) {
-		game.ball.ballSpeedY *= -1;
+	if (keysPressed["ArrowUp"]) {
+		fetch("/pressArrowUp");
 	}
-
-	// Check paddle collisions
-	if (touchingPaddle1() && game.ball.ballSpeedX > 0) {
-		game.ball.ballSpeedX *= -1;
-	} else if (touchingPaddle2() && game.ball.ballSpeedX < 0) {
-		game.ball.ballSpeedX *= -1;
+	if (keysPressed["ArrowDown"]) {
+		fetch("/pressArrowDown");
 	}
-
-	// Check if ball passed player1 (left side)
-	if (game.ball.ballX - game.ball.ballRadius < 0) {
-		if (game.tournamentLoopActive)
-			game.currentMatch.player1.score++;
-		else
-			game.player1_score++;
-		resetBall(game);
-		resetPlayer(game);
+	if (keysPressed["w"]) {
+		fetch("/pressW");
 	}
-
-	// Check if ball passed player2 (right side)
-	if (game.ball.ballX + game.ball.ballRadius > game.window_width) {
-		if (game.tournamentLoopActive)
-			game.currentMatch.player2.score++;
-		else
-			game.player2_score++;
-		resetBall(game);
-		resetPlayer(game);
+	if (keysPressed["s"]) {
+		fetch("/pressS");
 	}
 }
 
-function calculatePaddleCoords():void
-{
-	if (game.ball.ballPaused)
-		return ;
-	if (keysPressed["ArrowUp"] && game.player1PaddleY > 0) game.player1PaddleY -= 5;
-	if (keysPressed["ArrowDown"] && game.player1PaddleY + game.pad_height < game.window_height)
-		game.player1PaddleY += 5;
-	if (keysPressed["w"] && game.player2PaddleY > 0)
-		game.player2PaddleY -= 5;
-	if (keysPressed["s"] && game.player2PaddleY + game.pad_height < game.window_height)
-		game.player2PaddleY += 5;
-}
-
-function searchPlayer(name: string, array: Player[]): number {
-	for (let i = 0; i < array.length; i++) {
-		if (array[i].name === name) {
-			return i;
-		}
+function getGameStatus(): void {
+	if (!gamefinished) {
+		var length = game.t.matches.length;
+		fetch("/getstatus")
+		.then(response => response.json())
+		.then(data => {
+			game.ball.ballX = data.ballX;
+			game.ball.ballY = data.ballY;
+			game.player1Paddle.y = data.player1_y;
+			game.player2Paddle.y = data.player2_y;
+			if (game.tournamentLoopActive && length)
+			{
+				game.t.matches[length -1].player1.score = data.player1_score;
+				game.t.matches[length -1].player2.score = data.player2_score;
+			}
+			else
+			{
+				game.players[0].playerscore = data.player1_score;
+				game.players[1].playerscore = data.player2_score;
+			}
+			game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
+			if (data.gamefinished) {
+				fetch("/resetgame")
+				.then(response => response.json())
+				.then(data => {
+					game.ball.ballX = data.ballX;
+					game.ball.ballY = data.ballY;
+					game.player1Paddle.y = data.player1_y;
+					game.player2Paddle.y = data.player2_y;
+					if (game.tournamentLoopActive)
+					{
+						game.t.matches[length -1].player1.score = data.player1_score;
+						game.t.matches[length -1].player2.score = data.player2_score;
+					}
+					else
+					{
+						game.players[0].playerscore = data.player1_score;
+						game.players[1].playerscore = data.player2_score;
+					}
+				});
+			}
+		});
 	}
-	return -1; // Player not found
 }
 
-function resetGame(game: GameInfo): void {
-	game.player1_score = 0;
-	game.player2_score = 0;
-	game.ball.ballSpeedX= Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
-	game.ball.ballSpeedY= (Math.random() * 2 - 1) * 3;
-	// reset the name of the playersGeneral
-}
-
-function gameGraphics(): void
-{
-	if (game.player1_score === game.rounds || game.player2_score === game.rounds)
-	{
-		var winner = "";
-		var loser = "";
-		if (game.player1_score === game.rounds)
-		{
-			winner = game.player1_name;
-			loser = game.player2_name;
-		}
-		else if (game.player2_score === game.rounds)
-		{
-			winner = game.player2_name;
-			loser = game.player1_name;
-		}
-		alert(winner + " wins!");
-		const winnerIndex = searchPlayer(winner, game.playersGeneral);
-		if (winnerIndex >= 0) {
-			game.playersGeneral[winnerIndex].gamesWon++;
-		}
-		const loserIndex = searchPlayer(loser, game.playersGeneral);
-		if (loserIndex >= 0) {
-			game.playersGeneral[loserIndex].gamesLost++;
-		}
-		resetGame(game);
+function singlePlayerGame(): void {
+	if (game.players[0].playerscore === rounds) {
+		game.players[0].gamesWon++;
+		game.players[1].gamesLost++;
+		showWinnerScreen(game, game.players[0].name);
 	}
-	game.player1_name = game.playersGeneral[0]?.name || "Player 1";
-	game.player2_name = game.playersGeneral[1]?.name || "Player 2";
-	game.ctx.clearRect(0, 0, game.window_width, game.window_height);
-	game.ctx.font = "20px Arial"; game.ctx.fillStyle = "white";
-	game.ctx.fillText(game.player1_name + ": " + game.player1_score, 10, 25);
-	game.ctx.fillText(game.player2_name + ": " + game.player2_score, 10, 50);
+	if (game.players[1].playerscore === rounds) {
+		game.players[1].gamesWon++;
+		game.players[0].gamesLost++;
+		showWinnerScreen(game, game.players[1].name);
+	}
+	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
+	ctx.font = "20px Arial"; ctx.fillStyle = "white";
+	ctx.fillText(game.players[0].name + ": " + game.players[0].playerscore, 10, 25);
+	ctx.fillText(game.players[1].name + ": " + game.players[1].playerscore, 10, 50);
+	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
 	calculatePaddleCoords();
-	calculateBallCoords();
 	drawMiddlePath();
 	drawCircle(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
-	game.ctx.fillStyle = "white";
-	game.ctx.fillRect(game.player1PaddleX, game.player1PaddleY, game.pad_width, game.pad_height);
-	game.ctx.fillRect(game.player2PaddleX, game.player2PaddleY, game.pad_width, game.pad_height);
+	ctx.fillStyle = "white";
+	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
+	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
+	getGameStatus();
 }
 
-function tournamentGraphics(game: GameInfo): void
-{
-	game.ctx.clearRect(0, 0, game.window_width, game.window_height);
-	game.ctx.font = "20px Arial"; game.ctx.fillStyle = "white";
-	game.ctx.fillText(game.currentMatch.player1.name + ": " + game.currentMatch.player1.score, 10, 25);
-	game.ctx.fillText(game.currentMatch.player2.name + ": " + game.currentMatch.player2.score, 10, 50);
+function tournamentGame(): number {
+	getGameStatus();
+	if (tournamentLogic(game) === 1)
+		return (0);
+	var length = game.t.matches.length;
+	if (game.t.stage === TournamentStage.Complete)
+			return 1;
+	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
+	ctx.font = "20px Arial"; ctx.fillStyle = "white";
+	ctx.fillText(game.t.matches[length -1].player1.name + ": " + game.t.matches[length -1].player1.score, 10, 25);
+	ctx.fillText(game.t.matches[length -1].player2.name + ": " + game.t.matches[length -1].player2.score, 10, 50);
+	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
 	calculatePaddleCoords();
-	calculateBallCoords();
 	drawMiddlePath();
 	drawCircle(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
-	game.ctx.fillStyle = "white";
-	game.ctx.fillRect(game.player1PaddleX, game.player1PaddleY, game.pad_width, game.pad_height);
-	game.ctx.fillRect(game.player2PaddleX, game.player2PaddleY, game.pad_width, game.pad_height);
+	ctx.fillStyle = "white";
+	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
+	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
+
+	return 0;
 }
 
-function updateGame(): void 
-{
-	if (!game.tournamentLoopActive && game.gameLoopActive)
-		gameGraphics();
-	else if (game.tournamentLoopActive && !game.gameLoopActive && game.t.stage !== TournamentStage.Registration)
+function updateGame(): void {
+	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration)
 	{
-		tournamentLogic(game);
-		if (game.t.stage === TournamentStage.Complete)
-			return ;
-		tournamentGraphics(game);
+		if (game.players.length >= 2 && !game.tournamentLoopActive) {
+			singlePlayerGame();
+		}
+		else if (game.tournamentLoopActive) {
+			tournamentGame();
+		}
 	}
 	requestAnimationFrame(updateGame);
 }
-
-/*------------------------------actual code start---------------------------------*/
-
-
 updateGame();

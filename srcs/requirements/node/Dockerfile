@@ -1,15 +1,3 @@
-# FROM debian:bullseye
-
-# RUN apt update -y && apt upgrade -y && apt install -y curl
-# RUN apt-get update -y &&  apt-get install -y npm &&  npm install n -g &&  n lts
-
-# COPY ./tools/code_1.101.2-1750797935_amd64.deb .
-
-#RUN apt install ./code_1.101.2-1750797935_amd64.deb -y
-
-
-
-
 # Use Debian Bullseye as the base image
 FROM debian:bullseye
 
@@ -19,41 +7,42 @@ RUN apt-get update -y && \
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
     apt-get update -y && \
-    apt-get install -y nodejs && \
+    apt-get install -y nodejs python3 make g++ && \
     node -v && npm -v && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install dev tools
+# Install global dev tools
 RUN npm install -g typescript
-
-# # Install Tailwind CSS and related tooling
-# RUN npm install -D tailwindcss postcss autoprefixer
 
 # Create app directory
 WORKDIR /app
 
-RUN 
+# Remove existing config (if any)
 RUN rm -f ./tsconfig.json
+
+# Copy configuration and scripts
 COPY ./tools/tsconfig.json ./
 COPY ./tools/postcss.config.js ./
 COPY ./tools/tailwind.config.js ./
 COPY ./tools/package.json ./
 COPY ./tools/script.sh ./
-COPY ./tools/compile.sh ./
 
-# RUN rm -rf ./data
-# RUN mkdir ./data
-COPY ./_data/frontend ./
-COPY ./_data/frontend/styles.css ./
-COPY ./_data/backend ./
-COPY ./_data/public ./
+# Copy source code
+COPY ./_data/frontend .
+COPY ./_data/backend .
+COPY ./_data/public .
 
+# Make script executable
 RUN chmod +x ./script.sh
 
-# Copy package files and install dependencies
+# Install better-sqlite3 before general dependencies to ensure native build
+RUN npm install better-sqlite3
+
+# Install remaining dependencies
 RUN npm install
 
-# Expose the port your app runs on
+# Expose app port
 EXPOSE 3000
 
+# Start the app
 CMD [ "./script.sh" ]
