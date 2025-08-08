@@ -91,6 +91,33 @@ function hideGeneralRegistrationModal() {
 	modal.style.display = "none";
 }
 
+document.getElementById("alice")?.addEventListener("click", () => {
+    console.log("Alice clicked");
+    
+    const friendList2 = document.getElementById("friendList2");
+    if (friendList2) {
+        // Clear existing content
+        friendList2.innerHTML = "";
+        // Add Alice's details
+        const aliceDetails = [
+            "Status: Online",
+            "Games Won: 15",
+            "Games Lost: 3",
+            "Rank: Pro",
+            "Last Game: 2 hours ago"
+        ];
+        
+        aliceDetails.forEach(detail => {
+            const li = document.createElement("li");
+            li.textContent = detail;
+            friendList2.appendChild(li);
+        });
+        
+        // Show the list
+        // friendList2.style.display = "block";
+    }
+});
+
 document.getElementById("registerButton")?.addEventListener("click", () => 
 {
 	const registerButton = document.getElementById("registerButton");
