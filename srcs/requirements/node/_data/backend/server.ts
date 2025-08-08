@@ -336,6 +336,9 @@ app.post("/login", async (request, reply) => {
 	// 	reply.status(401).send({ status: 401, message: 'Invalid username or password' });
 	// 	return;
 	// }
+
+	// TODO: send the friend list and other user data here
+
 	reply.send({ status: 200, message: 'Login successful', user });
 });
 

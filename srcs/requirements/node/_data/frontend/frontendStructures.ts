@@ -134,6 +134,8 @@ export class GameInfo {
 
 	tournamentLoopActive: boolean;
 
+	websocket?: WebSocket;// for the websocket connection
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();

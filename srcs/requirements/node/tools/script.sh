@@ -17,6 +17,7 @@ mv ./styles.css ./data/public/styles.css
 npm init -y
 npm install fastify
 npm install @fastify/static@7
+npm install @fastify/websocket
 npm install --save-dev @types/node
 
 npm install -D tailwindcss postcss autoprefixer
