@@ -1,6 +1,9 @@
 import fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
+import Database from 'better-sqlite3';
+import bcrypt from 'bcrypt'; // for hashing password
+const saltRounds = 10;
 
 const app = fastify();
 
@@ -13,6 +16,64 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let game = new GameInfo();
+
+
+import { mkdirSync } from 'fs';
+const dataDir = path.join(__dirname, 'data');
+try {
+	mkdirSync(dataDir, { recursive: true });
+} catch (err) {
+	// Directory already exists, ignore
+}
+
+const db = new Database(path.join(__dirname, 'data', 'users.db'));
+
+// Create tables if they don't exist
+db.exec(`
+CREATE TABLE IF NOT EXISTS users (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	Full_Name TEXT UNIQUE NOT NULL,
+	Alias TEXT UNIQUE NOT NULL,
+	password_hash TEXT NOT NULL,
+	avatar_url TEXT DEFAULT '/avatars/default.png',
+	status TEXT DEFAULT 'offline',
+	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS friends (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	user_id INTEGER NOT NULL,
+	friend_id INTEGER NOT NULL,
+	status TEXT DEFAULT 'pending',
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (friend_id) REFERENCES users(id),
+	UNIQUE (user_id, friend_id)
+);
+
+CREATE TABLE IF NOT EXISTS matches (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	player1_id INTEGER NOT NULL,
+	player2_id INTEGER NOT NULL,
+	winner_id INTEGER,
+	score_player1 INTEGER DEFAULT 0,
+	score_player2 INTEGER DEFAULT 0,
+	Match_type TEXT DEFAULT 'Friendly',
+	match_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (player1_id) REFERENCES users(id),
+	FOREIGN KEY (player2_id) REFERENCES users(id),
+	FOREIGN KEY (winner_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS user_stats (
+	user_id INTEGER PRIMARY KEY,
+	wins INTEGER DEFAULT 0,
+	losses INTEGER DEFAULT 0,
+	matches_played INTEGER DEFAULT 0,
+	FOREIGN KEY (user_id) REFERENCES users(id)
+);
+`);
 
 let loginInformation: loginInfo[] = [
 	{
@@ -123,21 +184,20 @@ function resetGame(): void {
 }
 
 function updateGame(): void {
-	if (game.player1.playerscore === rounds) {
-		game.player1.gamesWon++;
-		game.player2.gamesLost++;
-		game.player1.playerscore = 0;
-		game.player2.playerscore = 0;
-		gameFinished = true;
+	if (!gameFinished)
+	{
+		if (game.player1.playerscore === rounds) {
+			game.player1.gamesWon++;
+			game.player2.gamesLost++;
+			gameFinished = true;
+		}
+		if (game.player2.playerscore === rounds) {
+			game.player2.gamesWon++;
+			game.player1.gamesLost++;
+			gameFinished = true;
+		}
+		calculateBallCoords();
 	}
-	if (game.player2.playerscore === rounds) {
-		game.player2.gamesWon++;
-		game.player1.gamesLost++;
-		game.player1.playerscore = 0;
-		game.player2.playerscore = 0;
-		gameFinished = true;
-	}
-	calculateBallCoords();
 }
 
 setInterval(() => {
@@ -218,29 +278,195 @@ app.get('/getstatus', async (request, reply) => {
 
 app.post("/register", async (request, reply) => {
 	const { name, username, password, country } = request.body as loginInfo; // Quick fix, but less type-safe
-	const newUser = { name, username, password, country } as loginInfo;
-	for (const user of loginInformation) {
-		if (user.username === username || user.name === name) {
-			reply.status(400).send({ status: 400, message: 'Username already exists'});
-			return;
+	
+	const alias = username;
+	const fullName = name;
+	const password_hash = await bcrypt.hash(password, saltRounds);
+
+	try {
+		const stmt = db.prepare(`
+			INSERT INTO users (Full_name, Alias, password_hash)
+			VALUES (?, ?, ?)
+		`);
+		stmt.run(fullName, alias, password_hash);
+
+		reply.send({ status: 200, message: 'User registered successfully' });
+	} catch (err: any) {
+		if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+			reply.status(400).send({ status: 400, message: 'User already exists' });
+		} else {
+			reply.status(500).send({ status: 500, message: 'Server error' });
 		}
 	}
-	loginInformation.push(newUser);
+	
+	// const newUser = { name, username, password, country } as loginInfo;
+	// for (const user of loginInformation) {
+	// 	if (user.username === username || user.name === name) {
+	// 		reply.status(400).send({ status: 400, message: 'Username already exists'});
+	// 		return;
+	// 	}
+	// }
+
+	// loginInformation.push(newUser);
 	console.log(`User ${username} registered successfully`);
 	// for (const user of loginInformation) {
 	// 	console.log(`Registered user: ${user.username}, Name: ${user.name}, Country: ${user.country}`);
 	// }
-	reply.send({ status: 200, message: 'User registered successfully' });
 });
 
 app.post("/login", async (request, reply) => {
 	const { username, password } = request.body as { username: string; password: string };
-	const user = loginInformation.find(user => user.username === username && user.password === password);
+	
+	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
+	const user = stmt.get(username) as any;
+
 	if (!user) {
 		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
 		return;
 	}
+
+	const match = await bcrypt.compare(password, user.password_hash);
+	if (!match) {
+		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
+		return;
+	}
+	
+	// const user = loginInformation.find(user => user.username === username && user.password === password);
+	// if (!user) {
+	// 	reply.status(401).send({ status: 401, message: 'Invalid username or password' });
+	// 	return;
+	// }
 	reply.send({ status: 200, message: 'Login successful', user });
+});
+
+app.get('/debug/users', async (request, reply) => {
+	try {
+		const stmt = db.prepare(`SELECT id, Full_Name, Alias, avatar_url, status, created_at FROM users`);
+		const users = stmt.all();
+		reply.send({ users });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+// Debug endpoint to show tables
+app.get('/debug/tables', async (request, reply) => {
+	try {
+		const stmt = db.prepare(`SELECT name FROM sqlite_master WHERE type='table'`);
+		const tables = stmt.all();
+		reply.send({ tables });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.delete('/debug/users/:username', async (request, reply) => {
+	try {
+		const { username } = request.params as { username: string };
+		const stmt = db.prepare(`DELETE FROM users WHERE Alias = ?`);
+		const result = stmt.run(username);
+		
+		if (result.changes === 0) {
+			reply.status(404).send({ error: 'User not found' });
+		} else {
+			reply.send({ message: `User '${username}' deleted successfully`, deletedRows: result.changes });
+		}
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+// Update user endpoint
+app.put('/debug/users/:username', async (request, reply) => {
+	try {
+		const { username } = request.params as { username: string };
+		const { Full_Name, avatar_url, status } = request.body as { 
+			Full_Name?: string; 
+			avatar_url?: string; 
+			status?: string; 
+		};
+
+		// Build dynamic UPDATE query based on provided fields
+		const updates: string[] = [];
+		const values: any[] = [];
+
+		if (Full_Name !== undefined) {
+			updates.push('Full_Name = ?');
+			values.push(Full_Name);
+		}
+		if (avatar_url !== undefined) {
+			updates.push('avatar_url = ?');
+			values.push(avatar_url);
+		}
+		if (status !== undefined) {
+			updates.push('status = ?');
+			values.push(status);
+		}
+
+		if (updates.length === 0) {
+			reply.status(400).send({ error: 'No fields to update provided' });
+			return;
+		}
+
+		// Add updated_at timestamp
+		updates.push('updated_at = CURRENT_TIMESTAMP');
+		
+		// Add username to values array for WHERE clause
+		values.push(username);
+
+		const query = `UPDATE users SET ${updates.join(', ')} WHERE Alias = ?`;
+		const stmt = db.prepare(query);
+		const result = stmt.run(...values);
+
+		if (result.changes === 0) {
+			reply.status(404).send({ error: 'User not found' });
+		} else {
+			reply.send({ 
+				message: `User '${username}' updated successfully`, 
+				updatedRows: result.changes,
+				updatedFields: updates.slice(0, -1) // Remove the timestamp update from display
+			});
+		}
+	} catch (err: any) {
+		if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+			reply.status(400).send({ error: 'Full_Name must be unique' });
+		} else {
+			reply.status(500).send({ error: 'Database error' });
+		}
+	}
+});
+
+// Update user password endpoint
+app.put('/debug/users/:username/password', async (request, reply) => {
+	try {
+		const { username } = request.params as { username: string };
+		const { newPassword } = request.body as { newPassword: string };
+
+		if (!newPassword || newPassword.trim() === '') {
+			reply.status(400).send({ error: 'New password is required' });
+			return;
+		}
+
+		const password_hash = await bcrypt.hash(newPassword, saltRounds);
+		
+		const stmt = db.prepare(`
+			UPDATE users 
+			SET password_hash = ?, updated_at = CURRENT_TIMESTAMP 
+			WHERE Alias = ?
+		`);
+		const result = stmt.run(password_hash, username);
+
+		if (result.changes === 0) {
+			reply.status(404).send({ error: 'User not found' });
+		} else {
+			reply.send({ 
+				message: `Password for user '${username}' updated successfully`, 
+				updatedRows: result.changes 
+			});
+		}
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
 });
 
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {

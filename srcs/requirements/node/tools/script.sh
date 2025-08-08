@@ -13,6 +13,7 @@ mv ./styles.css ./data/public/styles.css
 # mv ./styles.css ./data/frontend/styles.css
 
 
+
 npm init -y
 npm install fastify
 npm install @fastify/static@7
@@ -20,6 +21,14 @@ npm install --save-dev @types/node
 
 npm install -D tailwindcss postcss autoprefixer
 
+# cd tools/package.json
+npm install better-sqlite3 --save
+npm install --save-dev @types/better-sqlite3
+npm i --save-dev @types/bcrypt
+
+cd /app
+
 npx tsc
 node --version
 node $VOLUME_NAME/public/server.js
+

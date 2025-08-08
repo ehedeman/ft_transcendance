@@ -219,13 +219,19 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			}
 			alert("Login successful!");
 			hideGeneralLoginModal();
+			game.players.push({
+				name: loginPlayer.username,
+				gamesLost: 0,
+				gamesWon: 0,
+				playerscore: 0,
+			}
+			);
 			location.reload();// This will reload the page after login
 			return response.json();
 		})
 		.catch(error => {
 			console.error("Error during Login:", error);
 		});
-
 });
 
 document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
