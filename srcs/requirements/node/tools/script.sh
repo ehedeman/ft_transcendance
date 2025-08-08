@@ -15,9 +15,18 @@ mv ./styles.css ./data/public/styles.css
 
 
 npm init -y
-npm install fastify
-npm install @fastify/static@7
-npm install @fastify/websocket
+# npm install fastify
+# npm uninstall fastify
+# echo "------------------Fastify uninstalled.------------------"
+npm install fastify@latest
+echo "------------------Fastify installed.------------------"
+npm install @fastify/static@latest
+echo "------------------Fastify and @fastify/static installed.------------------"
+# npm uninstall @fastify/websocket
+# echo "------------------@fastify/websocket uninstalled.------------------"
+npm install @fastify/websocket@latest
+echo "------------------@fastify/websocket installed.------------------"
+npm install --save-dev @types/ws
 npm install --save-dev @types/node
 
 npm install -D tailwindcss postcss autoprefixer
@@ -26,6 +35,8 @@ npm install -D tailwindcss postcss autoprefixer
 npm install better-sqlite3 --save
 npm install --save-dev @types/better-sqlite3
 npm i --save-dev @types/bcrypt
+
+npm i --save-dev @types/node
 
 cd /app
 

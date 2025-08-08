@@ -1,11 +1,15 @@
 import fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
+import websocket from '@fastify/websocket';
+import type { WebSocket } from 'ws';
 import Database from 'better-sqlite3';
 import bcrypt from 'bcrypt'; // for hashing password
 const saltRounds = 10;
 
 const app = fastify();
+
+app.register(websocket);
 
 // import path from 'path';
 import { fileURLToPath } from 'url';
@@ -81,19 +85,19 @@ let loginInformation: loginInfo[] = [
 		username: "a",
 		password: "a",
 		country: "a"
-	}, 
+	},
 	{
 		name: "b",
 		username: "b",
 		password: "b",
 		country: "b"
-	}, 
+	},
 	{
 		name: "c",
 		username: "c",
 		password: "c",
 		country: "c"
-	}, 
+	},
 	{
 		name: "d",
 		username: "d",
@@ -184,8 +188,7 @@ function resetGame(): void {
 }
 
 function updateGame(): void {
-	if (!gameFinished)
-	{
+	if (!gameFinished) {
 		if (game.player1.playerscore === rounds) {
 			game.player1.gamesWon++;
 			game.player2.gamesLost++;
@@ -278,7 +281,7 @@ app.get('/getstatus', async (request, reply) => {
 
 app.post("/register", async (request, reply) => {
 	const { name, username, password, country } = request.body as loginInfo; // Quick fix, but less type-safe
-	
+
 	const alias = username;
 	const fullName = name;
 	const password_hash = await bcrypt.hash(password, saltRounds);
@@ -298,7 +301,7 @@ app.post("/register", async (request, reply) => {
 			reply.status(500).send({ status: 500, message: 'Server error' });
 		}
 	}
-	
+
 	// const newUser = { name, username, password, country } as loginInfo;
 	// for (const user of loginInformation) {
 	// 	if (user.username === username || user.name === name) {
@@ -316,7 +319,7 @@ app.post("/register", async (request, reply) => {
 
 app.post("/login", async (request, reply) => {
 	const { username, password } = request.body as { username: string; password: string };
-	
+
 	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
 	const user = stmt.get(username) as any;
 
@@ -330,7 +333,7 @@ app.post("/login", async (request, reply) => {
 		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
 		return;
 	}
-	
+
 	// const user = loginInformation.find(user => user.username === username && user.password === password);
 	// if (!user) {
 	// 	reply.status(401).send({ status: 401, message: 'Invalid username or password' });
@@ -368,7 +371,7 @@ app.delete('/debug/users/:username', async (request, reply) => {
 		const { username } = request.params as { username: string };
 		const stmt = db.prepare(`DELETE FROM users WHERE Alias = ?`);
 		const result = stmt.run(username);
-		
+
 		if (result.changes === 0) {
 			reply.status(404).send({ error: 'User not found' });
 		} else {
@@ -383,10 +386,10 @@ app.delete('/debug/users/:username', async (request, reply) => {
 app.put('/debug/users/:username', async (request, reply) => {
 	try {
 		const { username } = request.params as { username: string };
-		const { Full_Name, avatar_url, status } = request.body as { 
-			Full_Name?: string; 
-			avatar_url?: string; 
-			status?: string; 
+		const { Full_Name, avatar_url, status } = request.body as {
+			Full_Name?: string;
+			avatar_url?: string;
+			status?: string;
 		};
 
 		// Build dynamic UPDATE query based on provided fields
@@ -413,7 +416,7 @@ app.put('/debug/users/:username', async (request, reply) => {
 
 		// Add updated_at timestamp
 		updates.push('updated_at = CURRENT_TIMESTAMP');
-		
+
 		// Add username to values array for WHERE clause
 		values.push(username);
 
@@ -424,8 +427,8 @@ app.put('/debug/users/:username', async (request, reply) => {
 		if (result.changes === 0) {
 			reply.status(404).send({ error: 'User not found' });
 		} else {
-			reply.send({ 
-				message: `User '${username}' updated successfully`, 
+			reply.send({
+				message: `User '${username}' updated successfully`,
 				updatedRows: result.changes,
 				updatedFields: updates.slice(0, -1) // Remove the timestamp update from display
 			});
@@ -451,7 +454,7 @@ app.put('/debug/users/:username/password', async (request, reply) => {
 		}
 
 		const password_hash = await bcrypt.hash(newPassword, saltRounds);
-		
+
 		const stmt = db.prepare(`
 			UPDATE users 
 			SET password_hash = ?, updated_at = CURRENT_TIMESTAMP 
@@ -462,9 +465,9 @@ app.put('/debug/users/:username/password', async (request, reply) => {
 		if (result.changes === 0) {
 			reply.status(404).send({ error: 'User not found' });
 		} else {
-			reply.send({ 
-				message: `Password for user '${username}' updated successfully`, 
-				updatedRows: result.changes 
+			reply.send({
+				message: `Password for user '${username}' updated successfully`,
+				updatedRows: result.changes
 			});
 		}
 	} catch (err) {
@@ -480,6 +483,30 @@ app.put('/debug/friends', async (request, reply) => {
 	} catch (err) {
 		reply.status(500).send({ error: 'Database error' });
 	}
+});
+
+app.get('/ws', { websocket: true }, (connection: any, req: any) => {
+	const { username } = req.query as { username?: string };
+	console.log(`WebSocket connection established for user: ${username || 'anonymous'}`);
+
+	// Use connection.socket for the WebSocket instance
+	connection.socket.on('message', (message: Buffer) => {
+		const messageStr = message.toString();
+		console.log(`Received message from ${username || 'anonymous'}: ${messageStr}`);
+
+		// Reply back to client using connection.socket.send()
+		connection.socket.send(`Server got your message: ${messageStr}`);
+	});
+
+	// Handle connection close
+	connection.socket.on('close', () => {
+		console.log(`WebSocket connection closed for user: ${username || 'anonymous'}`);
+	});
+
+	// Handle connection errors
+	connection.socket.on('error', (error: Error) => {
+		console.error(`WebSocket error for user ${username || 'anonymous'}:`, error);
+	});
 });
 
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {

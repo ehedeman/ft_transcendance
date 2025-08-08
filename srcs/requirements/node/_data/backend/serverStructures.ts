@@ -1,4 +1,5 @@
 // import { canvas } from "../frontend/index.ts";
+import type { RawData, WebSocket } from 'ws';
 
 export class canvasInfo {
 	width: number;
@@ -69,6 +70,8 @@ export class GameInfo {
 
 	canvas: canvasInfo;
 
+    sockets: Map<string, WebSocket>;
+
     constructor() 
     {
 		this.canvas = new canvasInfo();
@@ -84,6 +87,8 @@ export class GameInfo {
 
         this.ball.ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
         this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
+
+        this.sockets = new Map<string, WebSocket>();
     }
 }
 export type loginInfo = {

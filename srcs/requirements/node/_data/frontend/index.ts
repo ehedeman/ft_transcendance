@@ -264,11 +264,24 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 				playerscore: 0,
 			}
 			);
-			location.reload();// This will reload the page after login
-			return response.json();
-		})
-		.then(data => {
-			// TODO: show the friend list here
+			game.websocket = new WebSocket(`ws://localhost:3000/ws?username=${loginPlayer.username}`);
+
+			game.websocket.onopen = () => {
+				console.log("WebSocket connection established.");
+			};
+
+			game.websocket.onmessage = (event) => {
+				console.log("Received from server:", event.data);
+			};
+
+			game.websocket.onclose = () => {
+				console.log("WebSocket connection closed.");
+			};
+
+			game.websocket.onerror = (error) => {
+				console.error("WebSocket error:", error);
+			};
+			return response.json(); // Optional: if you need response data
 		})
 		.catch(error => {
 			console.error("Error during Login:", error);
