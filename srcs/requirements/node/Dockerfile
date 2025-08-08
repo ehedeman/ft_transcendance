@@ -26,6 +26,7 @@ COPY ./tools/postcss.config.js ./
 COPY ./tools/tailwind.config.js ./
 COPY ./tools/package.json ./
 COPY ./tools/script.sh ./
+COPY ./tools/script.sh ./
 
 # Copy source code
 COPY ./_data/frontend .

@@ -47,8 +47,38 @@ document.addEventListener("keydown", handleKeydown);
 document.addEventListener("keyup", handleKeyup);
 
 let gamefinished = false;
-/*--------------------------two players game register----------------------------*/
+/*-------------------------------------settings------------------------------------*/
 
+document.getElementById("settingsButton")?.addEventListener("click", () => {
+	const settings = document.getElementById("settings") as HTMLElement;
+	if (settings) settings.style.display = "flex";
+	document.removeEventListener("keydown", handleKeydown);
+	document.removeEventListener("keyup", handleKeyup);
+});
+
+document.getElementById("showSettingsPassword")?.addEventListener("click", () => 
+{
+	const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
+	if (passwordInput.type === "password") {
+		passwordInput.type = "text";
+	} else {
+		passwordInput.type = "password";
+	}
+});
+
+document.getElementById("settingsSave")?.addEventListener("click", () =>
+{
+	const settings = document.getElementById("settings") as HTMLElement;
+	if (settings) settings.style.display = "none";
+});
+
+document.getElementById("settingsCancel")?.addEventListener("click", () => 
+{
+	const settings = document.getElementById("settings") as HTMLElement;
+	if (settings) settings.style.display = "none";
+	document.addEventListener("keydown", handleKeydown);
+	document.addEventListener("keyup", handleKeyup);
+});
 
 
 
@@ -83,7 +113,7 @@ function showGeneralRegistrationModal(game: GameInfo) {
 	passwordInput.required = true;
 	nameInput.required = true;
 	countryInput.required = true;
-	modal.style.display = "block";
+	modal.style.display = "flex";
 }
 
 function hideGeneralRegistrationModal() {
@@ -170,7 +200,7 @@ function showGeneralLoginModal(game: GameInfo) {
 	passwordInput.placeholder = "Password";
 	usernameInput.required = true;
 	passwordInput.required = true;
-	modal.style.display = "block";
+	modal.style.display = "flex";
 }
 
 function hideGeneralLoginModal() {
@@ -345,7 +375,7 @@ function showtournamentRegistrationModal(playerNr: number): void {
 	usernameInput.required = true;
 	passwordInput.required = true;
 
-	modal.style.display = "block";
+	modal.style.display = "flex";
 }
 
 

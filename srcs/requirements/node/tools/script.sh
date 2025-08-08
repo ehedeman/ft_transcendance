@@ -7,6 +7,7 @@ mkdir data/public
 # mv ./index.js ./data/public/index.js
 mv ./index.html ./data/public/index.html
 mv ./styles.css ./data/public/styles.css
+mv ./avatar_icon.jpg ./data/public/avatar_icon.jpg
 
 # mv ./index.ts ./data/frontend/index.ts
 # mv ./server.ts ./data/backend/server.ts

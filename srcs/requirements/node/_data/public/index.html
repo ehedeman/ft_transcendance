@@ -16,17 +16,30 @@
 		<button id="registerButton" style="position: absolute; z-index: 2;left: 47%; top: 10%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
 			Register
 		</button>
-		<div id="tournamentResults" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
-			<h2>Tournament Results</h2>
-			<ol id="placementList"></ol>
+		<button id="settingsButton" style="position: absolute; z-index: 2;left: 95%; top: 2%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+			Settings
+		</button>
+		<div id="settings" style="display:none; position:fixed; flex-grow:1; display:none; flex-direction:column; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width: 300px;">
+			<div style="display:flex; flex-direction:column; height:100%;">
+				<form id="settingsForm" method="post" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
+					<h2>
+						Settings
+					</h2>
+					<input type="text" id="settingsUsername" name="username" placeholder="Username" />
+					<input type="password" id="settingsPassword" name="password" placeholder="Password" />
+					<input type="text" id="settingsCountry" name="country" placeholder="Country" />
+					<div id="avatarContainer" style="text-align:center; margin-bottom:10px;">
+						<img id="avatarPreview" src="avatar_icon.jpg" alt="Avatar" style="width:100px; height:100px; border-radius:50%; cursor:pointer;" />
+						<input type="file" id="avatarUpload" name="avatar" accept="image/*" style="display:none;" />
+					</div>
+					<button type="button" id="showSettingsPassword" class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
+					<button type="button" id="settingsSave" class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
+					<button type="button" id="settingsCancel" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
+				</form>
+			</div>
 		</div>
-		<button id="tournamentFinishContinue" style="display:none; position: absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
-			Continue
-		</button>
-		<button id="tournamentResetButton" style="display:none; position: absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4">
-			Reset Tournament
-		</button>
-		<div id="generalRegistrationModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+	<div id="generalRegistrationModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
+		<div style="display:flex; flex-direction:column; height:100%;">
 			<h2>
 				Register
 			</h2>
@@ -44,25 +57,26 @@
 				</div>
 			</form>
 		</div>
-			<div id="generalLoginModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
-				<div style="display:flex; flex-direction:column; height:100%;">
-					<h2>
-						Login
-					</h2>
-					<form id="generalLoginForm" method="post" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
-						<div>
-							<input type="text" id="loginUsername" name="username" />
-							<input type="password" id="loginPassword" name="password" />
-						</div>
-						<div style="margin-top:20px;">
-							<button type = "button" id="showLoginPassword" class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
-							<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
-							<button type="button" id="CancelGeneralLogin" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
-						</div>
-					</form>
-				</div>
+	</div>
+		<div id="generalLoginModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
+			<div style="display:flex; flex-direction:column; height:100%;">
+				<h2>
+					Login
+				</h2>
+				<form id="generalLoginForm" method="post" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
+					<div>
+						<input type="text" id="loginUsername" name="username" />
+						<input type="password" id="loginPassword" name="password" />
+					</div>
+					<div style="margin-top:20px;">
+						<button type = "button" id="showLoginPassword" class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
+						<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
+						<button type="button" id="CancelGeneralLogin" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
+					</div>
+				</form>
 			</div>
-		<div id="tournamentRegistrationModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+		</div>
+		<div id="tournamentRegistrationModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width: 300p;">
 			<h2 id="tournamentRegisterHeader">
 				Register Tournament Players
 			</h2>
@@ -78,21 +92,32 @@
 				</div>
 			</form>
 		</div>
+		<div id="tournamentResults" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+			<h2>Tournament Results</h2>
+			<ol id="placementList"></ol>
+		</div>
+		<button id="tournamentFinishContinue" style="display:none; position: absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+			Continue
+		</button>
+		<button id="tournamentResetButton" style="display:none; position: absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4">
+			Reset Tournament
+		</button>
+		<div>
 			<label for="playSelect">Play</label>
 			<select id="playSelect" style="position: absolute; z-index: 2; left: 57%; top: 10%; transform: translateX(-50%);">
-			 <option value="" disabled selected>Play</option>
-			<option value="tournament">Tournament</option>
-			<option value="multiplayer">Multiplayer</option>
-			<option value="1v1">1v1</option>
+				<option value="" disabled selected>Play</option>
+				<option value="tournament">Tournament</option>
+				<option value="multiplayer">Multiplayer</option>
+				<option value="1v1">1v1</option>
 			</select>
-
 			<div id="WinnerScreen" style="display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
 				<h2 id="WinnerScreenText"></h2>
 				<button type="button" id="WinnerScreenContinue" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Continue</button>
 			</div>
+		</div>
 		<canvas tabindex='1' id="gameCanvas" class="border-4 border-white" 
-			style="position: absolute; left: 50%; top: 15%; transform: translateX(-50%);">
-		</canvas>
+		style="position: absolute; left: 50%; top: 15%; transform: translateX(-50%);">
+	</canvas>
 		<script type="module" src="/index.js"></script>
 	</body>
 </html>
