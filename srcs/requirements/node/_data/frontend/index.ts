@@ -423,7 +423,11 @@ document.getElementById("playSelect")?.addEventListener("change",(event:Event) =
 				const registerButton = document.getElementById("registerButton");
 				const select = document.getElementById("playSelect");
 				const loginButton = document.getElementById("loginButton");
+				const settingsButton = document.getElementById("settingsButton") as HTMLSelectElement;
+				const settings = document.getElementById("settings") as HTMLSelectElement;
 
+				if (settingsButton) settingsButton.style.display = "none";
+				if (settings) settings.style.display = "none";
 				if (registerButton) registerButton.style.display = "none";
 				if (select) select.style.display = "none";
 				if (loginButton) loginButton.style.display = "none";
@@ -444,22 +448,22 @@ document.getElementById("playSelect")?.addEventListener("change",(event:Event) =
 	}
 });
 
-document.getElementById("tournamentButton")?.addEventListener("click", () => {
-	document.removeEventListener('keydown', handleKeydown);
-	document.removeEventListener('keyup', handleKeyup);
-	const registerButton = document.getElementById("registerButton");
-	const tournamentButton = document.getElementById("tournamentButton");
-	const loginButton = document.getElementById("loginButton");
+// document.getElementById("tournamentButton")?.addEventListener("click", () => {
+// 	document.removeEventListener('keydown', handleKeydown);
+// 	document.removeEventListener('keyup', handleKeyup);
+// 	const registerButton = document.getElementById("registerButton");
+// 	const tournamentButton = document.getElementById("tournamentButton");
+// 	const loginButton = document.getElementById("loginButton");
 
-	if (registerButton) registerButton.style.display = "none";
-	if (tournamentButton) tournamentButton.style.display = "none";
-	if (loginButton) loginButton.style.display = "none";
+// 	if (registerButton) registerButton.style.display = "none";
+// 	if (tournamentButton) tournamentButton.style.display = "none";
+// 	if (loginButton) loginButton.style.display = "none";
 
-	const resetButton = document.getElementById("tournamentResetButton");
-	if (resetButton) resetButton.style.display = "block";
+// 	const resetButton = document.getElementById("tournamentResetButton");
+// 	if (resetButton) resetButton.style.display = "block";
 
-	tournamentRegisterPlayers(game);
-});
+// 	tournamentRegisterPlayers(game);
+// });
 
 
 document.getElementById("CancelGeneralTournament")?.addEventListener("click", () => {
