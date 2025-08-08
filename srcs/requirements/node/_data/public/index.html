@@ -1,105 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Pong Game</title>
-		<link href="styles.css" rel="stylesheet" />
-	</head>
-	<body class="bg-gray-900 flex items-center justify-center h-screen text-white">
-		 <header>
-			<h1 id="maintitle" style="position:absolute; z-index: 1; left: 50%; top: 0; color:black; transform: translateX(-50%);" class="text-4xl font-bold mb-8">Pong Game</h1>
-		</header>
-		<div>
-			<button id="loginButton" style="position: absolute; z-index: 2; left: 25%; top: 70px; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
-				Log in
-			</button>
-			<button id="registerButton" style="position: absolute; z-index: 2; left: 50%; top: 70px; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
-				Register
-			</button>
-			<div id="tournamentResults" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
-				<h2>Tournament Results</h2>
-				<ol id="placementList"></ol>
-			</div>
-			<button id="tournamentFinishContinue" style="display:none; position: absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
-				Continue
-			</button>
-			<button id="tournamentResetButton" style="display:none; position: absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4">
-				Reset Tournament
-			</button>
-			<div id="generalRegistrationModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
-				<h2>
-					Register
-				</h2>
-				<form id="generalRegistrationForm" method="post" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
-					<div>
-						<input type="text" id="registerName" name="name" />
-						<input type="text" id="registerUsername" name="username" />
-						<input type="password" id="registerPassword" name="password" />
-						<input type="country" id="registerCountry" name="country" />
-					</div>
-					<div style="margin-top:20px;">
-						<button type = "button" id="showRegisterPassword" class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
-						<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
-						<button type="button" id="generalCancelRegistration" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
-					</div>
-				</form>
-			</div>
-				<div id="generalLoginModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
-					<div style="display:flex; flex-direction:column; height:100%;">
-						<h2>
-							Login
-						</h2>
-						<form id="generalLoginForm" method="post" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
-							<div>
-								<input type="text" id="loginUsername" name="username" />
-								<input type="password" id="loginPassword" name="password" />
-							</div>
-							<div style="margin-top:20px;">
-								<button type = "button" id="showLoginPassword" class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
-								<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
-								<button type="button" id="CancelGeneralLogin" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			<div id="tournamentRegistrationModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
-				<h2 id="tournamentRegisterHeader">
-					Register Tournament Players
-				</h2>
-				<form id="tournamentRegistrationForm" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
-					<div>
-						<input type="text" id="tournamentUsername" name="username" />
-						<input type="password" id="tournamentPassword" name="password" />
-					</div>
-					<div style="margin-top:20px;">
-						<button type = "button" id="showTournamentPassword" class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
-						<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
-						<button type="button" id="CancelGeneralTournament" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
-					</div>
-				</form>
-			</div>
-				<!-- <label for="playSelect">Play</label> -->
-				<select id="playSelect" style="position: absolute; z-index: 2; left: 75%; top: 70px; transform: translateX(-50%);">
-					<option value="" disabled selected>Play</option>
-					<option value="tournament">Tournament</option>
-					<option value="multiplayer">Multiplayer</option>
-					<option value="1v1">1v1</option>
-				</select>
 
-				<div id="WinnerScreen" style="display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
-					<h2 id="WinnerScreenText"></h2>
-					<button type="button" id="WinnerScreenContinue" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Continue</button>
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Pong Game</title>
+	<link href="styles.css" rel="stylesheet" />
+</head>
+
+<body class="bg-gray-900 flex items-center justify-center h-screen text-white">
+	<header>
+		<h1 id="maintitle"
+			style="position:absolute; z-index: 1; left: 50%; top: 0; color:black; transform: translateX(-50%);"
+			class="text-4xl font-bold mb-8">Pong Game</h1>
+	</header>
+	<div>
+		<button id="loginButton"
+			style="position: absolute; z-index: 2; left: 25%; top: 70px; transform: translateX(-50%);"
+			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+			Log in
+		</button>
+		<button id="registerButton"
+			style="position: absolute; z-index: 2; left: 50%; top: 70px; transform: translateX(-50%);"
+			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+			Register
+		</button>
+		<div id="tournamentResults"
+			style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+			<h2>Tournament Results</h2>
+			<ol id="placementList"></ol>
+		</div>
+		<button id="tournamentFinishContinue"
+			style="display:none; position: absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);"
+			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+			Continue
+		</button>
+		<button id="tournamentResetButton"
+			style="display:none; position: absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);"
+			class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4">
+			Reset Tournament
+		</button>
+		<div id="generalRegistrationModal"
+			style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+			<h2>
+				Register
+			</h2>
+			<form id="generalRegistrationForm" method="post"
+				style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
+				<div>
+					<input type="text" id="registerName" name="name" />
+					<input type="text" id="registerUsername" name="username" />
+					<input type="password" id="registerPassword" name="password" />
+					<input type="country" id="registerCountry" name="country" />
 				</div>
+				<div style="margin-top:20px;">
+					<button type="button" id="showRegisterPassword"
+						class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
+					<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
+					<button type="button" id="generalCancelRegistration"
+						class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
+				</div>
+			</form>
 		</div>
-		<div>
-			<canvas tabindex='1' id="gameCanvas" class="border-4 border-white" 
-				style="position: absolute; left: 50%; top: 120px; transform: translateX(-50%);">
-			</canvas>
+		<div id="generalLoginModal"
+			style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
+			<div style="display:flex; flex-direction:column; height:100%;">
+				<h2>
+					Login
+				</h2>
+				<form id="generalLoginForm" method="post"
+					style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
+					<div>
+						<input type="text" id="loginUsername" name="username" />
+						<input type="password" id="loginPassword" name="password" />
+					</div>
+					<div style="margin-top:20px;">
+						<button type="button" id="showLoginPassword"
+							class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
+						<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
+						<button type="button" id="CancelGeneralLogin"
+							class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
+					</div>
+				</form>
+			</div>
 		</div>
-		<div style="position: absolute; left: 50%; top: calc(120px + 620px); transform: translateX(-50%);">
-    		<header id="gameHeader" class="text-2xl font-bold mb-4">Game Controls</header>
+		<div id="tournamentRegistrationModal"
+			style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+			<h2 id="tournamentRegisterHeader">
+				Register Tournament Players
+			</h2>
+			<form id="tournamentRegistrationForm"
+				style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
+				<div>
+					<input type="text" id="tournamentUsername" name="username" />
+					<input type="password" id="tournamentPassword" name="password" />
+				</div>
+				<div style="margin-top:20px;">
+					<button type="button" id="showTournamentPassword"
+						class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
+					<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
+					<button type="button" id="CancelGeneralTournament"
+						class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
+				</div>
+			</form>
 		</div>
-		<script type="module" src="/index.js"></script>
-	</body>
+		<!-- <label for="playSelect">Play</label> -->
+		<select id="playSelect"
+			style="position: absolute; z-index: 2; left: 75%; top: 70px; transform: translateX(-50%);">
+			<option value="" disabled selected>Play</option>
+			<option value="tournament">Tournament</option>
+			<option value="multiplayer">Multiplayer</option>
+			<option value="1v1">1v1</option>
+		</select>
+
+		<div id="WinnerScreen"
+			style="display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+			<h2 id="WinnerScreenText"></h2>
+			<button type="button" id="WinnerScreenContinue"
+				class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Continue</button>
+		</div>
+	</div>
+	<div>
+		<canvas tabindex='1' id="gameCanvas" class="border-4 border-white"
+			style="position: absolute; left: 50%; top: 120px; transform: translateX(-50%);">
+		</canvas>
+	</div>
+	<div style="position: absolute; display: flex; top: calc(120px + 620px); left: 20%;">
+		<ul id="friendList">
+			<li data-friend="Alice">Alice</li>
+			<li data-friend="Bob">Bob</li>
+			<li data-friend="Charlie">Charlie</li>
+		</ul>
+		<ul id="friendList2" style="margin-left: 20px;">
+			<li data-friend="Alice">Alice1</li>
+			<li data-friend="Bob">Bob1</li>
+			<li data-friend="Charlie">Charlie1</li>
+		</ul>
+	</div>
+	<script type="module" src="/index.js"></script>
+</body>
+
 </html>
