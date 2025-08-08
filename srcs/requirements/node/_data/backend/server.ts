@@ -472,6 +472,16 @@ app.put('/debug/users/:username/password', async (request, reply) => {
 	}
 });
 
+app.put('/debug/friends', async (request, reply) => {
+	try {
+		const stmt = db.prepare(`SELECT id, user_id, friend_id FROM friends`);
+		const friends = stmt.all();
+		reply.send({ friends });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
 	if (err) throw err;
 	console.log(`Server running at ${address}`);

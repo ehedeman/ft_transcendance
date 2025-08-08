@@ -267,6 +267,9 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			location.reload();// This will reload the page after login
 			return response.json();
 		})
+		.then(data => {
+			// TODO: show the friend list here
+		})
 		.catch(error => {
 			console.error("Error during Login:", error);
 		});
