@@ -24,8 +24,7 @@ document.addEventListener("click", (e: MouseEvent) => {
 
 const keysPressed: { [key: string]: boolean } = {};
 
-export function handleKeydown(e: KeyboardEvent): void
-{
+export function handleKeydown(e: KeyboardEvent): void {
 	if (e.key === " " && !canvas_focus) {
 		fetch("/pressspace");
 	}
@@ -38,8 +37,7 @@ export function handleKeydown(e: KeyboardEvent): void
 	keysPressed[e.key] = true;
 }
 
-export function handleKeyup(e: KeyboardEvent): void
-{
+export function handleKeyup(e: KeyboardEvent): void {
 	keysPressed[e.key] = false;
 }
 
@@ -92,45 +90,45 @@ function hideGeneralRegistrationModal() {
 }
 
 document.getElementById("alice")?.addEventListener("click", () => {// this is just a test
-    console.log("Alice clicked");
-    
-    const friendList2 = document.getElementById("friendList2");
-    if (friendList2) {
-        // Clear existing content
-        friendList2.innerHTML = "";
-        // Add Alice's details
-        const aliceDetails = [
-            "Status: Online",
-            "Games Won: 15",
-            "Games Lost: 3",
-            "Rank: Pro",
-            "Last Game: 2 hours ago"
-        ];
-        
-        aliceDetails.forEach(detail => {
-            const li = document.createElement("li");
-            li.textContent = detail;
+	console.log("Alice clicked");
+
+	const friendList2 = document.getElementById("friendList2");
+	if (friendList2) {
+		// Clear existing content
+		friendList2.innerHTML = "";
+		// Add Alice's details
+		const aliceDetails = [
+			"Status: Online",
+			"Games Won: 15",
+			"Games Lost: 3",
+			"Rank: Pro",
+			"Last Game: 2 hours ago"
+		];
+
+		aliceDetails.forEach(detail => {
+			const li = document.createElement("li");
+			li.textContent = detail;
 			li.id = detail;
 			li.style.cssText = "cursor: pointer;";
-            friendList2.appendChild(li);
-        });
-        
-        // Show the list
-        // friendList2.style.display = "block";
-    }
+			friendList2.appendChild(li);
+		});
+
+		// Show the list
+		// friendList2.style.display = "block";
+	}
 });
 
 document.getElementById("friendList2")?.addEventListener("click", (e) => {// this is also just a test
-    const target = e.target as HTMLElement;
-    if (target.tagName === "LI") {
-        console.log(`${target.textContent} clicked`);
-        
-        // Handle specific items
-        if (target.id === "Rank: Pro") {
-            console.log("I love this rank!");
-            // Handle rank logic here
-        }
-    }
+	const target = e.target as HTMLElement;
+	if (target.tagName === "LI") {
+		console.log(`${target.textContent} clicked`);
+
+		// Handle specific items
+		if (target.id === "Rank: Pro") {
+			console.log("I love this rank!");
+			// Handle rank logic here
+		}
+	}
 });
 
 document.getElementById("registerButton")?.addEventListener("click", () => {
@@ -219,8 +217,7 @@ function hideGeneralLoginModal() {
 	modal.style.display = "none";
 }
 
-document.getElementById("loginButton")?.addEventListener("click", () => 
-{
+document.getElementById("loginButton")?.addEventListener("click", () => {
 	const registerButton = document.getElementById("registerButton");
 	const tournamentButton = document.getElementById("tournamentButton");
 	const loginButton = document.getElementById("loginButton");
@@ -318,20 +315,20 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(loginPlayer),
 			})
-			.then((response) => {
-				if (!response.ok) {
-					alert("Login failed. Please try again.");
-					return;
-				}
-				alert("Login successful!");
-				// return response.json();
-			})
-			.then((data) => {
-				console.log("Login successful:", data);
-			})
-			.catch(error => {
-				console.error("Error during Login:", error);
-			});
+				.then((response) => {
+					if (!response.ok) {
+						alert("Login failed. Please try again.");
+						return;
+					}
+					alert("Login successful!");
+					// return response.json();
+				})
+				.then((data) => {
+					console.log("Login successful:", data);
+				})
+				.catch(error => {
+					console.error("Error during Login:", error);
+				});
 			game.t.players.push({ name: username, score: 0 });
 			hidetournamentRegistrationModal();
 			resolve(loginPlayer);
@@ -340,8 +337,7 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
 }
 
 
-async function tournamentRegisterPlayers (game: GameInfo): Promise<void> 
-{
+async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 	const players: PlayerLogin[] = [];
 	for (let i = 1; i <= 4; i++) {
 		const player = await registerPlayer(i, game);
@@ -350,13 +346,13 @@ async function tournamentRegisterPlayers (game: GameInfo): Promise<void>
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(player),
 		})
-		.then((response) => {
-			if (!response.ok) {
-				tournamentEnd(0, game);
-				location.reload();
-				return;
-			}
-		})
+			.then((response) => {
+				if (!response.ok) {
+					tournamentEnd(0, game);
+					location.reload();
+					return;
+				}
+			})
 		players.push(player);
 		game.players.push({ name: players[players.length - 1].username, gamesLost: 0, gamesWon: 0, playerscore: 0 });
 	}
@@ -418,7 +414,7 @@ document.getElementById("WinnerScreenContinue")?.addEventListener("click", () =>
 });
 
 
-document.getElementById("playSelect")?.addEventListener("change",(event:Event) => {
+document.getElementById("playSelect")?.addEventListener("change", (event: Event) => {
 	const playSelect = document.getElementById("playSelect") as HTMLSelectElement;
 	const target = event.target as HTMLSelectElement;
 	const selectedOption = target.value;
@@ -444,10 +440,10 @@ document.getElementById("playSelect")?.addEventListener("change",(event:Event) =
 				tournamentRegisterPlayers(game);
 				break;
 			case "multiplayer":
-				
+
 				break
 			case "1v1":
-				
+
 				break
 			default:
 				break;
@@ -508,8 +504,7 @@ function drawCircle(x: number, y: number, radius: number): void {
 	ctx.closePath();
 }
 
-function calculatePaddleCoords(): void
-{
+function calculatePaddleCoords(): void {
 	if (keysPressed["ArrowUp"]) {
 		fetch("/pressArrowUp");
 	}
@@ -528,44 +523,40 @@ function getGameStatus(): void {
 	if (!gamefinished) {
 		var length = game.t.matches.length;
 		fetch("/getstatus")
-		.then(response => response.json())
-		.then(data => {
-			game.ball.ballX = data.ballX;
-			game.ball.ballY = data.ballY;
-			game.player1Paddle.y = data.player1_y;
-			game.player2Paddle.y = data.player2_y;
-			if (game.tournamentLoopActive && length)
-			{
-				game.t.matches[length -1].player1.score = data.player1_score;
-				game.t.matches[length -1].player2.score = data.player2_score;
-			}
-			else
-			{
-				game.players[0].playerscore = data.player1_score;
-				game.players[1].playerscore = data.player2_score;
-			}
-			game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
-			if (data.gamefinished) {
-				fetch("/resetgame")
-				.then(response => response.json())
-				.then(data => {
-					game.ball.ballX = data.ballX;
-					game.ball.ballY = data.ballY;
-					game.player1Paddle.y = data.player1_y;
-					game.player2Paddle.y = data.player2_y;
-					if (game.tournamentLoopActive)
-					{
-						game.t.matches[length -1].player1.score = data.player1_score;
-						game.t.matches[length -1].player2.score = data.player2_score;
-					}
-					else
-					{
-						game.players[0].playerscore = data.player1_score;
-						game.players[1].playerscore = data.player2_score;
-					}
-				});
-			}
-		});
+			.then(response => response.json())
+			.then(data => {
+				game.ball.ballX = data.ballX;
+				game.ball.ballY = data.ballY;
+				game.player1Paddle.y = data.player1_y;
+				game.player2Paddle.y = data.player2_y;
+				if (game.tournamentLoopActive && length) {
+					game.t.matches[length - 1].player1.score = data.player1_score;
+					game.t.matches[length - 1].player2.score = data.player2_score;
+				}
+				else {
+					game.players[0].playerscore = data.player1_score;
+					game.players[1].playerscore = data.player2_score;
+				}
+				game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
+				if (data.gamefinished) {
+					fetch("/resetgame")
+						.then(response => response.json())
+						.then(data => {
+							game.ball.ballX = data.ballX;
+							game.ball.ballY = data.ballY;
+							game.player1Paddle.y = data.player1_y;
+							game.player2Paddle.y = data.player2_y;
+							if (game.tournamentLoopActive) {
+								game.t.matches[length - 1].player1.score = data.player1_score;
+								game.t.matches[length - 1].player2.score = data.player2_score;
+							}
+							else {
+								game.players[0].playerscore = data.player1_score;
+								game.players[1].playerscore = data.player2_score;
+							}
+						});
+				}
+			});
 	}
 }
 
@@ -600,11 +591,11 @@ function tournamentGame(): number {
 		return (0);
 	var length = game.t.matches.length;
 	if (game.t.stage === TournamentStage.Complete)
-			return 1;
+		return 1;
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(game.t.matches[length -1].player1.name + ": " + game.t.matches[length -1].player1.score, 10, 25);
-	ctx.fillText(game.t.matches[length -1].player2.name + ": " + game.t.matches[length -1].player2.score, 10, 50);
+	ctx.fillText(game.t.matches[length - 1].player1.name + ": " + game.t.matches[length - 1].player1.score, 10, 25);
+	ctx.fillText(game.t.matches[length - 1].player2.name + ": " + game.t.matches[length - 1].player2.score, 10, 50);
 	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
 	calculatePaddleCoords();
 	drawMiddlePath();
@@ -617,8 +608,7 @@ function tournamentGame(): number {
 }
 
 function updateGame(): void {
-	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration)
-	{
+	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration) {
 		if (game.players.length >= 2 && !game.tournamentLoopActive) {
 			singlePlayerGame();
 		}
