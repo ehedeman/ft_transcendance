@@ -34,27 +34,27 @@ node --version
 node $VOLUME_NAME/public/server.js
 
 
-// #!/bin/sh
+#  #!/bin/sh
 
-// mkdir -p data/public
-// # mkdir data/frontend
-// # mkdir data/backend
-// mkdir -p data/public/avatars
+#  mkdir -p data/public
+#  # mkdir data/frontend
+#  # mkdir data/backend
+#  mkdir -p data/public/avatars
 
-// # mv ./index.js ./data/public/index.js
-// mv ./index.html ./data/public/index.html
-// mv ./styles.css ./data/public/styles.css
-// mv ./avatars/default-avatar.png ./data/public/avatars/default-avatar.png
+#  # mv ./index.js ./data/public/index.js
+#  mv ./index.html ./data/public/index.html
+#  mv ./styles.css ./data/public/styles.css
+#  mv ./avatars/default-avatar.png ./data/public/avatars/default-avatar.png
 
-// # mv ./index.ts ./data/frontend/index.ts
-// # mv ./server.ts ./data/backend/server.ts
-// # mv ./styles.css ./data/frontend/styles.css
+#  # mv ./index.ts ./data/frontend/index.ts
+#  # mv ./server.ts ./data/backend/server.ts
+#  # mv ./styles.css ./data/frontend/styles.css
 
-// # Dependencies are already defined in package.json and installed via Dockerfile
-// # No need for npm init or individual installs
+#  # Dependencies are already defined in package.json and installed via Dockerfile
+#  # No need for npm init or individual installs
 
-// cd /app
+#  cd /app
 
-// npx tsc
-// node --version
-// node $VOLUME_NAME/public/server.js
+#  npx tsc
+#  node --version
+#  node $VOLUME_NAME/public/server.js
