@@ -12,6 +12,7 @@
   "dependencies": {
     "@fastify/static": "^7.0.0",
     "bcrypt": "^5.1.0",
+    "@fastify/multipart": "^7.6.0",
     "better-sqlite3": "^12.2.0",
     "fastify": "^4.0.0"
   }
