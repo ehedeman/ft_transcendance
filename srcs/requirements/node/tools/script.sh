@@ -1,6 +1,5 @@
 #!/bin/sh
 
-mkdir data/public
 # mkdir data/frontend
 # mkdir data/backend
 mkdir -p data/public/avatars
