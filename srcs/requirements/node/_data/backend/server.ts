@@ -292,27 +292,30 @@ app.post("/register", async (request, reply) => {
   let avatarUploaded = false;
 
   for await (const part of parts) {
-    if (part.file) {
+    if (part.type === 'file') {
       // Save avatar file
       if (part.fieldname === 'avatar' && part.filename) {
         const fileExt = path.extname(part.filename);
         const uniqueName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${fileExt}`;
         const savePath = path.join(__dirname, '../public/avatars', uniqueName);
 
-        await pump(part.file, createWriteStream(savePath));
+        // In v8+, use the file property which is a readable stream
+        await pump((part as any).file, createWriteStream(savePath));
         avatarPath = `/avatars/${uniqueName}`;
         avatarUploaded = true;
       } else {
-        // Unknown file part -- skip or discard
-        await part.file.resume();
+        // Unknown file part -- skip by consuming the stream
+        const fileStream = (part as any).file;
+        fileStream.resume();
       }
-     } else {
-      // Handle text fields
+    } else if (part.type === 'field') {
+      // Handle text fields - v8+ has better type safety for fields
+      const fieldValue = (part as any).value;
       switch (part.fieldname) {
-        case 'name': name = part.value; break;
-        case 'username': username = part.value; break;
-        case 'password': password = part.value; break;
-        case 'country': country = part.value; break;
+        case 'name': name = fieldValue; break;
+        case 'username': username = fieldValue; break;
+        case 'password': password = fieldValue; break;
+        case 'country': country = fieldValue; break;
       }
     }
   }
@@ -334,7 +337,7 @@ app.post("/register", async (request, reply) => {
     statement.run(fullName, alias, password_hash, avatarPath);
 
     reply.send({ status: 200, message: 'User registered successfully', avatar: avatarPath });
-  } catch (err) {
+  } catch (err: any) {
     if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
       reply.status(400).send({ status: 400, message: 'User already exists' });
     } else {
