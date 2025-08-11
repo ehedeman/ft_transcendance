@@ -168,6 +168,7 @@ document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
 		country,
 	};
 
+
 	// save to databse here
 
 	document.addEventListener("keydown", handleKeydown);
@@ -313,6 +314,13 @@ function showGeneralRegistrationModal(game: GameInfo) {
 	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
 	const countryInput = document.getElementById("registerCountry") as HTMLInputElement;
 	const nameInput = document.getElementById("registerName") as HTMLInputElement;
+	const avatarInput = document.getElementById("registerAvatar") as HTMLInputElement;
+	if (avatarInput) {
+		avatarInput.value = "";
+		avatarInput.type = "file";
+		avatarInput.className = "mb-2 px-2 py-1 border rounded block";
+		avatarInput.required = false; // optional
+	}
 	nameInput.value = "";
 	usernameInput.value = "";
 	passwordInput.value = "";
@@ -339,50 +347,75 @@ document.getElementById("registerButton")?.addEventListener("click", () =>
 	showGeneralRegistrationModal(game);
 });
 
-document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
+document.addEventListener("DOMContentLoaded", () => 
+{
+	console.log("DOM is fully loaded and parsed!");
+
+	// Get avatar input and set up preview once
+	const avatarInput = document.getElementById("registerAvatar") as HTMLInputElement;
+	avatarInput.addEventListener("change", () => 
+	{
+		const file = avatarInput.files && avatarInput.files[0];
+		const preview = document.getElementById("avatarPreview") as HTMLImageElement;
+		if (file) {
+			preview.src = URL.createObjectURL(file);
+			preview.style.display = "block";
+		} else {
+			preview.src = "default-avatar.png";
+			preview.style.display = "none";
+		}
+	});
+
+  // Handle registration form submission
+  document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
 	e.preventDefault();
+
 	const nameInput = document.getElementById("registerName") as HTMLInputElement;
 	const usernameInput = document.getElementById("registerUsername") as HTMLInputElement;
 	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
 	const countryInput = document.getElementById("registerCountry") as HTMLInputElement;
+	// Reuse avatarInput from above
 	const name = nameInput.value.trim();
 	const username = usernameInput.value.trim();
 	const password = passwordInput.value.trim();
 	const country = countryInput.value.trim();
+	const avatarFile = avatarInput.files && avatarInput.files[0];
+
 	if (!username || !password || !name || !country) {
-		alert("Name, username, password and country cannot be empty!");
-		return;
+	  alert("Name, username, password and country cannot be empty!");
+	  return;
 	}
 
-	const newPlayer: PlayerRegistration = {
-		name,
-		username,
-		password,
-		country,
-	};
+	const formData = new FormData();
+	formData.append("name", name);
+	formData.append("username", username);
+	formData.append("password", password);
+	formData.append("country", country);
+	if (avatarFile) {
+	  formData.append("avatar", avatarFile);
+	}
+
 	fetch("/register", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify(newPlayer)
+	  method: "POST",
+	  body: formData
 	})
-		.then(response => {
-			if (!response.ok) {
-				alert("Registration failed. Please try again.");
-				return;
-			}
-			console.log("Registration successful:", response);
-			alert("Registration successful! You can now log in.");
-			emptyLoginFields("registerSettings");
-			hideGeneralRegistrationModal();
-			restoreScreen();
-			// location.reload();// This will reload the page after registration
-			return response.json();
-		})
-		.catch(error => {
-			console.error("Error during Registration:", error);
-		});
+	  .then(response => {
+		if (!response.ok) {
+		  alert("Registration failed. Please try again.");
+		  return;
+		}
+		console.log("Registration successful:", response);
+		alert("Registration successful! You can now log in.");
+		emptyLoginFields("registerSettings");
+		hideGeneralRegistrationModal();
+		restoreScreen();
+		// location.reload(); // reload page after registration
+		return response.json();
+	  })
+	  .catch(error => {
+		console.error("Error during Registration:", error);
+	  });
+  });
 });
 
 

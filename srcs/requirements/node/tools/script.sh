@@ -1,6 +1,7 @@
 #!/bin/sh
 
-mkdir data/public
+mkdir -p data/public/avatars
+# mkdir data/public
 # mkdir data/frontend
 # mkdir data/backend
 
@@ -8,6 +9,7 @@ mkdir data/public
 mv ./index.html ./data/public/index.html
 mv ./styles.css ./data/public/styles.css
 mv ./avatar_icon.jpg ./data/public/avatar_icon.jpg
+mv ./avatars/default-avatar.png ./data/public/avatars/default-avatar.png
 
 # mv ./index.ts ./data/frontend/index.ts
 # mv ./server.ts ./data/backend/server.ts

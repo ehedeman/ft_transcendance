@@ -3,14 +3,22 @@ import path from 'path';
 import fastifyStatic from '@fastify/static';
 import Database from 'better-sqlite3';
 import bcrypt from 'bcrypt'; // for hashing password
+import fastifyMultipart from '@fastify/multipart';
+import { pipeline } from 'stream';
+import { promisify } from 'util';
+import { createWriteStream } from 'fs';
 const saltRounds = 10;
 
 const app = fastify();
 
+app.register(fastifyMultipart);
+
+const pump = promisify(pipeline);
+
 // import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { GameInfo, loginInfo } from './serverStructures.js';
+import { GameInfo } from './serverStructures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -74,33 +82,6 @@ CREATE TABLE IF NOT EXISTS user_stats (
 	FOREIGN KEY (user_id) REFERENCES users(id)
 );
 `);
-
-// let loginInformation: loginInfo[] = [
-// 	{
-// 		name: "a",
-// 		username: "a",
-// 		password: "a",
-// 		country: "a"
-// 	}, 
-// 	{
-// 		name: "b",
-// 		username: "b",
-// 		password: "b",
-// 		country: "b"
-// 	}, 
-// 	{
-// 		name: "c",
-// 		username: "c",
-// 		password: "c",
-// 		country: "c"
-// 	}, 
-// 	{
-// 		name: "d",
-// 		username: "d",
-// 		password: "d",
-// 		country: "d"
-// 	}
-// ];
 
 let rounds = 1;
 
@@ -276,43 +257,69 @@ app.get('/getstatus', async (request, reply) => {
 	});
 });
 
+
 app.post("/register", async (request, reply) => {
-	const { name, username, password, country } = request.body as loginInfo; // Quick fix, but less type-safe
-	
-	const alias = username;
-	const fullName = name;
-	const password_hash = await bcrypt.hash(password, saltRounds);
+  const parts = request.parts();
+  let name = '', username = '', password = '', country = '';
+  let avatarPath = '/avatars/default-avatar.png';
+  let avatarUploaded = false;
 
-	try {
-		const stmt = db.prepare(`
-			INSERT INTO users (Full_name, Alias, password_hash)
-			VALUES (?, ?, ?)
-		`);
-		stmt.run(fullName, alias, password_hash);
+  for await (const part of parts) {
+    if (part.type === 'file') {
+      // Save avatar file
+      if (part.fieldname === 'avatar' && part.filename) {
+        const fileExt = path.extname(part.filename);
+        const uniqueName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${fileExt}`;
+        const savePath = path.join(__dirname, '../public/avatars', uniqueName);
 
-		reply.send({ status: 200, message: 'User registered successfully' });
-	} catch (err: any) {
-		if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-			reply.status(400).send({ status: 400, message: 'User already exists' });
-		} else {
-			reply.status(500).send({ status: 500, message: 'Server error' });
-		}
-	}
-	
-	// const newUser = { name, username, password, country } as loginInfo;
-	// for (const user of loginInformation) {
-	// 	if (user.username === username || user.name === name) {
-	// 		reply.status(400).send({ status: 400, message: 'Username already exists'});
-	// 		return;
-	// 	}
-	// }
+        // In v8+, use the file property which is a readable stream
+        await pump((part as any).file, createWriteStream(savePath));
+        avatarPath = `/avatars/${uniqueName}`;
+        avatarUploaded = true;
+      } else {
+        // Unknown file part -- skip by consuming the stream
+        const fileStream = (part as any).file;
+        fileStream.resume();
+      }
+    } else if (part.type === 'field') {
+      // Handle text fields - v8+ has better type safety for fields
+      const fieldValue = (part as any).value;
+      switch (part.fieldname) {
+        case 'name': name = fieldValue; break;
+        case 'username': username = fieldValue; break;
+        case 'password': password = fieldValue; break;
+        case 'country': country = fieldValue; break;
+      }
+    }
+  }
 
-	// loginInformation.push(newUser);
-	console.log(`User ${username} registered successfully`);
-	// for (const user of loginInformation) {
-	// 	console.log(`Registered user: ${user.username}, Name: ${user.name}, Country: ${user.country}`);
-	// }
+  if (!name || !username || !password || !country) {
+    reply.status(400).send({ status: 400, message: 'Missing required fields' });
+    return;
+  }
+
+  const alias = username;
+  const fullName = name;
+  const password_hash = await bcrypt.hash(password, saltRounds);
+
+  try {
+    const statement = db.prepare(`
+      INSERT INTO users (Full_name, Alias, password_hash, avatar_url)
+      VALUES (?, ?, ?, ?)
+    `);
+    statement.run(fullName, alias, password_hash, avatarPath);
+
+    reply.send({ status: 200, message: 'User registered successfully', avatar: avatarPath });
+  } catch (err: any) {
+    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      reply.status(400).send({ status: 400, message: 'User already exists' });
+    } else {
+      reply.status(500).send({ status: 500, message: 'Server error' });
+    }
+  }
+  console.log(`User ${username} registered successfully`);
 });
+
 
 app.post("/login", async (request, reply) => {
 	const { username, password } = request.body as { username: string; password: string };

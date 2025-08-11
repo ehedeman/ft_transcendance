@@ -26,7 +26,6 @@ COPY ./tools/postcss.config.js ./
 COPY ./tools/tailwind.config.js ./
 COPY ./tools/package.json ./
 COPY ./tools/script.sh ./
-COPY ./tools/script.sh ./
 
 # Copy source code
 COPY ./_data/frontend .
@@ -38,6 +37,9 @@ RUN chmod +x ./script.sh
 
 # Install better-sqlite3 before general dependencies to ensure native build
 RUN npm install better-sqlite3
+
+# Install multipart support
+RUN npm install @fastify/multipart
 
 # Install remaining dependencies
 RUN npm install
