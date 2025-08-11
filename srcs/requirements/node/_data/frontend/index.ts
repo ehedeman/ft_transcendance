@@ -118,16 +118,7 @@ document.getElementById('avatarUpload')?.addEventListener('change', function (ev
 			{
 				preview.src = URL.createObjectURL(file);
 				preview.style.display = "block";
-				// const reader = new FileReader();
-				// reader.onload = function (e) 
-				// {
-					
-				// 	if (preview && e.target && typeof e.target.result === 'string')
-				// 	{
-				// 		preview.src = e.target.result;
-				// 	};
-				// 	reader.readAsDataURL(file);
-				}
+			}
 		}
 		else {
 			preview.src = "default-avatar.png";
@@ -194,7 +185,7 @@ document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
 	const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
 	// const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
 	const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
-	const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
+	const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLInputElement;
 
 	const name = nameInput.value.trim();
 	const username = usernameInput.value.trim();
@@ -202,7 +193,7 @@ document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
 	const country = countryInput.value.trim();
 
 	console.log(userInfoTemp);
-	const avatarFile = avatarUpload.src;
+	const avatarFile = avatarPreviewSettings.src;
 	if (!username || !password || !name || !country) {
 		alert("Name, username, password and country cannot be empty!");
 		return;
