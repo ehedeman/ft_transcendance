@@ -99,7 +99,7 @@ document.getElementById("settingsDeleteAccount")?.addEventListener("click", () =
 });
 
 // JavaScript to handle avatar click and preview
-document.getElementById('avatarPreview')?.addEventListener('click', function () {
+document.getElementById('avatarPreviewSettings')?.addEventListener('click', function () {
   document.getElementById('avatarUpload')?.click();
 });
 
@@ -203,6 +203,7 @@ async function loginToSettings(): Promise<boolean> {
 			emptyLoginFields("loginSettings");
 			return false;
 		}
+		emptyLoginFields("loginSettings");
 		setSettingFields(loginPlayer);
 		return true;
 	} catch (error) {
@@ -366,8 +367,8 @@ document.addEventListener("DOMContentLoaded", () =>
 		}
 	});
 
-  // Handle registration form submission
-  document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
+	// Handle registration form submission
+	document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
 	e.preventDefault();
 
 	const nameInput = document.getElementById("registerName") as HTMLInputElement;
@@ -392,14 +393,14 @@ document.addEventListener("DOMContentLoaded", () =>
 	formData.append("password", password);
 	formData.append("country", country);
 	if (avatarFile) {
-	  formData.append("avatar", avatarFile);
+		formData.append("avatar", avatarFile);
 	}
 
 	fetch("/register", {
-	  method: "POST",
-	  body: formData
+		method: "POST",
+		body: formData
 	})
-	  .then(response => {
+		.then(response => {
 		if (!response.ok) {
 		  alert("Registration failed. Please try again.");
 		  return;
@@ -411,10 +412,10 @@ document.addEventListener("DOMContentLoaded", () =>
 		restoreScreen();
 		// location.reload(); // reload page after registration
 		return response.json();
-	  })
-	  .catch(error => {
-		console.error("Error during Registration:", error);
-	  });
+		})
+		.catch(error => {
+			console.error("Error during Registration:", error);
+		});
   });
 });
 
