@@ -25,6 +25,18 @@ export class Player {
 	}
 }
 
+export interface userInfo {
+	id: number;
+	Full_Name: string;
+	Alias: string;
+	Country: string;
+	password_hash: string;
+	avatar_url: string;
+	status: string;
+	updated_at: string;
+	created_at: string;
+}
+
 export class BallInfo {
 	ballX: number;
 	ballY: number;

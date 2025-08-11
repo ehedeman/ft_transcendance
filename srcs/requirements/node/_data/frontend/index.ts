@@ -1,4 +1,4 @@
-import { Player, canvasInfo, BallInfo, playerPaddle, GameInfo, TournamentStage, PlayerLogin, PlayerRegistration } from "./frontendStructures.js";
+import { GameInfo, TournamentStage, PlayerLogin } from "./frontendStructures.js";
 import { tournamentEnd, tournamentLogic, tournamentPlayGame } from "./tournament.js";
 // import e{ rounds } from "./server.js";
 import { tournamentFinished, showWinnerScreen } from "./tournament.js";
@@ -127,23 +127,42 @@ document.getElementById('avatarUpload')?.addEventListener('change', function (ev
 	}
 });
 
-function setSettingFields(loginPlayer: PlayerLogin): void {
+async function setSettingFields(loginPlayer: PlayerLogin): Promise<boolean> {
 	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
 	const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
 	const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
 	const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
-	
+	const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLInputElement;
+	const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
+	fetch("/userInfo", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username: loginPlayer.username })
+	})
+	.then(response => response.json())
+	.then(data => {
+		var	playerInfo = {
+			name: data.fullName,
+			username: data.alias,
+			country: data.country,
+			avatar: data.avatarPath,
+			password: data.password
+		}
+		avatarUpload.src = playerInfo.avatar;
+		settingsName.placeholder = playerInfo.name;
+		settingsUsername.placeholder = playerInfo.username;
+		settingsPassword.placeholder = "Enter new password";
+		settingsCountry.placeholder = playerInfo.country;
+		avatarPreviewSettings.src = avatarUpload.src;
+		//set values so settings can be overwritten and arent required
+		settingsName.value = playerInfo.name;
+		settingsUsername.value = playerInfo.username;
+		settingsPassword.value = playerInfo.password;
+		settingsCountry.value = playerInfo.country;
+	})
 	// here set fields to what database has currently stored to display in settings
-	settingsName.placeholder = "";
-	settingsUsername.placeholder = "";
-	settingsPassword.placeholder = "";
-	settingsCountry.placeholder = "";
 
-	//set values so settings can be overwritten and arent required
-	settingsName.value = "";
-	settingsUsername.value = "";
-	settingsPassword.value = "";
-	settingsCountry.value = "";
+	return true;
 }
 
 document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
@@ -161,13 +180,11 @@ document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
 	const country = countryInput.value.trim();
 
 
-	const avatarFile = avatarUpload.files && avatarUpload.files[0];
-
+	const avatarFile = avatarUpload.src;
 	if (!username || !password || !name || !country) {
 		alert("Name, username, password and country cannot be empty!");
 		return;
 	}
-
 	const formData = new FormData();
 	formData.append("name", name);
 	formData.append("username", username);
@@ -177,6 +194,15 @@ document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
 		formData.append("avatar", avatarFile);
 	}
 
+	console.log(name);
+
+	console.log(username);
+
+	console.log(password);
+
+	console.log(country);
+
+	console.log(avatarFile);
 
 	// save to databse here
 
@@ -235,6 +261,7 @@ document.getElementById("settingsLogin")?.addEventListener("submit", async (e) =
 		hideSettingsLogin();
 		document.addEventListener("keydown", handleKeydown);
 		document.addEventListener("keyup", handleKeyup);
+		restoreScreen();
 	}
 });
 

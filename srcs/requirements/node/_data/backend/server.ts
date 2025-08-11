@@ -18,7 +18,7 @@ const pump = promisify(pipeline);
 // import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { GameInfo } from './serverStructures.js';
+import { GameInfo, userInfo } from './serverStructures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS users (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	Full_Name TEXT UNIQUE NOT NULL,
 	Alias TEXT UNIQUE NOT NULL,
+	Country TEXT UNIQUE NOT NULL,
 	password_hash TEXT NOT NULL,
 	avatar_url TEXT DEFAULT '/avatars/default.png',
 	status TEXT DEFAULT 'offline',
@@ -265,61 +266,96 @@ app.post("/register", async (request, reply) => {
   let avatarUploaded = false;
 
   for await (const part of parts) {
-    if (part.type === 'file') {
-      // Save avatar file
-      if (part.fieldname === 'avatar' && part.filename) {
-        const fileExt = path.extname(part.filename);
-        const uniqueName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${fileExt}`;
-        const savePath = path.join(__dirname, '../public/avatars', uniqueName);
+	if (part.type === 'file') {
+	  // Save avatar file
+		if (part.fieldname === 'avatar' && part.filename) {
+			const fileExt = path.extname(part.filename);
+			const uniqueName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${fileExt}`;
+			const savePath = path.join(__dirname, '../public/avatars', uniqueName);
 
-        // In v8+, use the file property which is a readable stream
-        await pump((part as any).file, createWriteStream(savePath));
-        avatarPath = `/avatars/${uniqueName}`;
-        avatarUploaded = true;
-      } else {
-        // Unknown file part -- skip by consuming the stream
-        const fileStream = (part as any).file;
-        fileStream.resume();
-      }
-    } else if (part.type === 'field') {
-      // Handle text fields - v8+ has better type safety for fields
-      const fieldValue = (part as any).value;
-      switch (part.fieldname) {
-        case 'name': name = fieldValue; break;
-        case 'username': username = fieldValue; break;
-        case 'password': password = fieldValue; break;
-        case 'country': country = fieldValue; break;
-      }
-    }
+			// In v8+, use the file property which is a readable stream
+			await pump((part as any).file, createWriteStream(savePath));
+			avatarPath = `/avatars/${uniqueName}`;
+			avatarUploaded = true;
+		} else {
+			// Unknown file part -- skip by consuming the stream
+			const fileStream = (part as any).file;
+			fileStream.resume();
+	  }
+	} else if (part.type === 'field') {
+		// Handle text fields - v8+ has better type safety for fields
+		const fieldValue = (part as any).value;
+		switch (part.fieldname) {
+			case 'name': name = fieldValue; break;
+			case 'username': username = fieldValue; break;
+			case 'password': password = fieldValue; break;
+			case 'country': country = fieldValue; break;
+		}
+	}
   }
 
-  if (!name || !username || !password || !country) {
-    reply.status(400).send({ status: 400, message: 'Missing required fields' });
-    return;
-  }
+	if (!name || !username || !password || !country) {
+		reply.status(400).send({ status: 400, message: 'Missing required fields' });
+		return;
+	}
 
-  const alias = username;
-  const fullName = name;
-  const password_hash = await bcrypt.hash(password, saltRounds);
+	const alias = username;
+	const fullName = name;
+	const Country = country;
+	const password_hash = await bcrypt.hash(password, saltRounds);
 
-  try {
-    const statement = db.prepare(`
-      INSERT INTO users (Full_name, Alias, password_hash, avatar_url)
-      VALUES (?, ?, ?, ?)
-    `);
-    statement.run(fullName, alias, password_hash, avatarPath);
+	try {
+		const statement = db.prepare(`
+		INSERT INTO users (Full_name, Alias, password_hash, Country, avatar_url)
+		VALUES (?, ?, ?, ?, ?)
+		`);
+		statement.run(fullName, alias, password_hash, Country, avatarPath);
 
-    reply.send({ status: 200, message: 'User registered successfully', avatar: avatarPath });
-  } catch (err: any) {
-    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-      reply.status(400).send({ status: 400, message: 'User already exists' });
-    } else {
-      reply.status(500).send({ status: 500, message: 'Server error' });
-    }
-  }
-  console.log(`User ${username} registered successfully`);
+		reply.send({ status: 200, message: 'User registered successfully', avatar: avatarPath });
+	} catch (err: any) {
+		if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+		reply.status(400).send({ status: 400, message: 'User already exists' });
+		} else {
+		reply.status(500).send({ status: 500, message: 'Server error' });
+		}
+	}
+	console.log(`User ${username} registered successfully`);
 });
 
+
+// app.get('/getstatus', async (request, reply) => {
+// 	reply.type('application/json').send({
+// 		ballX: game.ball.ballX,
+// 		ballY: game.ball.ballY,
+// 		player1_y: game.player1Paddle.y,
+// 		player2_y: game.player2Paddle.y,
+// 		player1_score: game.player1.playerscore,
+// 		player2_score: game.player2.playerscore,
+// 		gamefinished: gameFinished,
+// 		ballSpeedX: game.ball.ballSpeedX,
+// 	});
+// });
+
+
+
+app.post("/userInfo", async (request, reply) => {
+	const _username  = request.body as {username: string};
+	
+	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
+	const user = stmt.get(_username.username) as userInfo;
+
+	if (!user || !user.Alias || !user.Full_Name || !user.Country || !user.avatar_url || !user.password_hash) {
+		reply.status(401).send({ status: 401, message: 'User data incomplete or not found' });
+		return;
+	}
+	reply.type('application/json').send({
+		alias: user.Alias,
+		fullName: user.Full_Name,
+		country: user.Country,
+		avatar: user.avatar_url,
+		password: user.password_hash
+	});
+})
 
 app.post("/login", async (request, reply) => {
 	const { username, password } = request.body as { username: string; password: string };
@@ -348,7 +384,7 @@ app.post("/login", async (request, reply) => {
 
 app.get('/debug/users', async (request, reply) => {
 	try {
-		const stmt = db.prepare(`SELECT id, Full_Name, Alias, avatar_url, status, created_at FROM users`);
+		const stmt = db.prepare(`SELECT id, Full_Name, Alias, avatar_url, Country, status, created_at FROM users`);
 		const users = stmt.all();
 		reply.send({ users });
 	} catch (err) {

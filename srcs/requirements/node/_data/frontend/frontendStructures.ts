@@ -13,6 +13,7 @@ export type PlayerRegistration = {
 		username: string;
 		password: string;
 		country: string;
+		avatar?: string;
 };
 
 export type PlayerLogin = {
