@@ -36,11 +36,12 @@
 					<input type="text" id="registerUsername" name="username" />
 					<input type="password" id="registerPassword" name="password" />
 					<input type="country" id="registerCountry" name="country" />
-					<label for="registerAvatar"
-					style="display:block; background:#eee; padding:5px 10px; border-radius:5px; font-weight:bold; color:black; margin-top:10px;">
-					Select your avatar
+					<label for="registerAvatar" style="cursor:pointer;">
+					<img src="avatars/default-avatar.png"
+						style="width:64px; height:64px; border-radius:8px; border:2px solid #aaa;"
+						alt="Select your avatar" />
 				</label>
-				<input type=" file" id="registerAvatar" name="avatar" accept="image/*" />
+				<input type=" file" id="registerAvatar" name="avatar" accept="image/*" style="display:none;" />
 				<img id="avatarPreview" src="default-avatar.png"
 					style="width:64px; height:64px; display:none; margin-top:8px;" />
 				</div>
