@@ -103,8 +103,8 @@ document.getElementById('avatarPreviewSettings')?.addEventListener('click', func
   document.getElementById('avatarUpload')?.click();
 });
 
-document.getElementById('avatarUpload')?.addEventListener('change', function (event) {
-  
+document.getElementById('avatarUpload')?.addEventListener('change', function (event)
+{
 	if (event)
 	{
 		const input = event.target as HTMLInputElement;
@@ -153,20 +153,29 @@ document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
 	const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
 	const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
 	const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
+	const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
+
 	const name = nameInput.value.trim();
 	const username = usernameInput.value.trim();
 	const password = passwordInput.value.trim();
 	const country = countryInput.value.trim();
+
+
+	const avatarFile = avatarUpload.files && avatarUpload.files[0];
+
 	if (!username || !password || !name || !country) {
 		alert("Name, username, password and country cannot be empty!");
 		return;
 	}
-	const newPlayer: PlayerRegistration = {
-		name,
-		username,
-		password,
-		country,
-	};
+
+	const formData = new FormData();
+	formData.append("name", name);
+	formData.append("username", username);
+	formData.append("password", password);
+	formData.append("country", country);
+	if (avatarFile) {
+		formData.append("avatar", avatarFile);
+	}
 
 
 	// save to databse here
