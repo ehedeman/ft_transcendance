@@ -267,11 +267,14 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			game.websocket = new WebSocket(`ws://localhost:3000/ws?username=${loginPlayer.username}`);
 
 			game.websocket.onopen = () => {
-				console.log("WebSocket connection established.");
+				console.log("✅ WebSocket connection established successfully!");
+				// Send test message AFTER connection is established
+				game.websocket?.send("Hello from frontend!");
+				console.log("📤 Test message sent to server");
 			};
 
 			game.websocket.onmessage = (event) => {
-				console.log("Received from server:", event.data);
+				console.log("📥 Received from server:", event.data);
 			};
 
 			game.websocket.onclose = () => {
@@ -279,7 +282,7 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			};
 
 			game.websocket.onerror = (error) => {
-				console.error("WebSocket error:", error);
+				console.error("❌ WebSocket error:", error);
 			};
 			return response.json(); // Optional: if you need response data
 		})

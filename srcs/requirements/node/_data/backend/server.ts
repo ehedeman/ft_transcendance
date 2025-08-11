@@ -2,14 +2,13 @@ import fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
 import websocket from '@fastify/websocket';
-import type { WebSocket } from 'ws';
 import Database from 'better-sqlite3';
 import bcrypt from 'bcrypt'; // for hashing password
 const saltRounds = 10;
 
-const app = fastify();
+const app = fastify({ logger: true });
 
-app.register(websocket);
+await app.register(websocket);
 
 // import path from 'path';
 import { fileURLToPath } from 'url';
@@ -485,27 +484,11 @@ app.put('/debug/friends', async (request, reply) => {
 	}
 });
 
-app.get('/ws', { websocket: true }, (connection: any, req: any) => {
-	const { username } = req.query as { username?: string };
-	console.log(`WebSocket connection established for user: ${username || 'anonymous'}`);
+app.get('/hello-ws', { websocket: true }, (socket, req) => {
+	console.log('we are in the websocket route');
 
-	// Use connection.socket for the WebSocket instance
-	connection.socket.on('message', (message: Buffer) => {
-		const messageStr = message.toString();
-		console.log(`Received message from ${username || 'anonymous'}: ${messageStr}`);
-
-		// Reply back to client using connection.socket.send()
-		connection.socket.send(`Server got your message: ${messageStr}`);
-	});
-
-	// Handle connection close
-	connection.socket.on('close', () => {
-		console.log(`WebSocket connection closed for user: ${username || 'anonymous'}`);
-	});
-
-	// Handle connection errors
-	connection.socket.on('error', (error: Error) => {
-		console.error(`WebSocket error for user ${username || 'anonymous'}:`, error);
+	socket.on('message', (message: string) => {
+		socket.send('Hello Fastify WebSocket!');
 	});
 });
 
