@@ -21,21 +21,30 @@
 		</button>
 		<div id="settings" style="display:none; position:fixed; flex-grow:1; display:none; flex-direction:column; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width: 300px;">
 			<div style="display:flex; flex-direction:column; height:100%;">
+				<h2 id="settingsHeader">
+				</h2>
 				<form id="settingsForm" method="post" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
-					<h2>
-						Settings
-					</h2>
-					<input type="text" id="settingsUsername" name="username" placeholder="Username" />
-					<input type="password" id="settingsPassword" name="password" placeholder="Password" />
-					<input type="text" id="settingsCountry" name="country" placeholder="Country" />
+					<input type="text" id="settingsName" name="name" required="false"/>
+					<input type="text" id="settingsUsername" name="username" required="false"/>
+					<input type="password" id="settingsPassword" name="password" required="false"/>
+					<input type="text" id="settingsCountry" name="country" required="false"/>
+	
 					<div id="avatarContainer" style="text-align:center; margin-bottom:10px;">
 						<img id="avatarPreview" src="avatar_icon.jpg" alt="Avatar" style="width:100px; height:100px; border-radius:50%; cursor:pointer;" />
 						<input type="file" id="avatarUpload" name="avatar" accept="image/*" style="display:none;" />
 					</div>
+	
 					<button type="button" id="showSettingsPassword" class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
-					<button type="button" id="settingsSave" class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
-					<button type="button" id="settingsCancel" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
+					<button type="submit" id="settingsSave" class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
+					<button type="button" id="settingsDeleteAccount" class="bg-blue-500 text-white px-4 py-2 rounded">Delete Account</button>
 				</form>
+				<form id="settingsLogin" method="post" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
+					<input type="text" id="settingsLoginUsername" name="username" placeholder="Username" required="true"/>
+					<input type="password" id="settingsLoginPassword" name="password" placeholder="Password" required="true"/>
+
+					<button type="submit" id="settingsLoginSubmit" class="bg-blue-500 text-white px-4 py-2 rounded">Log In</button>
+				</form>
+				<button type="button" id="settingsCancel" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
 			</div>
 		</div>
 	<div id="generalRegistrationModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
@@ -45,10 +54,10 @@
 			</h2>
 			<form id="generalRegistrationForm" method="post" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
 				<div>
-					<input type="text" id="registerName" name="name" />
-					<input type="text" id="registerUsername" name="username" />
-					<input type="password" id="registerPassword" name="password" />
-					<input type="country" id="registerCountry" name="country" />
+					<input type="text" id="registerName" name="name" placeholder="Name" required="true"/>
+					<input type="text" id="registerUsername" name="username" placeholder="Username" required="true"/>
+					<input type="password" id="registerPassword" name="password" placeholder="Password" required="true"/>
+					<input type="country" id="registerCountry" name="country" placeholder="Country" required="true"/>
 				</div>
 				<div style="margin-top:20px;">
 					<button type = "button" id="showRegisterPassword" class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
@@ -65,8 +74,8 @@
 				</h2>
 				<form id="generalLoginForm" method="post" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
 					<div>
-						<input type="text" id="loginUsername" name="username" />
-						<input type="password" id="loginPassword" name="password" />
+						<input type="text" id="loginUsername" name="username" placeholder="Username" required="true"/>
+						<input type="password" id="loginPassword" name="password" placeholder="Password" required="true"/>
 					</div>
 					<div style="margin-top:20px;">
 						<button type = "button" id="showLoginPassword" class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
@@ -83,8 +92,8 @@
 				</h2>
 				<form id="tournamentRegistrationForm" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
 					<div>
-						<input type="text" id="tournamentUsername" name="username" />
-						<input type="password" id="tournamentPassword" name="password" />
+						<input type="text" id="tournamentUsername" name="username" placeholder="Username" required="true"/>
+						<input type="password" id="tournamentPassword" name="password" placeholder="Password" required="true"/>
 					</div>
 					<div style="margin-top:20px;">
 						<button type = "button" id="showTournamentPassword" class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>

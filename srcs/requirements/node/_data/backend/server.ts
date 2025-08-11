@@ -75,32 +75,32 @@ CREATE TABLE IF NOT EXISTS user_stats (
 );
 `);
 
-let loginInformation: loginInfo[] = [
-	{
-		name: "a",
-		username: "a",
-		password: "a",
-		country: "a"
-	}, 
-	{
-		name: "b",
-		username: "b",
-		password: "b",
-		country: "b"
-	}, 
-	{
-		name: "c",
-		username: "c",
-		password: "c",
-		country: "c"
-	}, 
-	{
-		name: "d",
-		username: "d",
-		password: "d",
-		country: "d"
-	}
-];
+// let loginInformation: loginInfo[] = [
+// 	{
+// 		name: "a",
+// 		username: "a",
+// 		password: "a",
+// 		country: "a"
+// 	}, 
+// 	{
+// 		name: "b",
+// 		username: "b",
+// 		password: "b",
+// 		country: "b"
+// 	}, 
+// 	{
+// 		name: "c",
+// 		username: "c",
+// 		password: "c",
+// 		country: "c"
+// 	}, 
+// 	{
+// 		name: "d",
+// 		username: "d",
+// 		password: "d",
+// 		country: "d"
+// 	}
+// ];
 
 let rounds = 1;
 

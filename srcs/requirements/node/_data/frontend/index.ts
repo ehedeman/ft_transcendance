@@ -47,11 +47,236 @@ document.addEventListener("keydown", handleKeydown);
 document.addEventListener("keyup", handleKeyup);
 
 let gamefinished = false;
+
+function restoreScreen(): void {
+	const registerButton = document.getElementById("registerButton");
+	const playSelect = document.getElementById("playSelect");
+	const loginButton = document.getElementById("loginButton");
+	const registerModal = document.getElementById("generalRegistrationModal") as HTMLDivElement;
+	const settings = document.getElementById("settings") as HTMLElement;
+	const loginModal = document.getElementById("generalLoginModal") as HTMLDivElement;
+
+	if (registerButton) registerButton.style.display = "block";
+	if (playSelect) playSelect.style.display = "block";
+	if (loginButton) loginButton.style.display = "block";
+	if (registerModal) registerModal.style.display = "none";	
+	if (settings) settings.style.display = "none";	
+	if (loginModal) loginModal.style.display = "none";	
+}
+
+function emptyLoginFields(loginType: string): void {
+	switch (loginType) {
+		case "loginTournament":
+			const tournamentPassword = document.getElementById("tournamentPassword") as HTMLInputElement;
+			if (tournamentPassword) tournamentPassword.value = "";
+			break;
+		case "loginGeneral":
+			const loginPassword = document.getElementById("loginPassword") as HTMLInputElement;
+			if (loginPassword) loginPassword.value = "";
+			break;
+		case "loginSettings":
+			const settingPassword = document.getElementById("settingPassword") as HTMLInputElement;
+			if (settingPassword) settingPassword.value = "";
+			break;
+		case "registerSettings":
+			const registerPassword = document.getElementById("registerPassword") as HTMLInputElement;
+			if (registerPassword) registerPassword.value = "";
+			break;
+		default:
+			break;
+	}
+}
+
 /*-------------------------------------settings------------------------------------*/
 
-document.getElementById("settingsButton")?.addEventListener("click", () => {
+document.getElementById("settingsDeleteAccount")?.addEventListener("click", () => 
+{
+	// delete account from database here
+
+	//not sure of a way to get data on whose acc is being deleted tho
+	//at least not wihtout getting too hardcoded
+	restoreScreen();
+});
+
+// JavaScript to handle avatar click and preview
+document.getElementById('avatarPreview')?.addEventListener('click', function () {
+  document.getElementById('avatarUpload')?.click();
+});
+
+document.getElementById('avatarUpload')?.addEventListener('change', function (event) {
+  
+	if (event)
+	{
+		const input = event.target as HTMLInputElement;
+		if (input)
+		{
+			const file = input.files?.[0];
+			if (file)
+			{
+				const reader = new FileReader();
+				reader.onload = function (e) 
+				{
+					const preview = document.getElementById('avatarPreview') as HTMLImageElement | null;
+					if (preview && e.target && typeof e.target.result === 'string') {
+						preview.src = e.target.result;
+					};
+				reader.readAsDataURL(file);
+				}
+			}
+		}
+	}
+});
+
+function setSettingFields(loginPlayer: PlayerLogin): void {
+	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
+	const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
+	const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
+	const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
+	
+	// here set fields to what database has currently stored to display in settings
+	settingsName.placeholder = "";
+	settingsUsername.placeholder = "";
+	settingsPassword.placeholder = "";
+	settingsCountry.placeholder = "";
+
+	//set values so settings can be overwritten and arent required
+	settingsName.value = "";
+	settingsUsername.value = "";
+	settingsPassword.value = "";
+	settingsCountry.value = "";
+}
+
+document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
+	e.preventDefault();
+
+	const nameInput = document.getElementById("settingsName") as HTMLInputElement;
+	const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
+	const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
+	const name = nameInput.value.trim();
+	const username = usernameInput.value.trim();
+	const password = passwordInput.value.trim();
+	const country = countryInput.value.trim();
+	if (!username || !password || !name || !country) {
+		alert("Name, username, password and country cannot be empty!");
+		return;
+	}
+	const newPlayer: PlayerRegistration = {
+		name,
+		username,
+		password,
+		country,
+	};
+
+	// save to databse here
+
+	document.addEventListener("keydown", handleKeydown);
+	document.addEventListener("keyup", handleKeyup);
+});
+
+async function loginToSettings(): Promise<boolean> {
+	const usernameInput = document.getElementById("settingsLoginUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("settingsLoginPassword") as HTMLInputElement;
+	const username = usernameInput.value.trim();
+	const password = passwordInput.value.trim();
+
+	if (!username || !password) {
+		alert("Username and password cannot be empty!");
+		return false;
+	}
+
+	const loginPlayer: PlayerLogin = { username, password };
+
+	try {
+		const response = await fetch("/login", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(loginPlayer)
+		});
+
+		if (!response.ok) {
+			const message = response.status === 401
+				? 'Username or password is incorrect'
+				: 'Login failed. Please try again.';
+			alert(message);
+			emptyLoginFields("loginSettings");
+			return false;
+		}
+		setSettingFields(loginPlayer);
+		return true;
+	} catch (error) {
+		console.error("Error during Login:", error);
+		return false;
+	}
+}
+
+
+document.getElementById("settingsLogin")?.addEventListener("submit", async (e) => {
+	e.preventDefault();
+	const success = await loginToSettings();
+
+	if (success) {
+		hideSettingsLogin();
+		showSettingsForm();
+	} else {
+		hideSettings();
+		hideSettingsForm();
+		hideSettingsLogin();
+		document.addEventListener("keydown", handleKeydown);
+		document.addEventListener("keyup", handleKeyup);
+	}
+});
+
+
+function showSettings(): void {
 	const settings = document.getElementById("settings") as HTMLElement;
 	if (settings) settings.style.display = "flex";
+}
+
+function hideSettings(): void {
+	const settings = document.getElementById("settings") as HTMLElement;
+	if (settings) settings.style.display = "none";
+}
+
+function hideSettingsForm(): void {
+	const settingsForm = document.getElementById("settingsForm") as HTMLElement;
+	if (settingsForm) settingsForm.style.display = "none";
+}
+
+
+function showSettingsForm(): void
+{
+	const settingsForm = document.getElementById("settingsForm") as HTMLElement;
+	if (settingsForm) settingsForm.style.display = "flex";
+
+	const settingsHeader = document.getElementById("settingsHeader") as HTMLElement;
+	if (settingsHeader) settingsHeader.textContent = "Settings";
+}
+
+function hideSettingsLogin(): void {
+	const settingsLogin = document.getElementById("settingsLogin") as HTMLElement;
+	if (settingsLogin) settingsLogin.style.display = "none";
+}
+
+function showSettingsLogin(): void {
+	const settingsLogin = document.getElementById("settingsLogin") as HTMLElement;
+	if (settingsLogin) settingsLogin.style.display = "flex";
+		const settingsHeader = document.getElementById("settingsHeader") as HTMLElement;
+	if (settingsHeader) settingsHeader.textContent = "Log in to continue.";
+}
+
+document.getElementById("settingsButton")?.addEventListener("click", () => {
+
+	const registerButton = document.getElementById("registerButton");
+	const playSelect = document.getElementById("playSelect");
+	const loginButton = document.getElementById("loginButton");
+	if (registerButton) registerButton.style.display = "none";
+	if (playSelect) playSelect.style.display = "none";
+	if (loginButton) loginButton.style.display = "none";
+
+	showSettings();
+	hideSettingsForm();
+	showSettingsLogin();
 	document.removeEventListener("keydown", handleKeydown);
 	document.removeEventListener("keyup", handleKeyup);
 });
@@ -66,20 +291,14 @@ document.getElementById("showSettingsPassword")?.addEventListener("click", () =>
 	}
 });
 
-document.getElementById("settingsSave")?.addEventListener("click", () =>
-{
-	const settings = document.getElementById("settings") as HTMLElement;
-	if (settings) settings.style.display = "none";
-});
-
 document.getElementById("settingsCancel")?.addEventListener("click", () => 
 {
 	const settings = document.getElementById("settings") as HTMLElement;
 	if (settings) settings.style.display = "none";
 	document.addEventListener("keydown", handleKeydown);
 	document.addEventListener("keyup", handleKeyup);
+	restoreScreen();
 });
-
 
 
 /*--------------------------registration modal declaration--------------------------*/
@@ -98,21 +317,9 @@ function showGeneralRegistrationModal(game: GameInfo) {
 	usernameInput.value = "";
 	passwordInput.value = "";
 	countryInput.value = "";
-	usernameInput.type = "text";
 	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
-	nameInput.type = "text";
 	nameInput.className = "mb-2 px-2 py-1 border rounded block";
-	countryInput.type = "text";
 	countryInput.className = "mb-2 px-2 py-1 border rounded block";
-	passwordInput.type = "password";
-	usernameInput.placeholder = "Username";
-	passwordInput.placeholder = "Password";
-	countryInput.placeholder = "Country";
-	nameInput.placeholder = "Name";
-	usernameInput.required = true;
-	passwordInput.required = true;
-	nameInput.required = true;
-	countryInput.required = true;
 	modal.style.display = "flex";
 }
 
@@ -124,10 +331,10 @@ function hideGeneralRegistrationModal() {
 document.getElementById("registerButton")?.addEventListener("click", () => 
 {
 	const registerButton = document.getElementById("registerButton");
-	const tournamentButton = document.getElementById("tournamentButton");
+	const playSelect = document.getElementById("playSelect");
 	const loginButton = document.getElementById("loginButton");
 	if (registerButton) registerButton.style.display = "none";
-	if (tournamentButton) tournamentButton.style.display = "none";
+	if (playSelect) playSelect.style.display = "none";
 	if (loginButton) loginButton.style.display = "none";
 	showGeneralRegistrationModal(game);
 });
@@ -167,8 +374,10 @@ document.getElementById("generalRegistrationForm")?.addEventListener("submit", (
 			}
 			console.log("Registration successful:", response);
 			alert("Registration successful! You can now log in.");
+			emptyLoginFields("registerSettings");
 			hideGeneralRegistrationModal();
-			location.reload();// This will reload the page after registration
+			restoreScreen();
+			// location.reload();// This will reload the page after registration
 			return response.json();
 		})
 		.catch(error => {
@@ -179,7 +388,8 @@ document.getElementById("generalRegistrationForm")?.addEventListener("submit", (
 
 document.getElementById("generalCancelRegistration")?.addEventListener("click", () => {
 	hideGeneralRegistrationModal();
-	location.reload();
+	restoreScreen();
+	// location.reload();
 });
 
 
@@ -193,13 +403,7 @@ function showGeneralLoginModal(game: GameInfo) {
 	const passwordInput = document.getElementById("loginPassword") as HTMLInputElement;
 	usernameInput.value = "";
 	passwordInput.value = "";
-	usernameInput.type = "text";
 	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
-	passwordInput.type = "password";
-	usernameInput.placeholder = "Username";
-	passwordInput.placeholder = "Password";
-	usernameInput.required = true;
-	passwordInput.required = true;
 	modal.style.display = "flex";
 }
 
@@ -211,10 +415,10 @@ function hideGeneralLoginModal() {
 document.getElementById("loginButton")?.addEventListener("click", () => 
 {
 	const registerButton = document.getElementById("registerButton");
-	const tournamentButton = document.getElementById("tournamentButton");
+	const playSelect = document.getElementById("playSelect");
 	const loginButton = document.getElementById("loginButton");
 	if (registerButton) registerButton.style.display = "none";
-	if (tournamentButton) tournamentButton.style.display = "none";
+	if (playSelect) playSelect.style.display = "none";
 	if (loginButton) loginButton.style.display = "none";
 
 	showGeneralLoginModal(game);
@@ -249,6 +453,7 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			}
 			alert("Login successful!");
 			hideGeneralLoginModal();
+			emptyLoginFields("loginGeneral");
 			game.players.push({
 				name: loginPlayer.username,
 				gamesLost: 0,
@@ -256,7 +461,8 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 				playerscore: 0,
 			}
 			);
-			location.reload();// This will reload the page after login
+			restoreScreen();
+			// location.reload();
 			return response.json();
 		})
 		.catch(error => {
@@ -266,7 +472,8 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 
 document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
 	hideGeneralLoginModal();
-	location.reload();
+	restoreScreen();
+	// location.reload();
 });
 
 document.getElementById("showLoginPassword")?.addEventListener("click", () => {
@@ -321,6 +528,7 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
 			.catch(error => {
 				console.error("Error during Login:", error);
 			});
+			emptyLoginFields("loginTournament");
 			game.t.players.push({ name: username, score: 0 });
 			hidetournamentRegistrationModal();
 			resolve(loginPlayer);
@@ -342,7 +550,8 @@ async function tournamentRegisterPlayers (game: GameInfo): Promise<void>
 		.then((response) => {
 			if (!response.ok) {
 				tournamentEnd(0, game);
-				location.reload();
+				restoreScreen();
+				// location.reload();
 				return;
 			}
 		})
@@ -367,13 +576,8 @@ function showtournamentRegistrationModal(playerNr: number): void {
 	header.textContent = `Register Tournament Player ${playerNr}`;
 	usernameInput.value = "";
 	passwordInput.value = "";
-	usernameInput.type = "text";
+
 	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
-	passwordInput.type = "password";
-	usernameInput.placeholder = "Username";
-	passwordInput.placeholder = "Password";
-	usernameInput.required = true;
-	passwordInput.required = true;
 
 	modal.style.display = "flex";
 }
@@ -387,12 +591,14 @@ function hidetournamentRegistrationModal() {
 document.getElementById("tournamentFinishContinue")?.addEventListener("click", () => {
 	//game.t.finishScreenRunning = false;
 	tournamentEnd(0, game);
-	location.reload();
+	restoreScreen();
+	// location.reload();
 });
 
 document.getElementById("tournamentResetButton")?.addEventListener("click", () => {
 	// tournamentEnd(0, game);
-	location.reload();
+	restoreScreen();
+	// location.reload();
 });
 
 document.getElementById("WinnerScreenContinue")?.addEventListener("click", () => {
@@ -448,28 +654,12 @@ document.getElementById("playSelect")?.addEventListener("change",(event:Event) =
 	}
 });
 
-// document.getElementById("tournamentButton")?.addEventListener("click", () => {
-// 	document.removeEventListener('keydown', handleKeydown);
-// 	document.removeEventListener('keyup', handleKeyup);
-// 	const registerButton = document.getElementById("registerButton");
-// 	const tournamentButton = document.getElementById("tournamentButton");
-// 	const loginButton = document.getElementById("loginButton");
-
-// 	if (registerButton) registerButton.style.display = "none";
-// 	if (tournamentButton) tournamentButton.style.display = "none";
-// 	if (loginButton) loginButton.style.display = "none";
-
-// 	const resetButton = document.getElementById("tournamentResetButton");
-// 	if (resetButton) resetButton.style.display = "block";
-
-// 	tournamentRegisterPlayers(game);
-// });
-
 
 document.getElementById("CancelGeneralTournament")?.addEventListener("click", () => {
 	hidetournamentRegistrationModal();
 	tournamentEnd(1, game);
-	location.reload();	//restores the regular interface
+	restoreScreen();
+	// location.reload();
 });
 
 document.getElementById("showTournamentPassword")?.addEventListener("click", () => {
