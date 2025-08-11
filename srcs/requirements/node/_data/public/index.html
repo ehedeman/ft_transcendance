@@ -29,7 +29,7 @@
 					<form id="settingsForm" method="post" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
 						<input type="text" id="settingsName" name="name" required="false"/>
 						<input type="text" id="settingsUsername" name="username" required="false"/>
-						<input type="password" id="settingsPassword" name="password" required="false"/>
+						<input type="password" id="settingsPassword" name="password"/>
 						<input type="text" id="settingsCountry" name="country" required="false"/>
 		
 						<div id="avatarContainer" style="text-align:center; margin-bottom:10px;">
@@ -61,11 +61,13 @@
 						<input type="text" id="registerUsername" name="username" placeholder="Username" required="true"/>
 						<input type="password" id="registerPassword" name="password" placeholder="Password" required="true"/>
 						<input type="country" id="registerCountry" name="country" placeholder="Country" required="true"/>
-						<!-- <label for="registerAvatar" style="display:block; background:#eee; padding:5px 10px; border-radius:5px; font-weight:bold; color:black; margin-top:10px;">
-							Select your avatar
-						</label> -->
-						<input type="file" id="registerAvatar" name="avatar" accept="image/*" />
+						<div>
+						<label for="registerAvatar" style="cursor:pointer;">
+							<img src="avatars/default-avatar.png" style="width:64px; height:64px; border-radius:8px; border:2px solid #aaa;" alt="Select your avatar" />
+						</label>
+						<input type=" file" id="registerAvatar" name="avatar" accept="image/*" style="display:none;" />
 						<img id="avatarPreview" src="default-avatar.png" style="width:64px; height:64px; display:none; margin-top:8px;" />
+						</div>
 					</div>
 					<div style="margin-top:20px;">
 						<button type = "button" id="showRegisterPassword" class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>

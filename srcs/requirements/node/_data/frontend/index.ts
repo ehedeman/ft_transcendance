@@ -2,6 +2,7 @@ import { GameInfo, TournamentStage, PlayerLogin } from "./frontendStructures.js"
 import { tournamentEnd, tournamentLogic, tournamentPlayGame } from "./tournament.js";
 // import e{ rounds } from "./server.js";
 import { tournamentFinished, showWinnerScreen } from "./tournament.js";
+import { userInfo } from "./serverStructures.js";
 
 let rounds = 1;
 
@@ -108,24 +109,34 @@ document.getElementById('avatarUpload')?.addEventListener('change', function (ev
 	if (event)
 	{
 		const input = event.target as HTMLInputElement;
+
+		var preview = document.getElementById('avatarPreviewSettings') as HTMLImageElement;
 		if (input)
 		{
-			const file = input.files?.[0];
+			const file = input.files && input.files[0];
 			if (file)
 			{
-				const reader = new FileReader();
-				reader.onload = function (e) 
-				{
-					const preview = document.getElementById('avatarPreview') as HTMLImageElement | null;
-					if (preview && e.target && typeof e.target.result === 'string') {
-						preview.src = e.target.result;
-					};
-				reader.readAsDataURL(file);
+				preview.src = URL.createObjectURL(file);
+				preview.style.display = "block";
+				// const reader = new FileReader();
+				// reader.onload = function (e) 
+				// {
+					
+				// 	if (preview && e.target && typeof e.target.result === 'string')
+				// 	{
+				// 		preview.src = e.target.result;
+				// 	};
+				// 	reader.readAsDataURL(file);
 				}
-			}
+		}
+		else {
+			preview.src = "default-avatar.png";
+			preview.style.display = "none";
 		}
 	}
 });
+
+var userInfoTemp: userInfo;
 
 async function setSettingFields(loginPlayer: PlayerLogin): Promise<boolean> {
 	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
@@ -148,17 +159,28 @@ async function setSettingFields(loginPlayer: PlayerLogin): Promise<boolean> {
 			avatar: data.avatarPath,
 			password: data.password
 		}
-		avatarUpload.src = playerInfo.avatar;
+		// avatarUpload.src = playerInfo.avatar;
 		settingsName.placeholder = playerInfo.name;
 		settingsUsername.placeholder = playerInfo.username;
 		settingsPassword.placeholder = "Enter new password";
 		settingsCountry.placeholder = playerInfo.country;
-		avatarPreviewSettings.src = avatarUpload.src;
+		avatarUpload.src = playerInfo.avatar;
 		//set values so settings can be overwritten and arent required
 		settingsName.value = playerInfo.name;
 		settingsUsername.value = playerInfo.username;
-		settingsPassword.value = playerInfo.password;
+		settingsPassword.value = "";
 		settingsCountry.value = playerInfo.country;
+		userInfoTemp = {
+			id: -1,
+			Full_Name: playerInfo.name,
+			avatar_url: playerInfo.avatar,
+			password_hash: playerInfo.password,
+			Alias: playerInfo.username,
+			Country: playerInfo.country,
+			status: "",
+			updated_at: "",
+			created_at: "",
+		}
 	})
 	// here set fields to what database has currently stored to display in settings
 
@@ -170,16 +192,16 @@ document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
 
 	const nameInput = document.getElementById("settingsName") as HTMLInputElement;
 	const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
-	const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
+	// const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
 	const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
 	const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
 
 	const name = nameInput.value.trim();
 	const username = usernameInput.value.trim();
-	const password = passwordInput.value.trim();
+	const password = userInfoTemp.password_hash;
 	const country = countryInput.value.trim();
 
-
+	console.log(userInfoTemp);
 	const avatarFile = avatarUpload.src;
 	if (!username || !password || !name || !country) {
 		alert("Name, username, password and country cannot be empty!");
@@ -193,7 +215,7 @@ document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
 	if (avatarFile) {
 		formData.append("avatar", avatarFile);
 	}
-
+	//new info -> updated by user
 	console.log(name);
 
 	console.log(username);
@@ -356,7 +378,7 @@ function showGeneralRegistrationModal(game: GameInfo) {
 		avatarInput.value = "";
 		avatarInput.type = "file";
 		avatarInput.className = "mb-2 px-2 py-1 border rounded block";
-		avatarInput.required = false; // optional
+		// avatarInput.required = false; // optional
 	}
 	nameInput.value = "";
 	usernameInput.value = "";
