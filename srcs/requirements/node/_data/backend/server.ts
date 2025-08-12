@@ -301,7 +301,7 @@ app.post("/register", async (request, reply) => {
 
 	const alias = username;
 	const fullName = name;
-	const Country = country;
+	const _Country = country;
 	const password_hash = await bcrypt.hash(password, saltRounds);
 
 	try {
@@ -309,7 +309,7 @@ app.post("/register", async (request, reply) => {
 		INSERT INTO users (Full_Name, Alias, password_hash, Country, avatar_url) //fixed something here
 		VALUES (?, ?, ?, ?, ?)
 		`);
-		statement.run(fullName, alias, password_hash, Country, avatarPath);
+		statement.run(fullName, alias, password_hash, _Country, avatarPath); // changed variable name
 
 		reply.send({ status: 200, message: 'User registered successfully', avatar: avatarPath });
 	} catch (err: any) {
