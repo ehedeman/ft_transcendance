@@ -306,7 +306,7 @@ app.post("/register", async (request, reply) => {
 
 	try {
 		const statement = db.prepare(`
-		INSERT INTO users (Full_name, Alias, password_hash, Country, avatar_url)
+		INSERT INTO users (Full_Name, Alias, password_hash, Country, avatar_url) //fixed something here
 		VALUES (?, ?, ?, ?, ?)
 		`);
 		statement.run(fullName, alias, password_hash, Country, avatarPath);
