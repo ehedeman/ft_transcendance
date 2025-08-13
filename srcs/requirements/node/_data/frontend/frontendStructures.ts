@@ -136,6 +136,8 @@ export class GameInfo {
 
 	websocket?: WebSocket;// for the websocket connection
 
+	username: string;
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();

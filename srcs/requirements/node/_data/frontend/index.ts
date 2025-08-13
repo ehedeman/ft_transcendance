@@ -257,6 +257,7 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			}
 			alert("Login successful!");
 			hideGeneralLoginModal();
+			game.username = loginPlayer.username; // this is just for the note who is login now.
 			game.players.push({
 				name: loginPlayer.username,
 				gamesLost: 0,
@@ -269,8 +270,6 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			game.websocket.onopen = () => {
 				console.log("✅ WebSocket connection established successfully!");
 				// Send test message AFTER connection is established
-				game.websocket?.send("Hello from frontend!");
-				console.log("📤 Test message sent to server");
 			};
 
 			game.websocket.onmessage = (event) => {
@@ -290,6 +289,54 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			console.error("Error during Login:", error);
 		});
 });
+
+document.getElementById("testmessage")?.addEventListener("click", () => {
+	if (game.websocket) {
+		if (game.username === "a") {
+			game.websocket.send(JSON.stringify({
+				type: "privateMessage",
+				target: "b",
+				from: game.username,
+				message: "Do you receive this message, b?"
+			}));
+		}
+		if (game.username === "b") {
+			game.websocket.send(JSON.stringify({
+				type: "privateMessage",
+				target: "a",
+				from: game.username,
+				message: "Do you receive this message, a?"
+			}));
+		}
+	}
+});
+
+// ------------------------------------------------add friend-------------------------------------
+document.getElementById("addFriend")?.addEventListener("click", () => {
+	const friendName = prompt("Enter the name of the friend to add:");
+	if (friendName) {
+		fetch(`/addFriend?name=${friendName}`)
+			.then(response => {
+				if (response.ok) {
+					alert("Friend added successfully!");
+					const friendList = document.getElementById("friendList");
+					if (friendList) {
+						const newFriendItem = document.createElement("li");
+						newFriendItem.id = friendName;
+						newFriendItem.textContent = friendName;
+						friendList.appendChild(newFriendItem);
+					}
+				} else {
+					alert("Failed to add friend.");
+				}
+			})
+	} else {
+		alert("Friend name cannot be empty!");
+	}
+});
+
+
+
 
 document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
 	hideGeneralLoginModal();

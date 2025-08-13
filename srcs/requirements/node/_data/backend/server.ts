@@ -484,12 +484,62 @@ app.put('/debug/friends', async (request, reply) => {
 	}
 });
 
-app.get('/hello-ws', { websocket: true }, (socket, req) => {
+app.get('/hello-ws', { websocket: true }, (socket, req) => { // TODO: this is just a test
 	console.log('we are in the websocket route');
 
 	socket.on('message', (message: string) => {
 		socket.send('Hello Fastify WebSocket!');
 	});
+});
+
+app.get('/ws', { websocket: true }, (socket, req) => { // login received
+    console.log('=== WebSocket Handler Called ===');
+    
+    // Extract username from query parameters
+    const { username } = req.query as { username: string };
+    console.log(`User connected: ${username || 'anonymous'}`);
+
+    // Set up message handler
+    socket.on('message', (data) => {
+        console.log(`✅ Received from ${username}`);
+		const message = JSON.parse(data);
+		if (message.type === 'privateMessage') {
+			const targetSocket = game.sockets.get(message.target);
+			if (targetSocket) {
+				targetSocket.send(`Message from ${message.from}: ${message.message}`);
+			}
+		}
+    });
+
+    // Handle connection close
+    socket.on('close', () => {
+        console.log(`User ${username} disconnected`);
+    });
+
+    // Send welcome message
+    try {
+		socket.send(`Welcome ${username || 'anonymous'}! Connection established.`);
+        console.log(`Welcome message sent to ${username}`);
+    } catch (error) {
+		console.error('Error sending welcome message:', error);
+    }
+	game.sockets.set(username, socket);
+
+	// this is for debugging purposes
+	console.log(`----------------------------------------------------------`);
+	for (const [key, value] of game.sockets.entries()) {
+		console.log(`Socket for ${key}: ${value}`);
+	}
+	console.log(`----------------------------------------------------------`);
+});
+
+app.get('/addFriend', (request, reply) => {
+	const { name } = request.query as { name: string };
+	if (game.sockets.has(name)) {
+		reply.send({ message: `Friend '${name}' added successfully` });
+	} else {
+		reply.status(404).send({ error: 'User not found' });
+	}
 });
 
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
