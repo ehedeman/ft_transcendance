@@ -9,15 +9,15 @@ export class canvasInfo {
 
 //just for login/registration, not the game
 export type PlayerRegistration = {
-		name: string;
-		username: string;
-		password: string;
-		country: string;
+	name: string;
+	username: string;
+	password: string;
+	country: string;
 };
 
 export type PlayerLogin = {
-		username: string;
-		password: string;
+	username: string;
+	password: string;
 };
 
 
@@ -30,7 +30,7 @@ export class Player {
 	playerscore: number;
 
 	constructor(name: string) {
-		this.name = name? name : "Anonymous";
+		this.name = name ? name : "Anonymous";
 		this.gamesWon = 0;
 		this.gamesLost = 0;
 		this.playerscore = 0;
@@ -71,8 +71,8 @@ export class playerPaddle {
 
 
 export type TournamentPlayer = {
-		name: string;
-		score: number;
+	name: string;
+	score: number;
 };
 
 export type Match = {
@@ -102,8 +102,7 @@ export class Tournament {
 	losers: TournamentPlayer[];
 	defaultPlayer: TournamentPlayer;
 	finishScreenRunning: boolean;
-	constructor ()
-	{
+	constructor() {
 		this.matchOrder = [];
 		this.players = [];
 		this.matches = [];
@@ -138,17 +137,16 @@ export class GameInfo {
 
 	username: string;
 
-	constructor() 
-	{
+	constructor() {
 		this.canvas = new canvasInfo();
 		this.ball = new BallInfo();
 		this.player1Paddle = new playerPaddle();
 		this.player2Paddle = new playerPaddle();
-		
+
 		this.t = new Tournament();
 
 		this.players = [];
-	
+
 		this.player1Paddle.x = canvas.width - 100; // Right side
 		this.player2Paddle.x = 100; // Left side
 
@@ -156,7 +154,8 @@ export class GameInfo {
 		this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
 
 		this.tournamentLoopActive = false;
-		
+
+		this.username = "";
 	}
 }
 

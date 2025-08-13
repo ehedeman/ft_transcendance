@@ -493,36 +493,37 @@ app.get('/hello-ws', { websocket: true }, (socket, req) => { // TODO: this is ju
 });
 
 app.get('/ws', { websocket: true }, (socket, req) => { // login received
-    console.log('=== WebSocket Handler Called ===');
-    
-    // Extract username from query parameters
-    const { username } = req.query as { username: string };
-    console.log(`User connected: ${username || 'anonymous'}`);
+	console.log('=== WebSocket Handler Called ===');
 
-    // Set up message handler
-    socket.on('message', (data) => {
-        console.log(`✅ Received from ${username}`);
-		const message = JSON.parse(data);
+	// Extract username from query parameters
+	const { username } = req.query as { username: string };
+	console.log(`User connected: ${username || 'anonymous'}`);
+
+	// Set up message handler
+	socket.on('message', (data) => {
+		console.log(`✅ Received from ${username}`);
+		const strData = data.toString();
+		const message: any = JSON.parse(strData);
 		if (message.type === 'privateMessage') {
 			const targetSocket = game.sockets.get(message.target);
 			if (targetSocket) {
 				targetSocket.send(`Message from ${message.from}: ${message.message}`);
 			}
 		}
-    });
+	});
 
-    // Handle connection close
-    socket.on('close', () => {
-        console.log(`User ${username} disconnected`);
-    });
+	// Handle connection close
+	socket.on('close', () => {
+		console.log(`User ${username} disconnected`);
+	});
 
-    // Send welcome message
-    try {
+	// Send welcome message
+	try {
 		socket.send(`Welcome ${username || 'anonymous'}! Connection established.`);
-        console.log(`Welcome message sent to ${username}`);
-    } catch (error) {
+		console.log(`Welcome message sent to ${username}`);
+	} catch (error) {
 		console.error('Error sending welcome message:', error);
-    }
+	}
 	game.sockets.set(username, socket);
 
 	// this is for debugging purposes
@@ -533,12 +534,29 @@ app.get('/ws', { websocket: true }, (socket, req) => { // login received
 	console.log(`----------------------------------------------------------`);
 });
 
-app.get('/addFriend', (request, reply) => {
-	const { name } = request.query as { name: string };
-	if (game.sockets.has(name)) {
-		reply.send({ message: `Friend '${name}' added successfully` });
+app.get('/addFriend', (request, rep) => {
+	const { nameToAdd, accountName } = request.query as {
+		nameToAdd: string;
+		accountName: string;
+	};
+	console.log(`Friend request: ${accountName} wants to add ${nameToAdd}`);
+	if (game.sockets.has(nameToAdd)) {
+		game.sockets.get(nameToAdd).send(JSON.stringify({
+			type: 'friendRequest',
+			to: nameToAdd,//b
+			from: accountName//a
+		}));
+		game.sockets.get(nameToAdd).on('message', (data) => {
+			const strData = data.toString();
+			const replyMessage: any = JSON.parse(strData);
+			if (replyMessage.reply === "accept") {
+				rep.send({ message: `Friend '${nameToAdd}' added successfully` });
+			} else {
+				rep.status(404).send({ error: 'User not found' });
+			}
+		});
 	} else {
-		reply.status(404).send({ error: 'User not found' });
+		rep.status(404).send({ error: 'User not found' });
 	}
 });
 

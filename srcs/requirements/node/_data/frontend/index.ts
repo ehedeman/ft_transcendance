@@ -274,6 +274,7 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 
 			game.websocket.onmessage = (event) => {
 				console.log("📥 Received from server:", event.data);
+				handleWebSocketMessage(event);
 			};
 
 			game.websocket.onclose = () => {
@@ -315,7 +316,7 @@ document.getElementById("testmessage")?.addEventListener("click", () => {
 document.getElementById("addFriend")?.addEventListener("click", () => {
 	const friendName = prompt("Enter the name of the friend to add:");
 	if (friendName) {
-		fetch(`/addFriend?name=${friendName}`)
+		fetch(`/addFriend?nameToAdd=${encodeURIComponent(friendName)}&accountName=${encodeURIComponent(game.username)}`)
 			.then(response => {
 				if (response.ok) {
 					alert("Friend added successfully!");
@@ -335,8 +336,26 @@ document.getElementById("addFriend")?.addEventListener("click", () => {
 	}
 });
 
+function handleFriendRequest(data: any) {
+	console.log(`------------------------------DO WE REACH HERE?---------------------`);
+	const friendName = data.from;
+	const result = confirm(`Do you want to accept the friend request from ${friendName}?`);
+	if (result) {
+		game.websocket?.send(JSON.stringify({ reply: "accept" }));
+	} else {
+		game.websocket?.send(JSON.stringify({ reply: "decline" }));
+	}
+}
 
-
+function handleWebSocketMessage(event: MessageEvent) {
+	const data = JSON.parse(event.data);
+	switch (data.type) {
+		case "friendRequest":
+			handleFriendRequest(data);
+			break;
+		// Handle other message types...
+	}
+};
 
 document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
 	hideGeneralLoginModal();
