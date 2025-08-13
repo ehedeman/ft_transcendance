@@ -323,6 +323,7 @@ document.getElementById("friendList")?.addEventListener("click", (e) => {
 						messageElement.textContent = message;
 						chatHistoryElement.appendChild(messageElement);
 					}
+					chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
 				}
 			})
 			.catch(error => {
@@ -347,29 +348,35 @@ document.getElementById("friendList2")?.addEventListener("click", (e) => {// thi
 document.getElementById("addFriend")?.addEventListener("click", () => {
 	const friendName = prompt("Enter the name of the friend to add:");
 	if (friendName) {
-		fetch(`/addFriend?nameToAdd=${encodeURIComponent(friendName)}&accountName=${encodeURIComponent(game.username)}`)
-			.then(response => {
-				if (response.ok) {
-					alert("Friend added successfully!");
-					const friendList = document.getElementById("friendList");
-					if (friendList) {
-						const newFriendItem = document.createElement("li");
-						newFriendItem.id = friendName;
-						newFriendItem.textContent = friendName;
-						friendList.appendChild(newFriendItem);
-					}
-					fetch(`/addFriendlist`, {
-						method: "PUT",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify({
-							username: game.username,
-							friendname: friendName
+		if (game.friendList.includes(friendName)) {
+			alert("Friend already added!");
+		} else if (game.username === friendName) {
+			alert("You cannot add yourself as a friend!");
+		} else {
+			fetch(`/addFriend?nameToAdd=${encodeURIComponent(friendName)}&accountName=${encodeURIComponent(game.username)}`)
+				.then(response => {
+					if (response.ok) {
+						alert("Friend added successfully!");
+						const friendList = document.getElementById("friendList");
+						if (friendList) {
+							const newFriendItem = document.createElement("li");
+							newFriendItem.id = friendName;
+							newFriendItem.textContent = friendName;
+							friendList.appendChild(newFriendItem);
+						}
+						fetch(`/addFriendlist`, {
+							method: "PUT",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({
+								username: game.username,
+								friendname: friendName
+							})
 						})
-					})
-				} else {
-					alert("Failed to add friend.");
-				}
-			})
+					} else {
+						alert("Failed to add friend.");
+					}
+				})
+		}
 	} else {
 		alert("Friend name cannot be empty!");
 	}
@@ -380,6 +387,14 @@ function handleFriendRequest(data: any) {
 	const result = confirm(`Do you want to accept the friend request from ${friendName}?`);
 	if (result) {
 		game.websocket?.send(JSON.stringify({ reply: "accept" }));
+		const friendList = document.getElementById("friendList");
+		if (friendList) {
+			const newFriendItem = document.createElement("li");
+			newFriendItem.id = friendName;
+			newFriendItem.style.cursor = "pointer";
+			newFriendItem.textContent = friendName;
+			friendList.appendChild(newFriendItem);
+		}
 	} else {
 		game.websocket?.send(JSON.stringify({ reply: "decline" }));
 	}
@@ -392,6 +407,7 @@ function handlePrivateMessage(data: any) {
 		const messageElement = document.createElement("LI");
 		messageElement.textContent = `${from}: ${message}`;
 		chatHistoryElement.appendChild(messageElement);
+		chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
 	}
 }
 

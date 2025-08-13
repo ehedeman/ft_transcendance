@@ -547,13 +547,6 @@ app.get('/ws', { websocket: true }, (socket, req) => { // login received
 		console.log(`✅ Received from ${username}`);
 		const strData = data.toString();
 		handleWebSocketMessageServer(strData);
-		// const message: any = JSON.parse(strData);
-		// if (message.type === 'privateMessage') {
-		// 	const targetSocket = game.sockets.get(message.target);
-		// 	if (targetSocket) {
-		// 		targetSocket.send(`Message from ${message.from}: ${message.message}`);
-		// 	}
-		// }
 	});
 
 	// Handle connection close
