@@ -512,6 +512,11 @@ function handlePrivateMessage(message: any) {
 	if (targetSocket) {
 		targetSocket.send(JSON.stringify(message));
 	}
+	const sourceSocket = game.sockets.get(message.from);
+	if (sourceSocket) {
+		sourceSocket.send(JSON.stringify(message));
+	}
+	// Save chat history to the database
 	try {
 		const stmt = db.prepare(`INSERT INTO chatHistory (sender, receiver, message) VALUES (?, ?, ?)`);
 		stmt.run(message.from, message.target, message.message);
@@ -644,6 +649,26 @@ app.get(`/debug/chatHistory`, async (request, reply) => {
 		const stmt = db.prepare(`SELECT * FROM chatHistory`);
 		const chatHistory = stmt.all();
 		reply.send({ chatHistory });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get(`/getChatHistory`, async (request, reply) => {
+	const { username, friendname } = request.query as {
+		username: string;
+		friendname: string;
+	};
+	if (!username || !friendname) {
+		reply.status(400).send({ error: 'Username and friendname are required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`SELECT * FROM chatHistory WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)`);
+		const chatHistory = stmt.all(username, friendname, friendname, username);
+		const chatHistory1 = chatHistory.map((row) => row.sender + ": " + row.message);
+		reply.send({ chatHistory: chatHistory1 });
 	} catch (err) {
 		reply.status(500).send({ error: 'Database error' });
 	}

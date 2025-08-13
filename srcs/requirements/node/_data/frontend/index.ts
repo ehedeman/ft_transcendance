@@ -305,7 +305,29 @@ document.getElementById("friendList")?.addEventListener("click", (e) => {
 		console.log(`${target.textContent} clicked`);
 		game.sendMessageTo = target.id;
 		console.log(`Message will be sent to: ${game.sendMessageTo}`);
-		// here we can renew the list using click.
+		fetch(`/getChatHistory?username=${encodeURIComponent(game.username)}&friendname=${encodeURIComponent(game.sendMessageTo)}`)
+			.then(response => {
+				if (!response.ok) {
+					throw new Error("Failed to fetch chat history.");
+				}
+				return response.json();
+			})
+			.then(data => {
+				console.log("Chat history:", data.chatHistory);
+				game.chatHistory = data.chatHistory || [];
+				const chatHistoryElement = document.getElementById("friendList2");
+				if (chatHistoryElement) {
+					chatHistoryElement.innerHTML = ""; // Clear existing chat history
+					for (const message of game.chatHistory) {
+						const messageElement = document.createElement("LI");
+						messageElement.textContent = message;
+						chatHistoryElement.appendChild(messageElement);
+					}
+				}
+			})
+			.catch(error => {
+				console.error("Error fetching chat history:", error);
+			});
 	}
 });
 
@@ -365,7 +387,12 @@ function handleFriendRequest(data: any) {
 
 function handlePrivateMessage(data: any) {
 	const { from, message } = data;
-	alert(`Private message from ${from}: ${message}`);
+	const chatHistoryElement = document.getElementById("friendList2");
+	if (chatHistoryElement) {
+		const messageElement = document.createElement("LI");
+		messageElement.textContent = `${from}: ${message}`;
+		chatHistoryElement.appendChild(messageElement);
+	}
 }
 
 function handleWebSocketMessage(event: MessageEvent) {
