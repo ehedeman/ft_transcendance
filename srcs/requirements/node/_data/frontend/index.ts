@@ -89,48 +89,6 @@ function hideGeneralRegistrationModal() {
 	modal.style.display = "none";
 }
 
-document.getElementById("alice")?.addEventListener("click", () => {// this is just a test
-	console.log("Alice clicked");
-
-	const friendList2 = document.getElementById("friendList2");
-	if (friendList2) {
-		// Clear existing content
-		friendList2.innerHTML = "";
-		// Add Alice's details
-		const aliceDetails = [
-			"Status: Online",
-			"Games Won: 15",
-			"Games Lost: 3",
-			"Rank: Pro",
-			"Last Game: 2 hours ago"
-		];
-
-		aliceDetails.forEach(detail => {
-			const li = document.createElement("li");
-			li.textContent = detail;
-			li.id = detail;
-			li.style.cssText = "cursor: pointer;";
-			friendList2.appendChild(li);
-		});
-
-		// Show the list
-		// friendList2.style.display = "block";
-	}
-});
-
-document.getElementById("friendList2")?.addEventListener("click", (e) => {// this is also just a test
-	const target = e.target as HTMLElement;
-	if (target.tagName === "LI") {
-		console.log(`${target.textContent} clicked`);
-
-		// Handle specific items
-		if (target.id === "Rank: Pro") {
-			console.log("I love this rank!");
-			// Handle rank logic here
-		}
-	}
-});
-
 document.getElementById("registerButton")?.addEventListener("click", () => {
 	const registerButton = document.getElementById("registerButton");
 	const tournamentButton = document.getElementById("tournamentButton");
@@ -291,14 +249,18 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 		});
 });
 
-document.getElementById("testmessage")?.addEventListener("click", () => {
+
+// ------------------------------------------------add friend-------------------------------------
+document.getElementById("sendMessage")?.addEventListener("click", () => {
+	const input = document.getElementById("inputMessageBox") as HTMLInputElement;
+	const inputMessage: string = input.value.trim();
 	if (game.websocket) {
 		if (game.username === "a") {
 			game.websocket.send(JSON.stringify({
 				type: "privateMessage",
 				target: "b",
 				from: game.username,
-				message: "Do you receive this message, b?"
+				message: inputMessage
 			}));
 		}
 		if (game.username === "b") {
@@ -306,13 +268,62 @@ document.getElementById("testmessage")?.addEventListener("click", () => {
 				type: "privateMessage",
 				target: "a",
 				from: game.username,
-				message: "Do you receive this message, a?"
+				message: inputMessage
 			}));
 		}
 	}
 });
 
-// ------------------------------------------------add friend-------------------------------------
+document.getElementById("friendList")?.addEventListener("click", (e) => {
+	const target = e.target as HTMLElement;
+	if (target.tagName === "LI") {
+		console.log(`${target.textContent} clicked`);
+		// here we can renew the list using click.
+	}
+});
+
+document.getElementById("alice")?.addEventListener("click", () => {// this is just a test
+	console.log("Alice clicked");
+
+	const friendList2 = document.getElementById("friendList2");
+	if (friendList2) {
+		// Clear existing content
+		friendList2.innerHTML = "";
+		// Add Alice's details
+		const aliceDetails = [
+			"Status: Online",
+			"Games Won: 15",
+			"Games Lost: 3",
+			"Rank: Pro",
+			"Last Game: 2 hours ago"
+		];
+
+		aliceDetails.forEach(detail => {
+			const li = document.createElement("li");
+			li.textContent = detail;
+			li.id = detail;
+			li.style.cssText = "cursor: pointer;";
+			friendList2.appendChild(li);
+		});
+
+		// Show the list
+		// friendList2.style.display = "block";
+	}
+});
+
+document.getElementById("friendList2")?.addEventListener("click", (e) => {// this is also just a test
+	const target = e.target as HTMLElement;
+	if (target.tagName === "LI") {
+		console.log(`${target.textContent} clicked`);
+
+		// Handle specific items
+		if (target.id === "Rank: Pro") {
+			console.log("I love this rank!");
+			// Handle rank logic here
+		}
+	}
+});
+
 document.getElementById("addFriend")?.addEventListener("click", () => {
 	const friendName = prompt("Enter the name of the friend to add:");
 	if (friendName) {
@@ -337,7 +348,6 @@ document.getElementById("addFriend")?.addEventListener("click", () => {
 });
 
 function handleFriendRequest(data: any) {
-	console.log(`------------------------------DO WE REACH HERE?---------------------`);
 	const friendName = data.from;
 	const result = confirm(`Do you want to accept the friend request from ${friendName}?`);
 	if (result) {
