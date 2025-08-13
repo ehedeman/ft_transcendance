@@ -315,20 +315,7 @@ app.post("/register", async (request, reply) => {
 			reply.status(500).send({ status: 500, message: 'Server error' });
 		}
 	}
-
-	// const newUser = { name, username, password, country } as loginInfo;
-	// for (const user of loginInformation) {
-	// 	if (user.username === username || user.name === name) {
-	// 		reply.status(400).send({ status: 400, message: 'Username already exists'});
-	// 		return;
-	// 	}
-	// }
-
-	// loginInformation.push(newUser);
 	console.log(`User ${username} registered successfully`);
-	// for (const user of loginInformation) {
-	// 	console.log(`Registered user: ${user.username}, Name: ${user.name}, Country: ${user.country}`);
-	// }
 });
 
 app.post("/login", async (request, reply) => {
@@ -341,21 +328,11 @@ app.post("/login", async (request, reply) => {
 		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
 		return;
 	}
-
 	const match = await bcrypt.compare(password, user.password_hash);
 	if (!match) {
 		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
 		return;
 	}
-
-	// const user = loginInformation.find(user => user.username === username && user.password === password);
-	// if (!user) {
-	// 	reply.status(401).send({ status: 401, message: 'Invalid username or password' });
-	// 	return;
-	// }
-
-	// TODO: send the friend list and other user data here
-
 	reply.send({ status: 200, message: 'Login successful', user });
 });
 
