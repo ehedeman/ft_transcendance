@@ -186,6 +186,56 @@ document.getElementById("loginButton")?.addEventListener("click", () => {
 	showGeneralLoginModal(game);
 });
 
+function createWebSocketConnection(username: string) {
+	game.websocket = new WebSocket(`ws://localhost:3000/ws?username=${username}`);
+
+	game.websocket.onopen = () => {
+		console.log("✅ WebSocket connection established successfully!");
+		// Send test message AFTER connection is established
+	};
+
+	game.websocket.onmessage = (event) => {
+		console.log("📥 Received from server:", event.data);
+		handleWebSocketMessage(event);
+	};
+
+	game.websocket.onclose = () => {
+		console.log("WebSocket connection closed.");
+	};
+
+	game.websocket.onerror = (error) => {
+		console.error("❌ WebSocket error:", error);
+	};
+}
+
+function getFriendList(username: string) {
+	fetch(`/getFriendList?username=${encodeURIComponent(username)}`)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("Failed to fetch friend list.");
+			}
+			return response.json();
+		})
+		.then(data => {
+			console.log("Friend list:", data.friendList);
+			game.friendList = data.friendList || [];
+			const friendListElement = document.getElementById("friendList");
+			if (friendListElement) {
+				friendListElement.innerHTML = ""; // Clear existing list
+				for (const friend of game.friendList) {
+					const listItem = document.createElement("li");
+					listItem.textContent = friend;
+					listItem.id = friend;
+					listItem.style.cursor = "pointer";
+					friendListElement.appendChild(listItem);
+				}
+			}
+		})
+		.catch(error => {
+			console.error("Error fetching friend list:", error);
+		});
+}
+
 document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 	e.preventDefault();
 	const usernameInput = document.getElementById("loginUsername") as HTMLInputElement;
@@ -223,25 +273,9 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 				playerscore: 0,
 			}
 			);
-			game.websocket = new WebSocket(`ws://localhost:3000/ws?username=${loginPlayer.username}`);
-
-			game.websocket.onopen = () => {
-				console.log("✅ WebSocket connection established successfully!");
-				// Send test message AFTER connection is established
-			};
-
-			game.websocket.onmessage = (event) => {
-				console.log("📥 Received from server:", event.data);
-				handleWebSocketMessage(event);
-			};
-
-			game.websocket.onclose = () => {
-				console.log("WebSocket connection closed.");
-			};
-
-			game.websocket.onerror = (error) => {
-				console.error("❌ WebSocket error:", error);
-			};
+			createWebSocketConnection(loginPlayer.username);
+			// get the friend list
+			getFriendList(loginPlayer.username);
 			return response.json(); // Optional: if you need response data
 		})
 		.catch(error => {
@@ -255,59 +289,23 @@ document.getElementById("sendMessage")?.addEventListener("click", () => {
 	const input = document.getElementById("inputMessageBox") as HTMLInputElement;
 	const inputMessage: string = input.value.trim();
 	if (game.websocket) {
-		if (game.username === "a") {
-			game.websocket.send(JSON.stringify({
-				type: "privateMessage",
-				target: "b",
-				from: game.username,
-				message: inputMessage
-			}));
-		}
-		if (game.username === "b") {
-			game.websocket.send(JSON.stringify({
-				type: "privateMessage",
-				target: "a",
-				from: game.username,
-				message: inputMessage
-			}));
-		}
+		game.websocket.send(JSON.stringify({
+			type: "privateMessage",
+			target: game.sendMessageTo,
+			from: game.username,
+			message: inputMessage
+		}));
 	}
+	input.value = "";
 });
 
 document.getElementById("friendList")?.addEventListener("click", (e) => {
 	const target = e.target as HTMLElement;
 	if (target.tagName === "LI") {
 		console.log(`${target.textContent} clicked`);
+		game.sendMessageTo = target.id;
+		console.log(`Message will be sent to: ${game.sendMessageTo}`);
 		// here we can renew the list using click.
-	}
-});
-
-document.getElementById("alice")?.addEventListener("click", () => {// this is just a test
-	console.log("Alice clicked");
-
-	const friendList2 = document.getElementById("friendList2");
-	if (friendList2) {
-		// Clear existing content
-		friendList2.innerHTML = "";
-		// Add Alice's details
-		const aliceDetails = [
-			"Status: Online",
-			"Games Won: 15",
-			"Games Lost: 3",
-			"Rank: Pro",
-			"Last Game: 2 hours ago"
-		];
-
-		aliceDetails.forEach(detail => {
-			const li = document.createElement("li");
-			li.textContent = detail;
-			li.id = detail;
-			li.style.cssText = "cursor: pointer;";
-			friendList2.appendChild(li);
-		});
-
-		// Show the list
-		// friendList2.style.display = "block";
 	}
 });
 
@@ -338,6 +336,14 @@ document.getElementById("addFriend")?.addEventListener("click", () => {
 						newFriendItem.textContent = friendName;
 						friendList.appendChild(newFriendItem);
 					}
+					fetch(`/addFriendlist`, {
+						method: "PUT",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							username: game.username,
+							friendname: friendName
+						})
+					})
 				} else {
 					alert("Failed to add friend.");
 				}
@@ -357,15 +363,26 @@ function handleFriendRequest(data: any) {
 	}
 }
 
+function handlePrivateMessage(data: any) {
+	const { from, message } = data;
+	alert(`Private message from ${from}: ${message}`);
+}
+
 function handleWebSocketMessage(event: MessageEvent) {
 	const data = JSON.parse(event.data);
 	switch (data.type) {
 		case "friendRequest":
 			handleFriendRequest(data);
 			break;
-		// Handle other message types...
+		case "privateMessage":
+			handlePrivateMessage(data);
+			break;
 	}
 };
+
+
+
+
 
 document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
 	hideGeneralLoginModal();

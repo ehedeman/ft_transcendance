@@ -137,6 +137,10 @@ export class GameInfo {
 
 	username: string;
 
+	sendMessageTo: string;
+
+	friendList: string[];
+
 	constructor() {
 		this.canvas = new canvasInfo();
 		this.ball = new BallInfo();
@@ -156,6 +160,10 @@ export class GameInfo {
 		this.tournamentLoopActive = false;
 
 		this.username = "";
+
+		this.sendMessageTo = "";
+
+		this.friendList = [];
 	}
 }
 

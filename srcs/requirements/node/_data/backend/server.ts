@@ -44,6 +44,21 @@ CREATE TABLE IF NOT EXISTS users (
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create the newFriend table
+CREATE TABLE IF NOT EXISTS newFriend (
+    username TEXT NOT NULL,
+    friendname TEXT NOT NULL,
+    UNIQUE (username, friendname)
+);
+
+-- Create new chat history table
+CREATE TABLE IF NOT EXISTS chatHistory (
+	sender TEXT NOT NULL,
+	receiver TEXT NOT NULL,
+	message TEXT NOT NULL,
+	timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS friends (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	user_id INTEGER NOT NULL,
@@ -492,6 +507,29 @@ app.get('/hello-ws', { websocket: true }, (socket, req) => { // TODO: this is ju
 	});
 });
 
+function handlePrivateMessage(message: any) {
+	const targetSocket = game.sockets.get(message.target);
+	if (targetSocket) {
+		targetSocket.send(JSON.stringify(message));
+	}
+	try {
+		const stmt = db.prepare(`INSERT INTO chatHistory (sender, receiver, message) VALUES (?, ?, ?)`);
+		stmt.run(message.from, message.target, message.message);
+	} catch (err) {
+		console.error('Error saving chat history:', err);
+	}
+}
+
+function handleWebSocketMessageServer(data: string) {
+	const message = JSON.parse(data);
+	switch (message.type) {
+		case 'privateMessage':
+			handlePrivateMessage(message);
+			break;
+		// Add more cases as needed
+	}
+}
+
 app.get('/ws', { websocket: true }, (socket, req) => { // login received
 	console.log('=== WebSocket Handler Called ===');
 
@@ -503,13 +541,14 @@ app.get('/ws', { websocket: true }, (socket, req) => { // login received
 	socket.on('message', (data) => {
 		console.log(`✅ Received from ${username}`);
 		const strData = data.toString();
-		const message: any = JSON.parse(strData);
-		if (message.type === 'privateMessage') {
-			const targetSocket = game.sockets.get(message.target);
-			if (targetSocket) {
-				targetSocket.send(`Message from ${message.from}: ${message.message}`);
-			}
-		}
+		handleWebSocketMessageServer(strData);
+		// const message: any = JSON.parse(strData);
+		// if (message.type === 'privateMessage') {
+		// 	const targetSocket = game.sockets.get(message.target);
+		// 	if (targetSocket) {
+		// 		targetSocket.send(`Message from ${message.from}: ${message.message}`);
+		// 	}
+		// }
 	});
 
 	// Handle connection close
@@ -517,13 +556,6 @@ app.get('/ws', { websocket: true }, (socket, req) => { // login received
 		console.log(`User ${username} disconnected`);
 	});
 
-	// Send welcome message
-	try {
-		socket.send(`Welcome ${username || 'anonymous'}! Connection established.`);
-		console.log(`Welcome message sent to ${username}`);
-	} catch (error) {
-		console.error('Error sending welcome message:', error);
-	}
 	game.sockets.set(username, socket);
 
 	// this is for debugging purposes
@@ -557,6 +589,63 @@ app.get('/addFriend', (request, rep) => {
 		});
 	} else {
 		rep.status(404).send({ error: 'User not found' });
+	}
+});
+
+app.put('/addFriendlist', async (request, reply) => {
+	const { username, friendname } = request.body as {
+		username: string;
+		friendname: string;
+	};
+
+	if (!username || !friendname) {
+		reply.status(400).send({ error: 'Username and friendname are required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`INSERT INTO newFriend (username, friendname) VALUES (?, ?)`);
+		stmt.run(username, friendname);
+		reply.send({ message: `Friend '${friendname}' added to ${username}'s friend list` });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get('/debug/newfriend', async (request, reply) => {
+	try {
+		const stmt = db.prepare(`SELECT * FROM newFriend`);
+		const friends = stmt.all();
+		reply.send({ friends });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get('/getFriendList', async (request, reply) => {
+	const { username } = request.query as { username: string };
+	if (!username) {
+		reply.status(400).send({ error: 'Username is required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`SELECT friendname FROM newFriend WHERE username = ?`);
+		const rows = stmt.all(username);
+		const friends = rows.map(row => row.friendname);
+		reply.send({ friendList: friends });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get(`/debug/chatHistory`, async (request, reply) => {
+	try {
+		const stmt = db.prepare(`SELECT * FROM chatHistory`);
+		const chatHistory = stmt.all();
+		reply.send({ chatHistory });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
 	}
 });
 
