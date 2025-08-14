@@ -128,100 +128,189 @@ document.getElementById('avatarUpload')?.addEventListener('change', function (ev
 });
 
 var userInfoTemp: userInfo;
-
 async function setSettingFields(loginPlayer: PlayerLogin): Promise<boolean> {
-	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
-	const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
-	const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
-	const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
-	const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLInputElement;
-	const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
-	fetch("/userInfo", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ username: loginPlayer.username })
-	})
-	.then(response => response.json())
-	.then(data => {
-		var	playerInfo = {
-			name: data.fullName,
-			username: data.alias,
-			country: data.country,
-			avatar: data.avatarPath,
-			password: data.password
-		}
-		// avatarUpload.src = playerInfo.avatar;
-		settingsName.placeholder = playerInfo.name;
-		settingsUsername.placeholder = playerInfo.username;
-		settingsPassword.placeholder = "Enter new password";
-		settingsCountry.placeholder = playerInfo.country;
-		avatarUpload.src = playerInfo.avatar;
-		//set values so settings can be overwritten and arent required
-		settingsName.value = playerInfo.name;
-		settingsUsername.value = playerInfo.username;
-		settingsPassword.value = "";
-		settingsCountry.value = playerInfo.country;
-		userInfoTemp = {
-			id: -1,
-			Full_Name: playerInfo.name,
-			avatar_url: playerInfo.avatar,
-			password_hash: playerInfo.password,
-			Alias: playerInfo.username,
-			Country: playerInfo.country,
-			status: "",
-			updated_at: "",
-			created_at: "",
-		}
-	})
-	// here set fields to what database has currently stored to display in settings
+    const settingsName = document.getElementById("settingsName") as HTMLInputElement;
+    const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
+    const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
+    const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
+    const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLImageElement;
+    const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
 
-	return true;
+    const response = await fetch("/userInfo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: loginPlayer.username })
+    });
+    const data = await response.json();
+
+    const playerInfo = {
+        id: data.id,
+        name: data.fullName,
+        username: data.alias,
+        country: data.country,
+        avatar: data.avatarPath, // painful bug
+        password: data.password
+    };
+
+    settingsName.placeholder = playerInfo.name;
+    settingsUsername.placeholder = playerInfo.username;
+    settingsPassword.placeholder = "Enter new password";
+    settingsCountry.placeholder = playerInfo.country;
+
+    // Set the avatar preview to whatever is in the database
+    avatarPreviewSettings.src = playerInfo.avatar;
+
+    settingsName.value = playerInfo.name;
+    settingsUsername.value = playerInfo.username;
+    settingsPassword.value = "";
+    settingsCountry.value = playerInfo.country;
+
+    userInfoTemp = {
+        id: playerInfo.id,
+        Full_Name: playerInfo.name,
+        avatar_url: playerInfo.avatar, // very <- important
+        password_hash: playerInfo.password,
+        Alias: playerInfo.username,
+        Country: playerInfo.country,
+        status: "",
+        updated_at: "",
+        created_at: "",
+    };
+  // here set fields to what database has currently stored to display in settings
+    return true;
 }
 
 document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
-	e.preventDefault();
+    e.preventDefault();
 
-	const nameInput = document.getElementById("settingsName") as HTMLInputElement;
-	const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
-	// const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
-	const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
-	const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLInputElement;
+    const nameInput = document.getElementById("settingsName") as HTMLInputElement;
+    const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
+    const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
+    const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
+    const avatarFileInput = document.getElementById("avatarUpload") as HTMLInputElement; // **file input**
 
-	const name = nameInput.value.trim();
-	const username = usernameInput.value.trim();
-	const password = userInfoTemp.password_hash;
-	const country = countryInput.value.trim();
+    const formData = new FormData();
+    formData.append("id", String(userInfoTemp.id));
+    formData.append("name", nameInput.value.trim());
+    formData.append("username", usernameInput.value.trim());
+    formData.append("password", passwordInput.value.trim() || userInfoTemp.password_hash);
+    formData.append("country", countryInput.value.trim());
 
-	console.log(userInfoTemp);
-	const avatarFile = avatarPreviewSettings.src;
-	if (!username || !password || !name || !country) {
-		alert("Name, username, password and country cannot be empty!");
-		return;
-	}
-	const formData = new FormData();
-	formData.append("name", name);
-	formData.append("username", username);
-	formData.append("password", password);
-	formData.append("country", country);
-	if (avatarFile) {
-		formData.append("avatar", avatarFile);
-	}
-	//new info -> updated by user
-	console.log(name);
+    if (avatarFileInput.files && avatarFileInput.files[0]) {
+        formData.append("avatar", avatarFileInput.files[0]); // new avatar
+    } else {
+        formData.append("avatar_url", userInfoTemp.avatar_url); // keep the one in DB
+    }
 
-	console.log(username);
-
-	console.log(password);
-
-	console.log(country);
-
-	console.log(avatarFile);
-
-	// save to databse here
-
-	document.addEventListener("keydown", handleKeydown);
-	document.addEventListener("keyup", handleKeyup);
+    fetch("/updateUser", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        location.reload();
+    })
+    .catch(err => console.error("Update failed", err));
 });
+
+
+
+// async function setSettingFields(loginPlayer: PlayerLogin): Promise<boolean> {
+// 	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
+// 	const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
+// 	const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
+// 	const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
+// 	const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLInputElement;
+// 	const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
+// 	fetch("/userInfo", {
+// 		method: "POST",
+// 		headers: { "Content-Type": "application/json" },
+// 		body: JSON.stringify({ username: loginPlayer.username })
+// 	})
+// 	.then(response => response.json())
+// 	.then(data => {
+// 		var	playerInfo = {
+// 			id: data.id, 
+// 			name: data.fullName,
+// 			username: data.alias,
+// 			country: data.country,
+// 			avatar: data.avatarPath,
+// 			password: data.password
+// 		}
+// 		// avatarUpload.src = playerInfo.avatar;
+// 		settingsName.placeholder = playerInfo.name;
+// 		settingsUsername.placeholder = playerInfo.username;
+// 		settingsPassword.placeholder = "Enter new password";
+// 		settingsCountry.placeholder = playerInfo.country;
+// 		avatarUpload.src = playerInfo.avatar;
+// 		avatarPreviewSettings.src = playerInfo.avatar;
+// 		//set values so settings can be overwritten and arent required
+// 		settingsName.value = playerInfo.name;
+// 		settingsUsername.value = playerInfo.username;
+// 		settingsPassword.value = "";
+// 		settingsCountry.value = playerInfo.country;
+// 		userInfoTemp = {
+// 			id: playerInfo.id,
+// 			Full_Name: playerInfo.name,
+// 			avatar_url: playerInfo.avatar,
+// 			password_hash: playerInfo.password,
+// 			Alias: playerInfo.username,
+// 			Country: playerInfo.country,
+// 			status: "",
+// 			updated_at: "",
+// 			created_at: "",
+// 		}
+// 	})
+// 	// here set fields to what database has currently stored to display in settings
+
+// 	return true;
+// }
+
+// document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
+//     e.preventDefault();
+
+//     const nameInput = document.getElementById("settingsName") as HTMLInputElement;
+//     const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
+//     const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
+//     const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
+//     const avatarFileInput = document.getElementById("avatarUpload") as HTMLInputElement; 
+
+//     const name = nameInput.value.trim();
+//     const username = usernameInput.value.trim();
+//     const password = passwordInput.value.trim(); // empty means "keep old password"
+//     const country = countryInput.value.trim();
+
+//     if (!username || !name || !country) {
+//         alert("Name, username, and country cannot be empty!");
+//         return;
+//     }
+//      console.log(userInfoTemp);
+//     const formData = new FormData();
+// 	formData.append("id", String(userInfoTemp.id));
+//     formData.append("name", name);
+//     formData.append("username", username); 
+//     formData.append("password", password || userInfoTemp.password_hash);
+//     formData.append("country", country);
+
+//     if (avatarFileInput.files && avatarFileInput.files[0]) {
+//         formData.append("avatar", avatarFileInput.files[0]);
+//     } else {
+//         formData.append("avatar_url", userInfoTemp.avatar_url); // keep current avatar
+//     }
+
+//     fetch("/updateUser", {
+//         method: "POST",
+//         body: formData
+//     })
+//     .then(res => res.json())
+//     .then(data => {
+//         alert(data.message);
+//         location.reload();
+//     })
+//     .catch(err => console.error("Update failed", err));
+// });
+
 
 async function loginToSettings(): Promise<boolean> {
 	const usernameInput = document.getElementById("settingsLoginUsername") as HTMLInputElement;
@@ -369,7 +458,7 @@ function showGeneralRegistrationModal(game: GameInfo) {
 		avatarInput.value = "";
 		avatarInput.type = "file";
 		avatarInput.className = "mb-2 px-2 py-1 border rounded block";
-		// avatarInput.required = false; // optional
+	// avatarInput.required = false; // optional
 	}
 	nameInput.value = "";
 	usernameInput.value = "";
@@ -417,7 +506,7 @@ document.addEventListener("DOMContentLoaded", () =>
 	});
 
 	// Handle registration form submission
-	document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
+    document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
 	e.preventDefault();
 
 	const nameInput = document.getElementById("registerName") as HTMLInputElement;
@@ -451,7 +540,7 @@ document.addEventListener("DOMContentLoaded", () =>
 	})
 		.then(response => {
 		if (!response.ok) {
-		  alert("Registration failed. Please try again.");
+		  alert("Registration failed. Please try again_am _here.");
 		  return;
 		}
 		console.log("Registration successful:", response);

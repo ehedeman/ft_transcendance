@@ -18,7 +18,7 @@ const pump = promisify(pipeline);
 // import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { GameInfo, userInfo } from './serverStructures.js';
+import { GameInfo, userInfo, loginInfo } from './serverStructures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS users (
 	Alias TEXT UNIQUE NOT NULL,
 	Country TEXT UNIQUE NOT NULL,
 	password_hash TEXT NOT NULL,
-	avatar_url TEXT DEFAULT '/avatars/default.png',
+	avatar_url TEXT DEFAULT '/avatars/default-avatar.png',
 	status TEXT DEFAULT 'offline',
 	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -259,6 +259,8 @@ app.get('/getstatus', async (request, reply) => {
 });
 
 
+
+
 app.post("/register", async (request, reply) => {
   const parts = request.parts();
   let name = '', username = '', password = '', country = '';
@@ -282,9 +284,10 @@ app.post("/register", async (request, reply) => {
 			const fileStream = (part as any).file;
 			fileStream.resume();
 	  }
-	} else if (part.type === 'field') {
+	}else if (part.type === 'field') {
 		// Handle text fields - v8+ has better type safety for fields
 		const fieldValue = (part as any).value;
+		// console.log("Part:", part.type, part.fieldname, part.filename || part.value); // debug me
 		switch (part.fieldname) {
 			case 'name': name = fieldValue; break;
 			case 'username': username = fieldValue; break;
@@ -301,15 +304,15 @@ app.post("/register", async (request, reply) => {
 
 	const alias = username;
 	const fullName = name;
-	const _Country = country;
+	const Country = country;
 	const password_hash = await bcrypt.hash(password, saltRounds);
 
 	try {
 		const statement = db.prepare(`
-		INSERT INTO users (Full_Name, Alias, password_hash, Country, avatar_url) //fixed something here
+		INSERT INTO users (Full_name, Alias, password_hash, Country, avatar_url)
 		VALUES (?, ?, ?, ?, ?)
 		`);
-		statement.run(fullName, alias, password_hash, _Country, avatarPath); // changed variable name
+		statement.run(fullName, alias, password_hash, Country, avatarPath);
 
 		reply.send({ status: 200, message: 'User registered successfully', avatar: avatarPath });
 	} catch (err: any) {
@@ -321,6 +324,68 @@ app.post("/register", async (request, reply) => {
 	}
 	console.log(`User ${username} registered successfully`);
 });
+
+
+
+app.post("/updateUser", async (request, reply) => {
+    const parts = request.parts();
+
+    let id = "", name = "", username = "", password = "", country = "";
+    let avatarPath: string | null = null;
+
+    try {
+        for await (const part of parts) {
+            if (part.type === "file") {
+                if (part.fieldname === "avatar" && part.filename) {
+                    const fileExt = path.extname(part.filename).toLowerCase();
+                    const uniqueName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${fileExt}`;
+                    const savePath = path.join(__dirname, "../public/avatars", uniqueName);
+
+                    await pump((part as any).file, createWriteStream(savePath));
+                    avatarPath = `/avatars/${uniqueName}`;
+                } else {
+                    (part as any).file.resume();
+                }
+            } else if (part.type === "field") {
+                const fieldValue = (part as any).value?.toString().trim() || "";
+                switch (part.fieldname) {
+					case "id": id = fieldValue; break;
+                    case "name": name = fieldValue; break;
+                    case "username": username = fieldValue; break;
+                    case "password": password = fieldValue; break;
+                    case "country": country = fieldValue; break;
+                    case "avatar_url": if (!avatarPath) avatarPath = fieldValue; break;
+                }
+            }
+        }
+
+        if (!id) {
+            reply.status(400).send({ status: 400, message: "Missing user ID" });
+            return;
+        }
+		console.log(password); // debug
+		console.log(id); // debug
+
+		// hash the password if it was changed.
+        let password_hash = password;
+        if (password && !password.startsWith("$2b$")) {
+            password_hash = await bcrypt.hash(password, saltRounds);
+        }
+
+        const updateQuery = `
+            UPDATE users
+            SET Full_Name = ?, Alias = ?, password_hash = ?, Country = ?, avatar_url = ?
+            WHERE id = ?
+        `;
+        db.prepare(updateQuery).run(name, username, password_hash, country, avatarPath, id);
+
+        reply.send({ status: 200, message: "User updated successfully", avatar: avatarPath });
+    } catch (err) {
+        console.error("Error updating user:", err);
+        reply.status(500).send({ status: 500, message: "Server error" });
+    }
+});
+
 
 
 // app.get('/getstatus', async (request, reply) => {
@@ -348,11 +413,16 @@ app.post("/userInfo", async (request, reply) => {
 		reply.status(401).send({ status: 401, message: 'User data incomplete or not found' });
 		return;
 	}
+	
+	console.log("this is in the backend");
+	console.log(user.avatar_url);
+	console.log("this is in the backend");
 	reply.type('application/json').send({
+		id: user.id,
 		alias: user.Alias,
 		fullName: user.Full_Name,
 		country: user.Country,
-		avatar: user.avatar_url,
+		avatarPath: user.avatar_url,
 		password: user.password_hash
 	});
 })
