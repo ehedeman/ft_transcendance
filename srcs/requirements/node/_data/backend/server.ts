@@ -685,23 +685,28 @@ app.get('/addFriend', (request, rep) => {
 		db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, ?)`).run(accountName, nameToAdd, 'pending');
 	}
 	// Check if the user is online
-	if (game.sockets.has(nameToAdd)) {//this will change into searching in the database
-		game.sockets.get(nameToAdd).send(JSON.stringify({// this will change into finding if the user on line
-			type: 'friendRequest',
-			to: nameToAdd,//b
-			from: accountName//a
-		}));
-		game.sockets.get(nameToAdd).on('message', (data) => {
-			const strData = data.toString();
-			const replyMessage: any = JSON.parse(strData);
-			if (replyMessage.reply === "accept") {// change the database status
-				db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`)
-					.run(accountName, nameToAdd);
-				rep.send({ message: `Friend '${nameToAdd}' added successfully` });
-			} else {
-				rep.status(404).send({ error: 'User not found' });
-			}
-		});
+	if (game.sockets.has(nameToAdd)) {
+		const tempSocket = game.sockets.get(nameToAdd);
+		if (tempSocket) {
+			tempSocket.send(JSON.stringify({
+				type: 'friendRequest',
+				to: nameToAdd,//b
+				from: accountName//a
+			}));
+		}
+		if (tempSocket) {
+			tempSocket.on('message', (data) => {
+				const strData = data.toString();
+				const replyMessage: any = JSON.parse(strData);
+				if (replyMessage.reply === "accept") {// change the database status
+					db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`)
+						.run(accountName, nameToAdd);
+					rep.send({ message: `Friend '${nameToAdd}' added successfully` });
+				} else {
+					rep.status(404).send({ error: 'User not found' });
+				}
+			});
+		}
 	} else {
 		rep.status(202).send({ message: 'Friend request sent' });
 	}
@@ -746,7 +751,7 @@ app.get('/getFriendList', async (request, reply) => {
 
 	try {
 		const stmt = db.prepare(`SELECT friendname FROM newFriend WHERE username = ? AND status = 'accepted'`);
-		const rows = stmt.all(username);
+		const rows = stmt.all(username) as { friendname: string }[];
 		const friends = rows.map(row => row.friendname);
 		reply.send({ friendList: friends });
 	} catch (err) {
@@ -776,7 +781,7 @@ app.get(`/getChatHistory`, async (request, reply) => {
 
 	try {
 		const stmt = db.prepare(`SELECT * FROM chatHistory WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)`);
-		const chatHistory = stmt.all(username, friendname, friendname, username);
+		const chatHistory = stmt.all(username, friendname, friendname, username) as { sender: string; receiver: string; message: string; status: string; timestamp: string }[];
 		const chatHistory1 = chatHistory.map((row) => row.sender + ": " + row.message);
 		reply.send({ chatHistory: chatHistory1 });
 	} catch (err) {
@@ -792,7 +797,7 @@ app.get(`/getFriendRequestList`, async (request, reply) => {
 	}
 	try {
 		const stmt = db.prepare(`SELECT * FROM newFriend WHERE friendname = ? AND status = 'pending'`);
-		const friendRequests = stmt.all(username);
+		const friendRequests = stmt.all(username) as { username: string; friendname: string; status: string }[];
 		const friendRequestList = friendRequests.map((row) => row.username);
 		reply.send({ friendRequestList });
 	} catch (err) {
@@ -841,11 +846,14 @@ app.get(`/rejectFriendRequest`, async (request, reply) => {
 		reply.status(500).send({ error: 'Database error' });
 	}
 	if (game.sockets.has(friendname)) {
-		game.sockets.get(friendname).send(JSON.stringify({
-			type: 'friendRequestResponse',
-			from: username,
-			response: 'rejected'
-		}));
+		const socket = game.sockets.get(friendname);
+		if (socket) {
+			socket.send(JSON.stringify({
+				type: 'friendRequestResponse',
+				from: username,
+				response: 'rejected'
+			}));
+		}
 	} else {
 		return;
 	}
@@ -860,7 +868,7 @@ app.get(`/getRejectedFriendRequests`, async (request, reply) => {
 
 	try {
 		const stmt = db.prepare(`SELECT * FROM newFriend WHERE username = ? AND status = 'rejected'`);
-		const friendRequests = stmt.all(username);
+		const friendRequests = stmt.all(username) as { friendname: string }[];
 		const rejectedFriendRequests = friendRequests.map((row) => row.friendname);
 		reply.send({ rejectedFriendRequests });
 	} catch (err) {
