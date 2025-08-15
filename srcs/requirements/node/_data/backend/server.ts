@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS newFriend (
     username TEXT NOT NULL,
     friendname TEXT NOT NULL,
+	status TEXT DEFAULT 'accepted',
     UNIQUE (username, friendname)
 );
 
@@ -56,6 +57,7 @@ CREATE TABLE IF NOT EXISTS chatHistory (
 	sender TEXT NOT NULL,
 	receiver TEXT NOT NULL,
 	message TEXT NOT NULL,
+	status TEXT DEFAULT 'sent',
 	timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -547,8 +549,17 @@ app.get('/addFriend', (request, rep) => {
 		accountName: string;
 	};
 	console.log(`Friend request: ${accountName} wants to add ${nameToAdd}`);
-	if (game.sockets.has(nameToAdd)) {
-		game.sockets.get(nameToAdd).send(JSON.stringify({
+	// check if the user exist
+	const userExists = db.prepare(`SELECT * FROM users WHERE Full_Name = ?`).get(nameToAdd);
+	if (!userExists) {
+		rep.status(404).send({ error: 'User not found' });
+		return;
+	} else {
+		db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, ?)`).run(accountName, nameToAdd, 'pending');
+	}
+	// Check if the user is online
+	if (game.sockets.has(nameToAdd)) {//this will change into searching in the database
+		game.sockets.get(nameToAdd).send(JSON.stringify({// this will change into finding if the user on line
 			type: 'friendRequest',
 			to: nameToAdd,//b
 			from: accountName//a
@@ -556,14 +567,16 @@ app.get('/addFriend', (request, rep) => {
 		game.sockets.get(nameToAdd).on('message', (data) => {
 			const strData = data.toString();
 			const replyMessage: any = JSON.parse(strData);
-			if (replyMessage.reply === "accept") {
+			if (replyMessage.reply === "accept") {// change the database status
+				db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`)
+					.run(accountName, nameToAdd);
 				rep.send({ message: `Friend '${nameToAdd}' added successfully` });
 			} else {
 				rep.status(404).send({ error: 'User not found' });
 			}
 		});
 	} else {
-		rep.status(404).send({ error: 'User not found' });
+		rep.status(202).send({ message: 'Friend request sent' });
 	}
 });
 
@@ -605,7 +618,7 @@ app.get('/getFriendList', async (request, reply) => {
 	}
 
 	try {
-		const stmt = db.prepare(`SELECT friendname FROM newFriend WHERE username = ?`);
+		const stmt = db.prepare(`SELECT friendname FROM newFriend WHERE username = ? AND status = 'accepted'`);
 		const rows = stmt.all(username);
 		const friends = rows.map(row => row.friendname);
 		reply.send({ friendList: friends });
@@ -642,6 +655,92 @@ app.get(`/getChatHistory`, async (request, reply) => {
 	} catch (err) {
 		reply.status(500).send({ error: 'Database error' });
 	}
+});
+
+app.get(`/getFriendRequestList`, async (request, reply) => {
+	const { username } = request.query as { username: string };
+	if (!username) {
+		reply.status(400).send({ error: 'Username is required' });
+		return;
+	}
+	try {
+		const stmt = db.prepare(`SELECT * FROM newFriend WHERE friendname = ? AND status = 'pending'`);
+		const friendRequests = stmt.all(username);
+		const friendRequestList = friendRequests.map((row) => row.username);
+		reply.send({ friendRequestList });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get(`/acceptFriendRequest`, async (request, reply) => {
+	const { username, friendname } = request.query as {
+		username: string;
+		friendname: string;
+	};
+
+	if (!username || !friendname) {
+		reply.status(400).send({ error: 'Username and friendname are required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`);
+		stmt.run(username, friendname);
+		const stmt2 = db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, 'accepted')`);
+		stmt2.run(friendname, username);
+		reply.send({ message: `Friend request from ${friendname} accepted` });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get(`/rejectFriendRequest`, async (request, reply) => {
+	const { username, friendname } = request.query as {
+		username: string;
+		friendname: string;
+	};
+
+	if (!username || !friendname) {
+		reply.status(400).send({ error: 'Username and friendname are required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`UPDATE newFriend SET status = 'rejected' WHERE username = ? AND friendname = ?`);
+		stmt.run(username, friendname);
+		reply.send({ message: `Friend request from ${friendname} rejected` });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+	if (game.sockets.has(friendname)) {
+		game.sockets.get(friendname).send(JSON.stringify({
+			type: 'friendRequestResponse',
+			from: username,
+			response: 'rejected'
+		}));
+	} else {
+		return;
+	}
+});
+
+app.get(`/getRejectedFriendRequests`, async (request, reply) => {
+	const { username } = request.query as { username: string };
+	if (!username) {
+		reply.status(400).send({ error: 'Username is required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`SELECT * FROM newFriend WHERE username = ? AND status = 'rejected'`);
+		const friendRequests = stmt.all(username);
+		const rejectedFriendRequests = friendRequests.map((row) => row.friendname);
+		reply.send({ rejectedFriendRequests });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+	const stmt2 = db.prepare(`DELETE FROM newFriend WHERE username = ? AND status = 'rejected'`);
+	stmt2.run(username);
 });
 
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {

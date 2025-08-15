@@ -143,6 +143,10 @@ export class GameInfo {
 
 	chatHistory: string[];
 
+	friendRequestList: string[];
+
+	rejectedFriendRequests: string[];
+
 	constructor() {
 		this.canvas = new canvasInfo();
 		this.ball = new BallInfo();
@@ -168,6 +172,10 @@ export class GameInfo {
 		this.friendList = [];
 
 		this.chatHistory = [];
+
+		this.friendRequestList = [];
+
+		this.rejectedFriendRequests = [];
 	}
 }
 

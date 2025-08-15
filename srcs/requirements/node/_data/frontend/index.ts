@@ -236,6 +236,105 @@ function getFriendList(username: string) {
 		});
 }
 
+function getFriendRequestList(username: string) {
+	fetch(`/getFriendRequestList?username=${encodeURIComponent(username)}`)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("Failed to fetch friend request list.");
+			}
+			return response.json();
+		})
+		.then(data => {
+			console.log("Friend request list:", data.friendRequestList);
+			game.friendRequestList = data.friendRequestList || [];
+			if (game.friendRequestList.length === 0) {
+				const friendRequestListElement = document.getElementById("friendRequestsList");
+				if (friendRequestListElement) {
+					friendRequestListElement.innerHTML = "<li>No friend requests</li>";
+				}
+			}
+			const friendRequestListElement = document.getElementById("friendRequestsList");
+			if (friendRequestListElement) {
+				friendRequestListElement.innerHTML = ""; // Clear existing list
+				for (const request of game.friendRequestList) {
+					const listItem = document.createElement("li");
+					listItem.textContent = request;
+					listItem.id = request;
+					listItem.style.cursor = "pointer";
+					friendRequestListElement.appendChild(listItem);
+				}
+			}
+		})
+		.catch(error => {
+			console.error("Error fetching friend request list:", error);
+		});
+}
+
+function getRejectedFriendRequests(username: string) {
+	fetch(`/getRejectedFriendRequests?username=${encodeURIComponent(username)}`)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("Failed to fetch rejected friend requests.");
+			}
+			return response.json();
+		})
+		.then(data => {
+			console.log("Rejected friend requests:", data.rejectedFriendRequests);
+			game.rejectedFriendRequests = data.rejectedFriendRequests || [];
+			for (const request of game.rejectedFriendRequests) {
+				alert(`Rejected friend request from: ${request}`);
+			}
+		})
+		.catch(error => {
+			console.error("Error fetching rejected friend requests:", error);
+		});
+}
+
+document.getElementById("friendRequestsList")?.addEventListener("click", (e) => {
+	const target = e.target as HTMLElement;
+	if (target.tagName === "LI") {
+		console.log(`${target.textContent} clicked`);
+		const friendName = target.id;
+		const reply = confirm(`Do you want to accept the friend request from ${friendName}?`);
+		if (reply) {
+			fetch(`/acceptFriendRequest?username=${encodeURIComponent(friendName)}&friendname=${encodeURIComponent(game.username)}`)
+				.then(response => {
+					if (!response.ok) {
+						throw new Error("Failed to send accept friend request.");
+					}
+					return response.json();
+				})
+				.then(data => {
+					console.log("Friend request accepted:", data);
+					getFriendList(game.username);
+					getFriendRequestList(game.username);
+				})
+				.catch(error => {
+					console.error("Error accepting friend request:", error);
+				});
+		} else {
+			fetch(`/rejectFriendRequest?username=${encodeURIComponent(friendName)}&friendname=${encodeURIComponent(game.username)}`)
+				.then(response => {
+					if (!response.ok) {
+						throw new Error("Failed to send reject friend request.");
+					}
+					return response.json();
+				})
+				.then(data => {
+					console.log("Friend request rejected:", data);
+					getFriendList(game.username);
+					getFriendRequestList(game.username);
+				})
+				.catch(error => {
+					console.error("Error rejecting friend request:", error);
+				});
+		}
+	}
+});
+
+
+
+
 document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 	e.preventDefault();
 	const usernameInput = document.getElementById("loginUsername") as HTMLInputElement;
@@ -276,6 +375,8 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			createWebSocketConnection(loginPlayer.username);
 			// get the friend list
 			getFriendList(loginPlayer.username);
+			getFriendRequestList(loginPlayer.username);
+			getRejectedFriendRequests(loginPlayer.username);
 			return response.json(); // Optional: if you need response data
 		})
 		.catch(error => {
@@ -355,7 +456,9 @@ document.getElementById("addFriend")?.addEventListener("click", () => {
 		} else {
 			fetch(`/addFriend?nameToAdd=${encodeURIComponent(friendName)}&accountName=${encodeURIComponent(game.username)}`)
 				.then(response => {
-					if (response.ok) {
+					if (response.status === 202) {
+						alert("Friend request sent!");
+					} else if (response.ok) {
 						alert("Friend added successfully!");
 						const friendList = document.getElementById("friendList");
 						if (friendList) {

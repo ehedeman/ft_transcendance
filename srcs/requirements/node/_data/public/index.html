@@ -129,7 +129,7 @@
 		<div>
 			<header style="position: absolute;">Friends</header>
 		</div>
-		<ul id="friendList">
+		<ul id="friendList" style="border: 1px solid #000000;">
 			<li>Please login to see friends</li>
 		</ul>
 		<ul id="friendList2"
@@ -137,6 +137,10 @@
 			<li>Please click a friend to see the history...</li>
 		</ul>
 		<button id="addFriend" class="bg-blue-500 text-white px-4 py-2 rounded">Add Friend</button>
+		<ul id="friendRequestsList"
+			style="margin-left: 20px; width: 100px; max-width: 100px; max-height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000; overflow-x: auto;">
+			<li>Your new friend requests will appear here</li>
+		</ul>
 	</div>
 	<div style="position: absolute; display: flex; top: calc(120px + 620px + 120px); left: 50%; transform: translateX(-50%);">
 		<input type="text" id="inputMessageBox" placeholder="Please input your message here..." class="border rounded px-2 py-1" style="width: 400px;" />
