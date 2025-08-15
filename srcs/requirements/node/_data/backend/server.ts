@@ -478,14 +478,6 @@ app.put('/debug/friends', async (request, reply) => {
 	}
 });
 
-app.get('/hello-ws', { websocket: true }, (socket, req) => { // TODO: this is just a test
-	console.log('we are in the websocket route');
-
-	socket.on('message', (message: string) => {
-		socket.send('Hello Fastify WebSocket!');
-	});
-});
-
 function handlePrivateMessage(message: any) {
 	const targetSocket = game.sockets.get(message.target);
 	if (targetSocket) {
