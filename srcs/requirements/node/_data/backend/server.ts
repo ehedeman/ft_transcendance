@@ -13,6 +13,7 @@ const saltRounds = 10;
 const app = fastify({ logger: true });
 
 await app.register(websocket);
+await app.register(fastifyMultipart);
 
 const pump = promisify(pipeline);
 
@@ -184,8 +185,7 @@ function resetGame(): void {
 }
 
 function updateGame(): void {
-	if (!gameFinished)
-	{
+	if (!gameFinished) {
 		if (game.player1.playerscore === rounds) {
 			game.player1.gamesWon++;
 			game.player2.gamesLost++;
@@ -280,42 +280,43 @@ app.get('/getstatus', async (request, reply) => {
 
 
 app.post("/register", async (request, reply) => {
-  const parts = request.parts();
-  let name = '', username = '', password = '', country = '';
-  let avatarPath = '/avatars/default-avatar.png';
-  let avatarUploaded = false;
+	const parts = request.parts();
+	let name = '', username = '', password = '', country = '';
+	let avatarPath = '/avatars/default-avatar.png';
+	let avatarUploaded = false;
 
-  for await (const part of parts) {
-	if (part.type === 'file') {
-	  // Save avatar file
-		if (part.fieldname === 'avatar' && part.filename) {
-			const fileExt = path.extname(part.filename);
-			const uniqueName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${fileExt}`;
-			const savePath = path.join(__dirname, '../public/avatars', uniqueName);
+	for await (const part of parts) {
+		if (part.type === 'file') {
+			// Save avatar file
+			if (part.fieldname === 'avatar' && part.filename) {
+				const fileExt = path.extname(part.filename);
+				const uniqueName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${fileExt}`;
+				const savePath = path.join(__dirname, '../public/avatars', uniqueName);
 
-			// In v8+, use the file property which is a readable stream
-			await pump((part as any).file, createWriteStream(savePath));
-			avatarPath = `/avatars/${uniqueName}`;
-			avatarUploaded = true;
-		} else {
-			// Unknown file part -- skip by consuming the stream
-			const fileStream = (part as any).file;
-			fileStream.resume();
-	  }
-	}else if (part.type === 'field') {
-		// Handle text fields - v8+ has better type safety for fields
-		const fieldValue = (part as any).value;
-		// console.log("Part:", part.type, part.fieldname, part.filename || part.value); // debug me
-		switch (part.fieldname) {
-			case 'name': name = fieldValue; break;
-			case 'username': username = fieldValue; break;
-			case 'password': password = fieldValue; break;
-			case 'country': country = fieldValue; break;
+				// In v8+, use the file property which is a readable stream
+				await pump((part as any).file, createWriteStream(savePath));
+				avatarPath = `/avatars/${uniqueName}`;
+				avatarUploaded = true;
+			} else {
+				// Unknown file part -- skip by consuming the stream
+				const fileStream = (part as any).file;
+				fileStream.resume();
+			}
+		} else if (part.type === 'field') {
+			// Handle text fields - v8+ has better type safety for fields
+			const fieldValue = (part as any).value;
+			// console.log("Part:", part.type, part.fieldname, part.filename || part.value); // debug me
+			switch (part.fieldname) {
+				case 'name': name = fieldValue; break;
+				case 'username': username = fieldValue; break;
+				case 'password': password = fieldValue; break;
+				case 'country': country = fieldValue; break;
+			}
 		}
 	}
-  }
 
 	if (!name || !username || !password || !country) {
+		console.log("---------------------------------------------1---------------------------------------------");
 		reply.status(400).send({ status: 400, message: 'Missing required fields' });
 		return;
 	}
@@ -331,13 +332,15 @@ app.post("/register", async (request, reply) => {
 		VALUES (?, ?, ?, ?, ?)
 		`);
 		statement.run(fullName, alias, password_hash, Country, avatarPath);
-
+		console.log("---------------------------------------------4---------------------------------------------");
 		reply.send({ status: 200, message: 'User registered successfully', avatar: avatarPath });
 	} catch (err: any) {
 		if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-		reply.status(400).send({ status: 400, message: 'User already exists' });
+			console.log("---------------------------------------------2---------------------------------------------");
+			reply.status(400).send({ status: 400, message: 'User already exists' });
 		} else {
-		reply.status(500).send({ status: 500, message: 'Server error' });
+			console.log("---------------------------------------------3---------------------------------------------");
+			reply.status(500).send({ status: 500, message: 'Server error' });
 		}
 	}
 	console.log(`User ${username} registered successfully`);
@@ -346,62 +349,62 @@ app.post("/register", async (request, reply) => {
 
 
 app.post("/updateUser", async (request, reply) => {
-    const parts = request.parts();
+	const parts = request.parts();
 
-    let id = "", name = "", username = "", password = "", country = "";
-    let avatarPath: string | null = null;
+	let id = "", name = "", username = "", password = "", country = "";
+	let avatarPath: string | null = null;
 
-    try {
-        for await (const part of parts) {
-            if (part.type === "file") {
-                if (part.fieldname === "avatar" && part.filename) {
-                    const fileExt = path.extname(part.filename).toLowerCase();
-                    const uniqueName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${fileExt}`;
-                    const savePath = path.join(__dirname, "../public/avatars", uniqueName);
+	try {
+		for await (const part of parts) {
+			if (part.type === "file") {
+				if (part.fieldname === "avatar" && part.filename) {
+					const fileExt = path.extname(part.filename).toLowerCase();
+					const uniqueName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${fileExt}`;
+					const savePath = path.join(__dirname, "../public/avatars", uniqueName);
 
-                    await pump((part as any).file, createWriteStream(savePath));
-                    avatarPath = `/avatars/${uniqueName}`;
-                } else {
-                    (part as any).file.resume();
-                }
-            } else if (part.type === "field") {
-                const fieldValue = (part as any).value?.toString().trim() || "";
-                switch (part.fieldname) {
+					await pump((part as any).file, createWriteStream(savePath));
+					avatarPath = `/avatars/${uniqueName}`;
+				} else {
+					(part as any).file.resume();
+				}
+			} else if (part.type === "field") {
+				const fieldValue = (part as any).value?.toString().trim() || "";
+				switch (part.fieldname) {
 					case "id": id = fieldValue; break;
-                    case "name": name = fieldValue; break;
-                    case "username": username = fieldValue; break;
-                    case "password": password = fieldValue; break;
-                    case "country": country = fieldValue; break;
-                    case "avatar_url": if (!avatarPath) avatarPath = fieldValue; break;
-                }
-            }
-        }
+					case "name": name = fieldValue; break;
+					case "username": username = fieldValue; break;
+					case "password": password = fieldValue; break;
+					case "country": country = fieldValue; break;
+					case "avatar_url": if (!avatarPath) avatarPath = fieldValue; break;
+				}
+			}
+		}
 
-        if (!id) {
-            reply.status(400).send({ status: 400, message: "Missing user ID" });
-            return;
-        }
+		if (!id) {
+			reply.status(400).send({ status: 400, message: "Missing user ID" });
+			return;
+		}
 		console.log(password); // debug
 		console.log(id); // debug
 
 		// hash the password if it was changed.
-        let password_hash = password;
-        if (password && !password.startsWith("$2b$")) {
-            password_hash = await bcrypt.hash(password, saltRounds);
-        }
+		let password_hash = password;
+		if (password && !password.startsWith("$2b$")) {
+			password_hash = await bcrypt.hash(password, saltRounds);
+		}
 
-        const updateQuery = `
+		const updateQuery = `
             UPDATE users
             SET Full_Name = ?, Alias = ?, password_hash = ?, Country = ?, avatar_url = ?
             WHERE id = ?
         `;
-        db.prepare(updateQuery).run(name, username, password_hash, country, avatarPath, id);
+		db.prepare(updateQuery).run(name, username, password_hash, country, avatarPath, id);
 
-        reply.send({ status: 200, message: "User updated successfully", avatar: avatarPath });
-    } catch (err) {
-        console.error("Error updating user:", err);
-        reply.status(500).send({ status: 500, message: "Server error" });
-    }
+		reply.send({ status: 200, message: "User updated successfully", avatar: avatarPath });
+	} catch (err) {
+		console.error("Error updating user:", err);
+		reply.status(500).send({ status: 500, message: "Server error" });
+	}
 });
 
 
@@ -422,8 +425,8 @@ app.post("/updateUser", async (request, reply) => {
 
 
 app.post("/userInfo", async (request, reply) => {
-	const _username  = request.body as {username: string};
-	
+	const _username = request.body as { username: string };
+
 	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
 	const user = stmt.get(_username.username) as userInfo;
 
@@ -431,7 +434,7 @@ app.post("/userInfo", async (request, reply) => {
 		reply.status(401).send({ status: 401, message: 'User data incomplete or not found' });
 		return;
 	}
-	
+
 	console.log("this is in the backend");
 	console.log(user.avatar_url);
 	console.log("this is in the backend");
@@ -447,7 +450,7 @@ app.post("/userInfo", async (request, reply) => {
 
 app.post("/login", async (request, reply) => {
 	const { username, password } = request.body as { username: string; password: string };
-	
+
 	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
 	const user = stmt.get(username) as any;
 
@@ -461,7 +464,7 @@ app.post("/login", async (request, reply) => {
 		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
 		return;
 	}
-	
+
 	// const user = loginInformation.find(user => user.username === username && user.password === password);
 	// if (!user) {
 	// 	reply.status(401).send({ status: 401, message: 'Invalid username or password' });
@@ -496,7 +499,7 @@ app.delete('/debug/users/:username', async (request, reply) => {
 		const { username } = request.params as { username: string };
 		const stmt = db.prepare(`DELETE FROM users WHERE Alias = ?`);
 		const result = stmt.run(username);
-		
+
 		if (result.changes === 0) {
 			reply.status(404).send({ error: 'User not found' });
 		} else {
@@ -511,10 +514,10 @@ app.delete('/debug/users/:username', async (request, reply) => {
 app.put('/debug/users/:username', async (request, reply) => {
 	try {
 		const { username } = request.params as { username: string };
-		const { Full_Name, avatar_url, status } = request.body as { 
-			Full_Name?: string; 
-			avatar_url?: string; 
-			status?: string; 
+		const { Full_Name, avatar_url, status } = request.body as {
+			Full_Name?: string;
+			avatar_url?: string;
+			status?: string;
 		};
 
 		// Build dynamic UPDATE query based on provided fields
@@ -541,7 +544,7 @@ app.put('/debug/users/:username', async (request, reply) => {
 
 		// Add updated_at timestamp
 		updates.push('updated_at = CURRENT_TIMESTAMP');
-		
+
 		// Add username to values array for WHERE clause
 		values.push(username);
 
@@ -552,8 +555,8 @@ app.put('/debug/users/:username', async (request, reply) => {
 		if (result.changes === 0) {
 			reply.status(404).send({ error: 'User not found' });
 		} else {
-			reply.send({ 
-				message: `User '${username}' updated successfully`, 
+			reply.send({
+				message: `User '${username}' updated successfully`,
 				updatedRows: result.changes,
 				updatedFields: updates.slice(0, -1) // Remove the timestamp update from display
 			});
@@ -579,7 +582,7 @@ app.put('/debug/users/:username/password', async (request, reply) => {
 		}
 
 		const password_hash = await bcrypt.hash(newPassword, saltRounds);
-		
+
 		const stmt = db.prepare(`
 			UPDATE users 
 			SET password_hash = ?, updated_at = CURRENT_TIMESTAMP 
@@ -590,9 +593,9 @@ app.put('/debug/users/:username/password', async (request, reply) => {
 		if (result.changes === 0) {
 			reply.status(404).send({ error: 'User not found' });
 		} else {
-			reply.send({ 
-				message: `Password for user '${username}' updated successfully`, 
-				updatedRows: result.changes 
+			reply.send({
+				message: `Password for user '${username}' updated successfully`,
+				updatedRows: result.changes
 			});
 		}
 	} catch (err) {

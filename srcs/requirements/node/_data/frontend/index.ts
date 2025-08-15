@@ -1,4 +1,4 @@
-import { GameInfo, TournamentStage, PlayerLogin } from "./frontendStructures.js";
+import { Player, canvasInfo, BallInfo, playerPaddle, GameInfo, TournamentStage, PlayerLogin, PlayerRegistration } from "./frontendStructures.js";
 import { tournamentEnd, tournamentLogic, tournamentPlayGame } from "./tournament.js";
 // import e{ rounds } from "./server.js";
 import { tournamentFinished, showWinnerScreen } from "./tournament.js";
@@ -25,8 +25,7 @@ document.addEventListener("click", (e: MouseEvent) => {
 
 const keysPressed: { [key: string]: boolean } = {};
 
-export function handleKeydown(e: KeyboardEvent): void
-{
+export function handleKeydown(e: KeyboardEvent): void {
 	if (e.key === " " && !canvas_focus) {
 		fetch("/pressspace");
 	}
@@ -39,8 +38,7 @@ export function handleKeydown(e: KeyboardEvent): void
 	keysPressed[e.key] = true;
 }
 
-export function handleKeyup(e: KeyboardEvent): void
-{
+export function handleKeyup(e: KeyboardEvent): void {
 	keysPressed[e.key] = false;
 }
 
@@ -60,9 +58,9 @@ function restoreScreen(): void {
 	if (registerButton) registerButton.style.display = "block";
 	if (playSelect) playSelect.style.display = "block";
 	if (loginButton) loginButton.style.display = "block";
-	if (registerModal) registerModal.style.display = "none";	
-	if (settings) settings.style.display = "none";	
-	if (loginModal) loginModal.style.display = "none";	
+	if (registerModal) registerModal.style.display = "none";
+	if (settings) settings.style.display = "none";
+	if (loginModal) loginModal.style.display = "none";
 }
 
 function emptyLoginFields(loginType: string): void {
@@ -90,8 +88,7 @@ function emptyLoginFields(loginType: string): void {
 
 /*-------------------------------------settings------------------------------------*/
 
-document.getElementById("settingsDeleteAccount")?.addEventListener("click", () => 
-{
+document.getElementById("settingsDeleteAccount")?.addEventListener("click", () => {
 	// delete account from database here
 
 	//not sure of a way to get data on whose acc is being deleted tho
@@ -101,21 +98,17 @@ document.getElementById("settingsDeleteAccount")?.addEventListener("click", () =
 
 // JavaScript to handle avatar click and preview
 document.getElementById('avatarPreviewSettings')?.addEventListener('click', function () {
-  document.getElementById('avatarUpload')?.click();
+	document.getElementById('avatarUpload')?.click();
 });
 
-document.getElementById('avatarUpload')?.addEventListener('change', function (event)
-{
-	if (event)
-	{
+document.getElementById('avatarUpload')?.addEventListener('change', function (event) {
+	if (event) {
 		const input = event.target as HTMLInputElement;
 
 		var preview = document.getElementById('avatarPreviewSettings') as HTMLImageElement;
-		if (input)
-		{
+		if (input) {
 			const file = input.files && input.files[0];
-			if (file)
-			{
+			if (file) {
 				preview.src = URL.createObjectURL(file);
 				preview.style.display = "block";
 			}
@@ -129,89 +122,89 @@ document.getElementById('avatarUpload')?.addEventListener('change', function (ev
 
 var userInfoTemp: userInfo;
 async function setSettingFields(loginPlayer: PlayerLogin): Promise<boolean> {
-    const settingsName = document.getElementById("settingsName") as HTMLInputElement;
-    const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
-    const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
-    const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
-    const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLImageElement;
-    const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
+	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
+	const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
+	const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
+	const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
+	const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLImageElement;
+	const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
 
-    const response = await fetch("/userInfo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: loginPlayer.username })
-    });
-    const data = await response.json();
+	const response = await fetch("/userInfo", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username: loginPlayer.username })
+	});
+	const data = await response.json();
 
-    const playerInfo = {
-        id: data.id,
-        name: data.fullName,
-        username: data.alias,
-        country: data.country,
-        avatar: data.avatarPath, // painful bug
-        password: data.password
-    };
+	const playerInfo = {
+		id: data.id,
+		name: data.fullName,
+		username: data.alias,
+		country: data.country,
+		avatar: data.avatarPath, // painful bug
+		password: data.password
+	};
 
-    settingsName.placeholder = playerInfo.name;
-    settingsUsername.placeholder = playerInfo.username;
-    settingsPassword.placeholder = "Enter new password";
-    settingsCountry.placeholder = playerInfo.country;
+	settingsName.placeholder = playerInfo.name;
+	settingsUsername.placeholder = playerInfo.username;
+	settingsPassword.placeholder = "Enter new password";
+	settingsCountry.placeholder = playerInfo.country;
 
-    // Set the avatar preview to whatever is in the database
-    avatarPreviewSettings.src = playerInfo.avatar;
+	// Set the avatar preview to whatever is in the database
+	avatarPreviewSettings.src = playerInfo.avatar;
 
-    settingsName.value = playerInfo.name;
-    settingsUsername.value = playerInfo.username;
-    settingsPassword.value = "";
-    settingsCountry.value = playerInfo.country;
+	settingsName.value = playerInfo.name;
+	settingsUsername.value = playerInfo.username;
+	settingsPassword.value = "";
+	settingsCountry.value = playerInfo.country;
 
-    userInfoTemp = {
-        id: playerInfo.id,
-        Full_Name: playerInfo.name,
-        avatar_url: playerInfo.avatar, // very <- important
-        password_hash: playerInfo.password,
-        Alias: playerInfo.username,
-        Country: playerInfo.country,
-        status: "",
-        updated_at: "",
-        created_at: "",
-    };
-  // here set fields to what database has currently stored to display in settings
-    return true;
+	userInfoTemp = {
+		id: playerInfo.id,
+		Full_Name: playerInfo.name,
+		avatar_url: playerInfo.avatar, // very <- important
+		password_hash: playerInfo.password,
+		Alias: playerInfo.username,
+		Country: playerInfo.country,
+		status: "",
+		updated_at: "",
+		created_at: "",
+	};
+	// here set fields to what database has currently stored to display in settings
+	return true;
 }
 
 document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
-    e.preventDefault();
+	e.preventDefault();
 
-    const nameInput = document.getElementById("settingsName") as HTMLInputElement;
-    const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
-    const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
-    const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
-    const avatarFileInput = document.getElementById("avatarUpload") as HTMLInputElement; // **file input**
+	const nameInput = document.getElementById("settingsName") as HTMLInputElement;
+	const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
+	const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
+	const avatarFileInput = document.getElementById("avatarUpload") as HTMLInputElement; // **file input**
 
-    const formData = new FormData();
-    formData.append("id", String(userInfoTemp.id));
-    formData.append("name", nameInput.value.trim());
-    formData.append("username", usernameInput.value.trim());
-    formData.append("password", passwordInput.value.trim() || userInfoTemp.password_hash);
-    formData.append("country", countryInput.value.trim());
+	const formData = new FormData();
+	formData.append("id", String(userInfoTemp.id));
+	formData.append("name", nameInput.value.trim());
+	formData.append("username", usernameInput.value.trim());
+	formData.append("password", passwordInput.value.trim() || userInfoTemp.password_hash);
+	formData.append("country", countryInput.value.trim());
 
-    if (avatarFileInput.files && avatarFileInput.files[0]) {
-        formData.append("avatar", avatarFileInput.files[0]); // new avatar
-    } else {
-        formData.append("avatar_url", userInfoTemp.avatar_url); // keep the one in DB
-    }
+	if (avatarFileInput.files && avatarFileInput.files[0]) {
+		formData.append("avatar", avatarFileInput.files[0]); // new avatar
+	} else {
+		formData.append("avatar_url", userInfoTemp.avatar_url); // keep the one in DB
+	}
 
-    fetch("/updateUser", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        alert(data.message);
-        location.reload();
-    })
-    .catch(err => console.error("Update failed", err));
+	fetch("/updateUser", {
+		method: "POST",
+		body: formData
+	})
+		.then(res => res.json())
+		.then(data => {
+			alert(data.message);
+			location.reload();
+		})
+		.catch(err => console.error("Update failed", err));
 });
 
 
@@ -384,8 +377,7 @@ function hideSettingsForm(): void {
 }
 
 
-function showSettingsForm(): void
-{
+function showSettingsForm(): void {
 	const settingsForm = document.getElementById("settingsForm") as HTMLElement;
 	if (settingsForm) settingsForm.style.display = "flex";
 
@@ -401,7 +393,7 @@ function hideSettingsLogin(): void {
 function showSettingsLogin(): void {
 	const settingsLogin = document.getElementById("settingsLogin") as HTMLElement;
 	if (settingsLogin) settingsLogin.style.display = "flex";
-		const settingsHeader = document.getElementById("settingsHeader") as HTMLElement;
+	const settingsHeader = document.getElementById("settingsHeader") as HTMLElement;
 	if (settingsHeader) settingsHeader.textContent = "Log in to continue.";
 }
 
@@ -421,8 +413,7 @@ document.getElementById("settingsButton")?.addEventListener("click", () => {
 	document.removeEventListener("keyup", handleKeyup);
 });
 
-document.getElementById("showSettingsPassword")?.addEventListener("click", () => 
-{
+document.getElementById("showSettingsPassword")?.addEventListener("click", () => {
 	const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
 	if (passwordInput.type === "password") {
 		passwordInput.type = "text";
@@ -431,8 +422,7 @@ document.getElementById("showSettingsPassword")?.addEventListener("click", () =>
 	}
 });
 
-document.getElementById("settingsCancel")?.addEventListener("click", () => 
-{
+document.getElementById("settingsCancel")?.addEventListener("click", () => {
 	const settings = document.getElementById("settings") as HTMLElement;
 	if (settings) settings.style.display = "none";
 	document.addEventListener("keydown", handleKeydown);
@@ -458,7 +448,7 @@ function showGeneralRegistrationModal(game: GameInfo) {
 		avatarInput.value = "";
 		avatarInput.type = "file";
 		avatarInput.className = "mb-2 px-2 py-1 border rounded block";
-	// avatarInput.required = false; // optional
+		// avatarInput.required = false; // optional
 	}
 	nameInput.value = "";
 	usernameInput.value = "";
@@ -475,8 +465,7 @@ function hideGeneralRegistrationModal() {
 	modal.style.display = "none";
 }
 
-document.getElementById("registerButton")?.addEventListener("click", () => 
-{
+document.getElementById("registerButton")?.addEventListener("click", () => {
 	const registerButton = document.getElementById("registerButton");
 	const playSelect = document.getElementById("playSelect");
 	const loginButton = document.getElementById("loginButton");
@@ -486,14 +475,12 @@ document.getElementById("registerButton")?.addEventListener("click", () =>
 	showGeneralRegistrationModal(game);
 });
 
-document.addEventListener("DOMContentLoaded", () => 
-{
+document.addEventListener("DOMContentLoaded", () => {
 	console.log("DOM is fully loaded and parsed!");
 
 	// Get avatar input and set up preview once
 	const avatarInput = document.getElementById("registerAvatar") as HTMLInputElement;
-	avatarInput.addEventListener("change", () => 
-	{
+	avatarInput.addEventListener("change", () => {
 		const file = avatarInput.files && avatarInput.files[0];
 		const preview = document.getElementById("avatarPreview") as HTMLImageElement;
 		if (file) {
@@ -506,55 +493,55 @@ document.addEventListener("DOMContentLoaded", () =>
 	});
 
 	// Handle registration form submission
-    document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
-	e.preventDefault();
+	document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
+		e.preventDefault();
 
-	const nameInput = document.getElementById("registerName") as HTMLInputElement;
-	const usernameInput = document.getElementById("registerUsername") as HTMLInputElement;
-	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
-	const countryInput = document.getElementById("registerCountry") as HTMLInputElement;
-	// Reuse avatarInput from above
-	const name = nameInput.value.trim();
-	const username = usernameInput.value.trim();
-	const password = passwordInput.value.trim();
-	const country = countryInput.value.trim();
-	const avatarFile = avatarInput.files && avatarInput.files[0];
+		const nameInput = document.getElementById("registerName") as HTMLInputElement;
+		const usernameInput = document.getElementById("registerUsername") as HTMLInputElement;
+		const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
+		const countryInput = document.getElementById("registerCountry") as HTMLInputElement;
+		// Reuse avatarInput from above
+		const name = nameInput.value.trim();
+		const username = usernameInput.value.trim();
+		const password = passwordInput.value.trim();
+		const country = countryInput.value.trim();
+		const avatarFile = avatarInput.files && avatarInput.files[0];
 
-	if (!username || !password || !name || !country) {
-	  alert("Name, username, password and country cannot be empty!");
-	  return;
-	}
-
-	const formData = new FormData();
-	formData.append("name", name);
-	formData.append("username", username);
-	formData.append("password", password);
-	formData.append("country", country);
-	if (avatarFile) {
-		formData.append("avatar", avatarFile);
-	}
-
-	fetch("/register", {
-		method: "POST",
-		body: formData
-	})
-		.then(response => {
-		if (!response.ok) {
-		  alert("Registration failed. Please try again_am _here.");
-		  return;
+		if (!username || !password || !name || !country) {
+			alert("Name, username, password and country cannot be empty!");
+			return;
 		}
-		console.log("Registration successful:", response);
-		alert("Registration successful! You can now log in.");
-		emptyLoginFields("registerSettings");
-		hideGeneralRegistrationModal();
-		restoreScreen();
-		// location.reload(); // reload page after registration
-		return response.json();
+
+		const formData = new FormData();
+		formData.append("name", name);
+		formData.append("username", username);
+		formData.append("password", password);
+		formData.append("country", country);
+		if (avatarFile) {
+			formData.append("avatar", avatarFile);
+		}
+
+		fetch("/register", {
+			method: "POST",
+			body: formData
 		})
-		.catch(error => {
-			console.error("Error during Registration:", error);
-		});
-  });
+			.then(response => {
+				if (!response.ok) {
+					alert("Registration failed. Please try again_am _here.");
+					return;
+				}
+				console.log("Registration successful:", response);
+				alert("Registration successful! You can now log in.");
+				emptyLoginFields("registerSettings");
+				hideGeneralRegistrationModal();
+				restoreScreen();
+				// location.reload(); // reload page after registration
+				return response.json();
+			})
+			.catch(error => {
+				console.error("Error during Registration:", error);
+			});
+	});
 });
 
 
@@ -584,8 +571,7 @@ function hideGeneralLoginModal() {
 	modal.style.display = "none";
 }
 
-document.getElementById("loginButton")?.addEventListener("click", () => 
-{
+document.getElementById("loginButton")?.addEventListener("click", () => {
 	const registerButton = document.getElementById("registerButton");
 	const playSelect = document.getElementById("playSelect");
 	const loginButton = document.getElementById("loginButton");
@@ -595,6 +581,156 @@ document.getElementById("loginButton")?.addEventListener("click", () =>
 
 	showGeneralLoginModal(game);
 });
+
+/** Create WebSocket connection */
+function createWebSocketConnection(username: string) {
+	game.websocket = new WebSocket(`ws://localhost:3000/ws?username=${username}`);
+
+	game.websocket.onopen = () => {
+		console.log("✅ WebSocket connection established successfully!");
+		// Send test message AFTER connection is established
+	};
+
+	game.websocket.onmessage = (event) => {
+		console.log("📥 Received from server:", event.data);
+		handleWebSocketMessage(event);
+	};
+
+	game.websocket.onclose = () => {
+		console.log("WebSocket connection closed.");
+	};
+
+	game.websocket.onerror = (error) => {
+		console.error("❌ WebSocket error:", error);
+	};
+}
+
+function getFriendList(username: string) {
+	fetch(`/getFriendList?username=${encodeURIComponent(username)}`)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("Failed to fetch friend list.");
+			}
+			return response.json();
+		})
+		.then(data => {
+			console.log("Friend list:", data.friendList);
+			game.friendList = data.friendList || [];
+			const friendListElement = document.getElementById("friendList");
+			if (friendListElement) {
+				friendListElement.innerHTML = ""; // Clear existing list
+				for (const friend of game.friendList) {
+					const listItem = document.createElement("li");
+					listItem.textContent = friend;
+					listItem.id = friend;
+					listItem.style.cursor = "pointer";
+					friendListElement.appendChild(listItem);
+				}
+			}
+		})
+		.catch(error => {
+			console.error("Error fetching friend list:", error);
+		});
+}
+
+function getFriendRequestList(username: string) {
+	fetch(`/getFriendRequestList?username=${encodeURIComponent(username)}`)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("Failed to fetch friend request list.");
+			}
+			return response.json();
+		})
+		.then(data => {
+			console.log("Friend request list:", data.friendRequestList);
+			game.friendRequestList = data.friendRequestList || [];
+			if (game.friendRequestList.length === 0) {
+				const friendRequestListElement = document.getElementById("friendRequestsList");
+				if (friendRequestListElement) {
+					friendRequestListElement.innerHTML = "<li>No friend requests</li>";
+				}
+			}
+			const friendRequestListElement = document.getElementById("friendRequestsList");
+			if (friendRequestListElement) {
+				friendRequestListElement.innerHTML = ""; // Clear existing list
+				for (const request of game.friendRequestList) {
+					const listItem = document.createElement("li");
+					listItem.textContent = request;
+					listItem.id = request;
+					listItem.style.cursor = "pointer";
+					friendRequestListElement.appendChild(listItem);
+				}
+			}
+		})
+		.catch(error => {
+			console.error("Error fetching friend request list:", error);
+		});
+}
+
+function getRejectedFriendRequests(username: string) {
+	fetch(`/getRejectedFriendRequests?username=${encodeURIComponent(username)}`)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("Failed to fetch rejected friend requests.");
+			}
+			return response.json();
+		})
+		.then(data => {
+			console.log("Rejected friend requests:", data.rejectedFriendRequests);
+			game.rejectedFriendRequests = data.rejectedFriendRequests || [];
+			for (const request of game.rejectedFriendRequests) {
+				alert(`Rejected friend request from: ${request}`);
+			}
+		})
+		.catch(error => {
+			console.error("Error fetching rejected friend requests:", error);
+		});
+}
+
+document.getElementById("friendRequestsList")?.addEventListener("click", (e) => {
+	const target = e.target as HTMLElement;
+	if (target.tagName === "LI") {
+		console.log(`${target.textContent} clicked`);
+		const friendName = target.id;
+		const reply = confirm(`Do you want to accept the friend request from ${friendName}?`);
+		if (reply) {
+			fetch(`/acceptFriendRequest?username=${encodeURIComponent(friendName)}&friendname=${encodeURIComponent(game.username)}`)
+				.then(response => {
+					if (!response.ok) {
+						throw new Error("Failed to send accept friend request.");
+					}
+					return response.json();
+				})
+				.then(data => {
+					console.log("Friend request accepted:", data);
+					getFriendList(game.username);
+					getFriendRequestList(game.username);
+				})
+				.catch(error => {
+					console.error("Error accepting friend request:", error);
+				});
+		} else {
+			fetch(`/rejectFriendRequest?username=${encodeURIComponent(friendName)}&friendname=${encodeURIComponent(game.username)}`)
+				.then(response => {
+					if (!response.ok) {
+						throw new Error("Failed to send reject friend request.");
+					}
+					return response.json();
+				})
+				.then(data => {
+					console.log("Friend request rejected:", data);
+					getFriendList(game.username);
+					getFriendRequestList(game.username);
+				})
+				.catch(error => {
+					console.error("Error rejecting friend request:", error);
+				});
+		}
+	}
+});
+
+
+
 
 document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 	e.preventDefault();
@@ -625,6 +761,7 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			}
 			alert("Login successful!");
 			hideGeneralLoginModal();
+			game.username = loginPlayer.username; // this is just for the note who is login now.
 			emptyLoginFields("loginGeneral");
 			game.players.push({
 				name: loginPlayer.username,
@@ -633,7 +770,12 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 				playerscore: 0,
 			}
 			);
-			restoreScreen();
+			createWebSocketConnection(loginPlayer.username);
+			// get the friend list
+			getFriendList(loginPlayer.username);
+			getFriendRequestList(loginPlayer.username);
+			getRejectedFriendRequests(loginPlayer.username);
+			// restoreScreen();
 			// location.reload();
 			return response.json();
 		})
@@ -641,6 +783,150 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			console.error("Error during Login:", error);
 		});
 });
+
+// ------------------------------------------------add friend-------------------------------------
+document.getElementById("sendMessage")?.addEventListener("click", () => {
+	const input = document.getElementById("inputMessageBox") as HTMLInputElement;
+	const inputMessage: string = input.value.trim();
+	if (game.websocket) {
+		game.websocket.send(JSON.stringify({
+			type: "privateMessage",
+			target: game.sendMessageTo,
+			from: game.username,
+			message: inputMessage
+		}));
+	}
+	input.value = "";
+});
+
+document.getElementById("friendList")?.addEventListener("click", (e) => {
+	const target = e.target as HTMLElement;
+	if (target.tagName === "LI") {
+		console.log(`${target.textContent} clicked`);
+		game.sendMessageTo = target.id;
+		console.log(`Message will be sent to: ${game.sendMessageTo}`);
+		fetch(`/getChatHistory?username=${encodeURIComponent(game.username)}&friendname=${encodeURIComponent(game.sendMessageTo)}`)
+			.then(response => {
+				if (!response.ok) {
+					throw new Error("Failed to fetch chat history.");
+				}
+				return response.json();
+			})
+			.then(data => {
+				console.log("Chat history:", data.chatHistory);
+				game.chatHistory = data.chatHistory || [];
+				const chatHistoryElement = document.getElementById("friendList2");
+				if (chatHistoryElement) {
+					chatHistoryElement.innerHTML = ""; // Clear existing chat history
+					for (const message of game.chatHistory) {
+						const messageElement = document.createElement("LI");
+						messageElement.textContent = message;
+						chatHistoryElement.appendChild(messageElement);
+					}
+					chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
+				}
+			})
+			.catch(error => {
+				console.error("Error fetching chat history:", error);
+			});
+	}
+});
+
+document.getElementById("friendList2")?.addEventListener("click", (e) => {// this is also just a test
+	const target = e.target as HTMLElement;
+	if (target.tagName === "LI") {
+		console.log(`${target.textContent} clicked`);
+
+		// Handle specific items
+		if (target.id === "Rank: Pro") {
+			console.log("I love this rank!");
+			// Handle rank logic here
+		}
+	}
+});
+
+document.getElementById("addFriend")?.addEventListener("click", () => {
+	const friendName = prompt("Enter the name of the friend to add:");
+	if (friendName) {
+		if (game.friendList.includes(friendName)) {
+			alert("Friend already added!");
+		} else if (game.username === friendName) {
+			alert("You cannot add yourself as a friend!");
+		} else {
+			fetch(`/addFriend?nameToAdd=${encodeURIComponent(friendName)}&accountName=${encodeURIComponent(game.username)}`)
+				.then(response => {
+					if (response.status === 202) {
+						alert("Friend request sent!");
+					} else if (response.ok) {
+						alert("Friend added successfully!");
+						const friendList = document.getElementById("friendList");
+						if (friendList) {
+							const newFriendItem = document.createElement("li");
+							newFriendItem.id = friendName;
+							newFriendItem.textContent = friendName;
+							friendList.appendChild(newFriendItem);
+						}
+						fetch(`/addFriendlist`, {
+							method: "PUT",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({
+								username: game.username,
+								friendname: friendName
+							})
+						})
+					} else {
+						alert("Failed to add friend.");
+					}
+				})
+		}
+	} else {
+		alert("Friend name cannot be empty!");
+	}
+});
+
+function handleFriendRequest(data: any) {
+	const friendName = data.from;
+	const result = confirm(`Do you want to accept the friend request from ${friendName}?`);
+	if (result) {
+		game.websocket?.send(JSON.stringify({ reply: "accept" }));
+		const friendList = document.getElementById("friendList");
+		if (friendList) {
+			const newFriendItem = document.createElement("li");
+			newFriendItem.id = friendName;
+			newFriendItem.style.cursor = "pointer";
+			newFriendItem.textContent = friendName;
+			friendList.appendChild(newFriendItem);
+		}
+	} else {
+		game.websocket?.send(JSON.stringify({ reply: "decline" }));
+	}
+}
+
+function handlePrivateMessage(data: any) {
+	const { from, message } = data;
+	const chatHistoryElement = document.getElementById("friendList2");
+	if (chatHistoryElement) {
+		const messageElement = document.createElement("LI");
+		messageElement.textContent = `${from}: ${message}`;
+		chatHistoryElement.appendChild(messageElement);
+		chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
+	}
+}
+
+function handleWebSocketMessage(event: MessageEvent) {
+	const data = JSON.parse(event.data);
+	switch (data.type) {
+		case "friendRequest":
+			handleFriendRequest(data);
+			break;
+		case "privateMessage":
+			handlePrivateMessage(data);
+			break;
+	}
+};
+
+
+
 
 document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
 	hideGeneralLoginModal();
@@ -686,20 +972,20 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(loginPlayer),
 			})
-			.then((response) => {
-				if (!response.ok) {
-					alert("Login failed. Please try again.");
-					return;
-				}
-				alert("Login successful!");
-				// return response.json();
-			})
-			.then((data) => {
-				console.log("Login successful:", data);
-			})
-			.catch(error => {
-				console.error("Error during Login:", error);
-			});
+				.then((response) => {
+					if (!response.ok) {
+						alert("Login failed. Please try again.");
+						return;
+					}
+					alert("Login successful!");
+					// return response.json();
+				})
+				.then((data) => {
+					console.log("Login successful:", data);
+				})
+				.catch(error => {
+					console.error("Error during Login:", error);
+				});
 			emptyLoginFields("loginTournament");
 			game.t.players.push({ name: username, score: 0 });
 			hidetournamentRegistrationModal();
@@ -709,8 +995,7 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
 }
 
 
-async function tournamentRegisterPlayers (game: GameInfo): Promise<void> 
-{
+async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 	const players: PlayerLogin[] = [];
 	for (let i = 1; i <= 4; i++) {
 		const player = await registerPlayer(i, game);
@@ -719,14 +1004,14 @@ async function tournamentRegisterPlayers (game: GameInfo): Promise<void>
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(player),
 		})
-		.then((response) => {
-			if (!response.ok) {
-				tournamentEnd(0, game);
-				restoreScreen();
-				// location.reload();
-				return;
-			}
-		})
+			.then((response) => {
+				if (!response.ok) {
+					tournamentEnd(0, game);
+					restoreScreen();
+					// location.reload();
+					return;
+				}
+			})
 		players.push(player);
 		game.players.push({ name: players[players.length - 1].username, gamesLost: 0, gamesWon: 0, playerscore: 0 });
 	}
@@ -785,7 +1070,7 @@ document.getElementById("WinnerScreenContinue")?.addEventListener("click", () =>
 });
 
 
-document.getElementById("playSelect")?.addEventListener("change",(event:Event) => {
+document.getElementById("playSelect")?.addEventListener("change", (event: Event) => {
 	const playSelect = document.getElementById("playSelect") as HTMLSelectElement;
 	const target = event.target as HTMLSelectElement;
 	const selectedOption = target.value;
@@ -815,10 +1100,10 @@ document.getElementById("playSelect")?.addEventListener("change",(event:Event) =
 				tournamentRegisterPlayers(game);
 				break;
 			case "multiplayer":
-				
+
 				break
 			case "1v1":
-				
+
 				break
 			default:
 				break;
@@ -863,8 +1148,7 @@ function drawCircle(x: number, y: number, radius: number): void {
 	ctx.closePath();
 }
 
-function calculatePaddleCoords(): void
-{
+function calculatePaddleCoords(): void {
 	if (keysPressed["ArrowUp"]) {
 		fetch("/pressArrowUp");
 	}
@@ -883,44 +1167,40 @@ function getGameStatus(): void {
 	if (!gamefinished) {
 		var length = game.t.matches.length;
 		fetch("/getstatus")
-		.then(response => response.json())
-		.then(data => {
-			game.ball.ballX = data.ballX;
-			game.ball.ballY = data.ballY;
-			game.player1Paddle.y = data.player1_y;
-			game.player2Paddle.y = data.player2_y;
-			if (game.tournamentLoopActive && length)
-			{
-				game.t.matches[length -1].player1.score = data.player1_score;
-				game.t.matches[length -1].player2.score = data.player2_score;
-			}
-			else
-			{
-				game.players[0].playerscore = data.player1_score;
-				game.players[1].playerscore = data.player2_score;
-			}
-			game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
-			if (data.gamefinished) {
-				fetch("/resetgame")
-				.then(response => response.json())
-				.then(data => {
-					game.ball.ballX = data.ballX;
-					game.ball.ballY = data.ballY;
-					game.player1Paddle.y = data.player1_y;
-					game.player2Paddle.y = data.player2_y;
-					if (game.tournamentLoopActive)
-					{
-						game.t.matches[length -1].player1.score = data.player1_score;
-						game.t.matches[length -1].player2.score = data.player2_score;
-					}
-					else
-					{
-						game.players[0].playerscore = data.player1_score;
-						game.players[1].playerscore = data.player2_score;
-					}
-				});
-			}
-		});
+			.then(response => response.json())
+			.then(data => {
+				game.ball.ballX = data.ballX;
+				game.ball.ballY = data.ballY;
+				game.player1Paddle.y = data.player1_y;
+				game.player2Paddle.y = data.player2_y;
+				if (game.tournamentLoopActive && length) {
+					game.t.matches[length - 1].player1.score = data.player1_score;
+					game.t.matches[length - 1].player2.score = data.player2_score;
+				}
+				else {
+					game.players[0].playerscore = data.player1_score;
+					game.players[1].playerscore = data.player2_score;
+				}
+				game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
+				if (data.gamefinished) {
+					fetch("/resetgame")
+						.then(response => response.json())
+						.then(data => {
+							game.ball.ballX = data.ballX;
+							game.ball.ballY = data.ballY;
+							game.player1Paddle.y = data.player1_y;
+							game.player2Paddle.y = data.player2_y;
+							if (game.tournamentLoopActive) {
+								game.t.matches[length - 1].player1.score = data.player1_score;
+								game.t.matches[length - 1].player2.score = data.player2_score;
+							}
+							else {
+								game.players[0].playerscore = data.player1_score;
+								game.players[1].playerscore = data.player2_score;
+							}
+						});
+				}
+			});
 	}
 }
 
@@ -955,11 +1235,11 @@ function tournamentGame(): number {
 		return (0);
 	var length = game.t.matches.length;
 	if (game.t.stage === TournamentStage.Complete)
-			return 1;
+		return 1;
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(game.t.matches[length -1].player1.name + ": " + game.t.matches[length -1].player1.score, 10, 25);
-	ctx.fillText(game.t.matches[length -1].player2.name + ": " + game.t.matches[length -1].player2.score, 10, 50);
+	ctx.fillText(game.t.matches[length - 1].player1.name + ": " + game.t.matches[length - 1].player1.score, 10, 25);
+	ctx.fillText(game.t.matches[length - 1].player2.name + ": " + game.t.matches[length - 1].player2.score, 10, 50);
 	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
 	calculatePaddleCoords();
 	drawMiddlePath();
@@ -972,8 +1252,7 @@ function tournamentGame(): number {
 }
 
 function updateGame(): void {
-	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration)
-	{
+	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration) {
 		if (game.players.length >= 2 && !game.tournamentLoopActive) {
 			singlePlayerGame();
 		}

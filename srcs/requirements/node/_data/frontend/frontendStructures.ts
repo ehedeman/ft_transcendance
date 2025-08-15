@@ -135,6 +135,20 @@ export class GameInfo {
 
 	tournamentLoopActive: boolean;
 
+	websocket?: WebSocket;// for the websocket connection
+
+	username: string;
+
+	sendMessageTo: string;
+
+	friendList: string[];
+
+	chatHistory: string[];
+
+	friendRequestList: string[];
+
+	rejectedFriendRequests: string[];
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();
@@ -154,6 +168,17 @@ export class GameInfo {
 
 		this.tournamentLoopActive = false;
 		
+		this.username = "";
+
+		this.sendMessageTo = "";
+
+		this.friendList = [];
+
+		this.chatHistory = [];
+
+		this.friendRequestList = [];
+
+		this.rejectedFriendRequests = [];
 	}
 }
 
