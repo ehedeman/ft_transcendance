@@ -1,6 +1,7 @@
 import fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
+import websocket from '@fastify/websocket';
 import Database from 'better-sqlite3';
 import bcrypt from 'bcrypt'; // for hashing password
 import fastifyMultipart from '@fastify/multipart';
@@ -9,9 +10,9 @@ import { promisify } from 'util';
 import { createWriteStream } from 'fs';
 const saltRounds = 10;
 
-const app = fastify();
+const app = fastify({ logger: true });
 
-app.register(fastifyMultipart);
+await app.register(websocket);
 
 const pump = promisify(pipeline);
 
@@ -48,6 +49,23 @@ CREATE TABLE IF NOT EXISTS users (
 	status TEXT DEFAULT 'offline',
 	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create the newFriend table
+CREATE TABLE IF NOT EXISTS newFriend (
+    username TEXT NOT NULL,
+    friendname TEXT NOT NULL,
+	status TEXT DEFAULT 'accepted',
+    UNIQUE (username, friendname)
+);
+
+-- Create new chat history table
+CREATE TABLE IF NOT EXISTS chatHistory (
+	sender TEXT NOT NULL,
+	receiver TEXT NOT NULL,
+	message TEXT NOT NULL,
+	status TEXT DEFAULT 'sent',
+	timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS friends (
@@ -580,6 +598,273 @@ app.put('/debug/users/:username/password', async (request, reply) => {
 	} catch (err) {
 		reply.status(500).send({ error: 'Database error' });
 	}
+});
+
+app.put('/debug/friends', async (request, reply) => {
+	try {
+		const stmt = db.prepare(`SELECT id, user_id, friend_id FROM friends`);
+		const friends = stmt.all();
+		reply.send({ friends });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+function handlePrivateMessage(message: any) {
+	const targetSocket = game.sockets.get(message.target);
+	if (targetSocket) {
+		targetSocket.send(JSON.stringify(message));
+	}
+	const sourceSocket = game.sockets.get(message.from);
+	if (sourceSocket) {
+		sourceSocket.send(JSON.stringify(message));
+	}
+	// Save chat history to the database
+	try {
+		const stmt = db.prepare(`INSERT INTO chatHistory (sender, receiver, message) VALUES (?, ?, ?)`);
+		stmt.run(message.from, message.target, message.message);
+	} catch (err) {
+		console.error('Error saving chat history:', err);
+	}
+}
+
+function handleWebSocketMessageServer(data: string) {
+	const message = JSON.parse(data);
+	switch (message.type) {
+		case 'privateMessage':
+			handlePrivateMessage(message);
+			break;
+		// Add more cases as needed
+	}
+}
+
+app.get('/ws', { websocket: true }, (socket, req) => { // login received
+	console.log('=== WebSocket Handler Called ===');
+
+	// Extract username from query parameters
+	const { username } = req.query as { username: string };
+	console.log(`User connected: ${username || 'anonymous'}`);
+
+	// Set up message handler
+	socket.on('message', (data) => {
+		console.log(`✅ Received from ${username}`);
+		const strData = data.toString();
+		handleWebSocketMessageServer(strData);
+	});
+
+	// Handle connection close
+	socket.on('close', () => {
+		console.log(`User ${username} disconnected`);
+	});
+
+	game.sockets.set(username, socket);
+
+	// this is for debugging purposes
+	console.log(`----------------------------------------------------------`);
+	for (const [key, value] of game.sockets.entries()) {
+		console.log(`Socket for ${key}: ${value}`);
+	}
+	console.log(`----------------------------------------------------------`);
+});
+
+app.get('/addFriend', (request, rep) => {
+	const { nameToAdd, accountName } = request.query as {
+		nameToAdd: string;
+		accountName: string;
+	};
+	console.log(`Friend request: ${accountName} wants to add ${nameToAdd}`);
+	// check if the user exist
+	const userExists = db.prepare(`SELECT * FROM users WHERE Full_Name = ?`).get(nameToAdd);
+	if (!userExists) {
+		rep.status(404).send({ error: 'User not found' });
+		return;
+	} else {
+		db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, ?)`).run(accountName, nameToAdd, 'pending');
+	}
+	// Check if the user is online
+	if (game.sockets.has(nameToAdd)) {//this will change into searching in the database
+		game.sockets.get(nameToAdd).send(JSON.stringify({// this will change into finding if the user on line
+			type: 'friendRequest',
+			to: nameToAdd,//b
+			from: accountName//a
+		}));
+		game.sockets.get(nameToAdd).on('message', (data) => {
+			const strData = data.toString();
+			const replyMessage: any = JSON.parse(strData);
+			if (replyMessage.reply === "accept") {// change the database status
+				db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`)
+					.run(accountName, nameToAdd);
+				rep.send({ message: `Friend '${nameToAdd}' added successfully` });
+			} else {
+				rep.status(404).send({ error: 'User not found' });
+			}
+		});
+	} else {
+		rep.status(202).send({ message: 'Friend request sent' });
+	}
+});
+
+app.put('/addFriendlist', async (request, reply) => {
+	const { username, friendname } = request.body as {
+		username: string;
+		friendname: string;
+	};
+
+	if (!username || !friendname) {
+		reply.status(400).send({ error: 'Username and friendname are required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`INSERT INTO newFriend (username, friendname) VALUES (?, ?)`);
+		stmt.run(username, friendname);
+		reply.send({ message: `Friend '${friendname}' added to ${username}'s friend list` });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get('/debug/newfriend', async (request, reply) => {
+	try {
+		const stmt = db.prepare(`SELECT * FROM newFriend`);
+		const friends = stmt.all();
+		reply.send({ friends });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get('/getFriendList', async (request, reply) => {
+	const { username } = request.query as { username: string };
+	if (!username) {
+		reply.status(400).send({ error: 'Username is required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`SELECT friendname FROM newFriend WHERE username = ? AND status = 'accepted'`);
+		const rows = stmt.all(username);
+		const friends = rows.map(row => row.friendname);
+		reply.send({ friendList: friends });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get(`/debug/chatHistory`, async (request, reply) => {
+	try {
+		const stmt = db.prepare(`SELECT * FROM chatHistory`);
+		const chatHistory = stmt.all();
+		reply.send({ chatHistory });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get(`/getChatHistory`, async (request, reply) => {
+	const { username, friendname } = request.query as {
+		username: string;
+		friendname: string;
+	};
+	if (!username || !friendname) {
+		reply.status(400).send({ error: 'Username and friendname are required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`SELECT * FROM chatHistory WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)`);
+		const chatHistory = stmt.all(username, friendname, friendname, username);
+		const chatHistory1 = chatHistory.map((row) => row.sender + ": " + row.message);
+		reply.send({ chatHistory: chatHistory1 });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get(`/getFriendRequestList`, async (request, reply) => {
+	const { username } = request.query as { username: string };
+	if (!username) {
+		reply.status(400).send({ error: 'Username is required' });
+		return;
+	}
+	try {
+		const stmt = db.prepare(`SELECT * FROM newFriend WHERE friendname = ? AND status = 'pending'`);
+		const friendRequests = stmt.all(username);
+		const friendRequestList = friendRequests.map((row) => row.username);
+		reply.send({ friendRequestList });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get(`/acceptFriendRequest`, async (request, reply) => {
+	const { username, friendname } = request.query as {
+		username: string;
+		friendname: string;
+	};
+
+	if (!username || !friendname) {
+		reply.status(400).send({ error: 'Username and friendname are required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`);
+		stmt.run(username, friendname);
+		const stmt2 = db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, 'accepted')`);
+		stmt2.run(friendname, username);
+		reply.send({ message: `Friend request from ${friendname} accepted` });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+});
+
+app.get(`/rejectFriendRequest`, async (request, reply) => {
+	const { username, friendname } = request.query as {
+		username: string;
+		friendname: string;
+	};
+
+	if (!username || !friendname) {
+		reply.status(400).send({ error: 'Username and friendname are required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`UPDATE newFriend SET status = 'rejected' WHERE username = ? AND friendname = ?`);
+		stmt.run(username, friendname);
+		reply.send({ message: `Friend request from ${friendname} rejected` });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+	if (game.sockets.has(friendname)) {
+		game.sockets.get(friendname).send(JSON.stringify({
+			type: 'friendRequestResponse',
+			from: username,
+			response: 'rejected'
+		}));
+	} else {
+		return;
+	}
+});
+
+app.get(`/getRejectedFriendRequests`, async (request, reply) => {
+	const { username } = request.query as { username: string };
+	if (!username) {
+		reply.status(400).send({ error: 'Username is required' });
+		return;
+	}
+
+	try {
+		const stmt = db.prepare(`SELECT * FROM newFriend WHERE username = ? AND status = 'rejected'`);
+		const friendRequests = stmt.all(username);
+		const rejectedFriendRequests = friendRequests.map((row) => row.friendname);
+		reply.send({ rejectedFriendRequests });
+	} catch (err) {
+		reply.status(500).send({ error: 'Database error' });
+	}
+	const stmt2 = db.prepare(`DELETE FROM newFriend WHERE username = ? AND status = 'rejected'`);
+	stmt2.run(username);
 });
 
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
