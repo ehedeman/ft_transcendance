@@ -8,9 +8,10 @@ import fastifyMultipart from '@fastify/multipart';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 import { createWriteStream } from 'fs';
-const saltRounds = 10;
 
-const app = fastify({ logger: true });
+export const saltRounds = 10;
+
+export const app = fastify({ logger: true });
 
 await app.register(websocket);
 await app.register(fastifyMultipart);
@@ -25,7 +26,7 @@ import { GameInfo, userInfo, loginInfo } from './serverStructures.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-let game = new GameInfo();
+export let game = new GameInfo();
 
 
 import { mkdirSync } from 'fs';
@@ -36,7 +37,7 @@ try {
 	// Directory already exists, ignore
 }
 
-const db = new Database(path.join(__dirname, 'data', 'users.db'));
+export const db = new Database(path.join(__dirname, 'data', 'users.db'));
 
 // Create tables if they don't exist
 db.exec(`
@@ -305,7 +306,7 @@ app.post("/register", async (request, reply) => {
 		} else if (part.type === 'field') {
 			// Handle text fields - v8+ has better type safety for fields
 			const fieldValue = (part as any).value;
-			// console.log("Part:", part.type, part.fieldname, part.filename || part.value); // debug me
+			// console.log("Part:", part.type, part.fieldname, part.filename || part.value);
 			switch (part.fieldname) {
 				case 'name': name = fieldValue; break;
 				case 'username': username = fieldValue; break;
@@ -384,8 +385,8 @@ app.post("/updateUser", async (request, reply) => {
 			reply.status(400).send({ status: 400, message: "Missing user ID" });
 			return;
 		}
-		console.log(password); // debug
-		console.log(id); // debug
+		console.log(password);
+		console.log(id);
 
 		// hash the password if it was changed.
 		let password_hash = password;
@@ -473,410 +474,17 @@ app.post("/login", async (request, reply) => {
 	reply.send({ status: 200, message: 'Login successful', user });
 });
 
-app.get('/debug/users', async (request, reply) => {
-	try {
-		const stmt = db.prepare(`SELECT id, Full_Name, Alias, avatar_url, Country, status, created_at FROM users`);
-		const users = stmt.all();
-		reply.send({ users });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
+import { websocketAndSocketMessage } from './websocketAndSocketMessage.js';
 
-// Debug endpoint to show tables
-app.get('/debug/tables', async (request, reply) => {
-	try {
-		const stmt = db.prepare(`SELECT name FROM sqlite_master WHERE type='table'`);
-		const tables = stmt.all();
-		reply.send({ tables });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
+websocketAndSocketMessage(app, db, game);
 
-app.delete('/debug/users/:username', async (request, reply) => {
-	try {
-		const { username } = request.params as { username: string };
-		const stmt = db.prepare(`DELETE FROM users WHERE Alias = ?`);
-		const result = stmt.run(username);
+import { debugFunctions } from "./Debug.js";
 
-		if (result.changes === 0) {
-			reply.status(404).send({ error: 'User not found' });
-		} else {
-			reply.send({ message: `User '${username}' deleted successfully`, deletedRows: result.changes });
-		}
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
+debugFunctions(app, db);
 
-// Update user endpoint
-app.put('/debug/users/:username', async (request, reply) => {
-	try {
-		const { username } = request.params as { username: string };
-		const { Full_Name, avatar_url, status } = request.body as {
-			Full_Name?: string;
-			avatar_url?: string;
-			status?: string;
-		};
+import { friendSystem } from './friendSystem.js';
 
-		// Build dynamic UPDATE query based on provided fields
-		const updates: string[] = [];
-		const values: any[] = [];
-
-		if (Full_Name !== undefined) {
-			updates.push('Full_Name = ?');
-			values.push(Full_Name);
-		}
-		if (avatar_url !== undefined) {
-			updates.push('avatar_url = ?');
-			values.push(avatar_url);
-		}
-		if (status !== undefined) {
-			updates.push('status = ?');
-			values.push(status);
-		}
-
-		if (updates.length === 0) {
-			reply.status(400).send({ error: 'No fields to update provided' });
-			return;
-		}
-
-		// Add updated_at timestamp
-		updates.push('updated_at = CURRENT_TIMESTAMP');
-
-		// Add username to values array for WHERE clause
-		values.push(username);
-
-		const query = `UPDATE users SET ${updates.join(', ')} WHERE Alias = ?`;
-		const stmt = db.prepare(query);
-		const result = stmt.run(...values);
-
-		if (result.changes === 0) {
-			reply.status(404).send({ error: 'User not found' });
-		} else {
-			reply.send({
-				message: `User '${username}' updated successfully`,
-				updatedRows: result.changes,
-				updatedFields: updates.slice(0, -1) // Remove the timestamp update from display
-			});
-		}
-	} catch (err: any) {
-		if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-			reply.status(400).send({ error: 'Full_Name must be unique' });
-		} else {
-			reply.status(500).send({ error: 'Database error' });
-		}
-	}
-});
-
-// Update user password endpoint
-app.put('/debug/users/:username/password', async (request, reply) => {
-	try {
-		const { username } = request.params as { username: string };
-		const { newPassword } = request.body as { newPassword: string };
-
-		if (!newPassword || newPassword.trim() === '') {
-			reply.status(400).send({ error: 'New password is required' });
-			return;
-		}
-
-		const password_hash = await bcrypt.hash(newPassword, saltRounds);
-
-		const stmt = db.prepare(`
-			UPDATE users 
-			SET password_hash = ?, updated_at = CURRENT_TIMESTAMP 
-			WHERE Alias = ?
-		`);
-		const result = stmt.run(password_hash, username);
-
-		if (result.changes === 0) {
-			reply.status(404).send({ error: 'User not found' });
-		} else {
-			reply.send({
-				message: `Password for user '${username}' updated successfully`,
-				updatedRows: result.changes
-			});
-		}
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
-
-app.put('/debug/friends', async (request, reply) => {
-	try {
-		const stmt = db.prepare(`SELECT id, user_id, friend_id FROM friends`);
-		const friends = stmt.all();
-		reply.send({ friends });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
-
-function handlePrivateMessage(message: any) {
-	const targetSocket = game.sockets.get(message.target);
-	if (targetSocket) {
-		targetSocket.send(JSON.stringify(message));
-	}
-	const sourceSocket = game.sockets.get(message.from);
-	if (sourceSocket) {
-		sourceSocket.send(JSON.stringify(message));
-	}
-	// Save chat history to the database
-	try {
-		const stmt = db.prepare(`INSERT INTO chatHistory (sender, receiver, message) VALUES (?, ?, ?)`);
-		stmt.run(message.from, message.target, message.message);
-	} catch (err) {
-		console.error('Error saving chat history:', err);
-	}
-}
-
-function handleWebSocketMessageServer(data: string) {
-	const message = JSON.parse(data);
-	switch (message.type) {
-		case 'privateMessage':
-			handlePrivateMessage(message);
-			break;
-		// Add more cases as needed
-	}
-}
-
-app.get('/ws', { websocket: true }, (socket, req) => { // login received
-	console.log('=== WebSocket Handler Called ===');
-
-	// Extract username from query parameters
-	const { username } = req.query as { username: string };
-	console.log(`User connected: ${username || 'anonymous'}`);
-
-	// Set up message handler
-	socket.on('message', (data) => {
-		console.log(`✅ Received from ${username}`);
-		const strData = data.toString();
-		handleWebSocketMessageServer(strData);
-	});
-
-	// Handle connection close
-	socket.on('close', () => {
-		console.log(`User ${username} disconnected`);
-	});
-
-	game.sockets.set(username, socket);
-
-	// this is for debugging purposes
-	console.log(`----------------------------------------------------------`);
-	for (const [key, value] of game.sockets.entries()) {
-		console.log(`Socket for ${key}: ${value}`);
-	}
-	console.log(`----------------------------------------------------------`);
-});
-
-app.get('/addFriend', (request, rep) => {
-	const { nameToAdd, accountName } = request.query as {
-		nameToAdd: string;
-		accountName: string;
-	};
-	console.log(`Friend request: ${accountName} wants to add ${nameToAdd}`);
-	// check if the user exist
-	const userExists = db.prepare(`SELECT * FROM users WHERE Full_Name = ?`).get(nameToAdd);
-	if (!userExists) {
-		rep.status(404).send({ error: 'User not found' });
-		return;
-	} else {
-		db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, ?)`).run(accountName, nameToAdd, 'pending');
-	}
-	// Check if the user is online
-	if (game.sockets.has(nameToAdd)) {
-		const tempSocket = game.sockets.get(nameToAdd);
-		if (tempSocket) {
-			tempSocket.send(JSON.stringify({
-				type: 'friendRequest',
-				to: nameToAdd,//b
-				from: accountName//a
-			}));
-		}
-		if (tempSocket) {
-			tempSocket.on('message', (data) => {
-				const strData = data.toString();
-				const replyMessage: any = JSON.parse(strData);
-				if (replyMessage.reply === "accept") {// change the database status
-					db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`)
-						.run(accountName, nameToAdd);
-					rep.send({ message: `Friend '${nameToAdd}' added successfully` });
-				} else {
-					rep.status(404).send({ error: 'User not found' });
-				}
-			});
-		}
-	} else {
-		rep.status(202).send({ message: 'Friend request sent' });
-	}
-});
-
-app.put('/addFriendlist', async (request, reply) => {
-	const { username, friendname } = request.body as {
-		username: string;
-		friendname: string;
-	};
-
-	if (!username || !friendname) {
-		reply.status(400).send({ error: 'Username and friendname are required' });
-		return;
-	}
-
-	try {
-		const stmt = db.prepare(`INSERT INTO newFriend (username, friendname) VALUES (?, ?)`);
-		stmt.run(username, friendname);
-		reply.send({ message: `Friend '${friendname}' added to ${username}'s friend list` });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
-
-app.get('/debug/newfriend', async (request, reply) => {
-	try {
-		const stmt = db.prepare(`SELECT * FROM newFriend`);
-		const friends = stmt.all();
-		reply.send({ friends });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
-
-app.get('/getFriendList', async (request, reply) => {
-	const { username } = request.query as { username: string };
-	if (!username) {
-		reply.status(400).send({ error: 'Username is required' });
-		return;
-	}
-
-	try {
-		const stmt = db.prepare(`SELECT friendname FROM newFriend WHERE username = ? AND status = 'accepted'`);
-		const rows = stmt.all(username) as { friendname: string }[];
-		const friends = rows.map(row => row.friendname);
-		reply.send({ friendList: friends });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
-
-app.get(`/debug/chatHistory`, async (request, reply) => {
-	try {
-		const stmt = db.prepare(`SELECT * FROM chatHistory`);
-		const chatHistory = stmt.all();
-		reply.send({ chatHistory });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
-
-app.get(`/getChatHistory`, async (request, reply) => {
-	const { username, friendname } = request.query as {
-		username: string;
-		friendname: string;
-	};
-	if (!username || !friendname) {
-		reply.status(400).send({ error: 'Username and friendname are required' });
-		return;
-	}
-
-	try {
-		const stmt = db.prepare(`SELECT * FROM chatHistory WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)`);
-		const chatHistory = stmt.all(username, friendname, friendname, username) as { sender: string; receiver: string; message: string; status: string; timestamp: string }[];
-		const chatHistory1 = chatHistory.map((row) => row.sender + ": " + row.message);
-		reply.send({ chatHistory: chatHistory1 });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
-
-app.get(`/getFriendRequestList`, async (request, reply) => {
-	const { username } = request.query as { username: string };
-	if (!username) {
-		reply.status(400).send({ error: 'Username is required' });
-		return;
-	}
-	try {
-		const stmt = db.prepare(`SELECT * FROM newFriend WHERE friendname = ? AND status = 'pending'`);
-		const friendRequests = stmt.all(username) as { username: string; friendname: string; status: string }[];
-		const friendRequestList = friendRequests.map((row) => row.username);
-		reply.send({ friendRequestList });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
-
-app.get(`/acceptFriendRequest`, async (request, reply) => {
-	const { username, friendname } = request.query as {
-		username: string;
-		friendname: string;
-	};
-
-	if (!username || !friendname) {
-		reply.status(400).send({ error: 'Username and friendname are required' });
-		return;
-	}
-
-	try {
-		const stmt = db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`);
-		stmt.run(username, friendname);
-		const stmt2 = db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, 'accepted')`);
-		stmt2.run(friendname, username);
-		reply.send({ message: `Friend request from ${friendname} accepted` });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-});
-
-app.get(`/rejectFriendRequest`, async (request, reply) => {
-	const { username, friendname } = request.query as {
-		username: string;
-		friendname: string;
-	};
-
-	if (!username || !friendname) {
-		reply.status(400).send({ error: 'Username and friendname are required' });
-		return;
-	}
-
-	try {
-		const stmt = db.prepare(`UPDATE newFriend SET status = 'rejected' WHERE username = ? AND friendname = ?`);
-		stmt.run(username, friendname);
-		reply.send({ message: `Friend request from ${friendname} rejected` });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-	if (game.sockets.has(friendname)) {
-		const socket = game.sockets.get(friendname);
-		if (socket) {
-			socket.send(JSON.stringify({
-				type: 'friendRequestResponse',
-				from: username,
-				response: 'rejected'
-			}));
-		}
-	} else {
-		return;
-	}
-});
-
-app.get(`/getRejectedFriendRequests`, async (request, reply) => {
-	const { username } = request.query as { username: string };
-	if (!username) {
-		reply.status(400).send({ error: 'Username is required' });
-		return;
-	}
-
-	try {
-		const stmt = db.prepare(`SELECT * FROM newFriend WHERE username = ? AND status = 'rejected'`);
-		const friendRequests = stmt.all(username) as { friendname: string }[];
-		const rejectedFriendRequests = friendRequests.map((row) => row.friendname);
-		reply.send({ rejectedFriendRequests });
-	} catch (err) {
-		reply.status(500).send({ error: 'Database error' });
-	}
-	const stmt2 = db.prepare(`DELETE FROM newFriend WHERE username = ? AND status = 'rejected'`);
-	stmt2.run(username);
-});
+friendSystem(app, db, game);
 
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
 	if (err) throw err;

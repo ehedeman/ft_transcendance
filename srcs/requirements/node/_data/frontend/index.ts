@@ -6,7 +6,7 @@ import { userInfo } from "./serverStructures.js";
 
 let rounds = 1;
 
-let game = new GameInfo();
+export let game = new GameInfo();
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 export const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -206,104 +206,6 @@ document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
 		})
 		.catch(err => console.error("Update failed", err));
 });
-
-
-
-// async function setSettingFields(loginPlayer: PlayerLogin): Promise<boolean> {
-// 	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
-// 	const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
-// 	const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
-// 	const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
-// 	const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLInputElement;
-// 	const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
-// 	fetch("/userInfo", {
-// 		method: "POST",
-// 		headers: { "Content-Type": "application/json" },
-// 		body: JSON.stringify({ username: loginPlayer.username })
-// 	})
-// 	.then(response => response.json())
-// 	.then(data => {
-// 		var	playerInfo = {
-// 			id: data.id, 
-// 			name: data.fullName,
-// 			username: data.alias,
-// 			country: data.country,
-// 			avatar: data.avatarPath,
-// 			password: data.password
-// 		}
-// 		// avatarUpload.src = playerInfo.avatar;
-// 		settingsName.placeholder = playerInfo.name;
-// 		settingsUsername.placeholder = playerInfo.username;
-// 		settingsPassword.placeholder = "Enter new password";
-// 		settingsCountry.placeholder = playerInfo.country;
-// 		avatarUpload.src = playerInfo.avatar;
-// 		avatarPreviewSettings.src = playerInfo.avatar;
-// 		//set values so settings can be overwritten and arent required
-// 		settingsName.value = playerInfo.name;
-// 		settingsUsername.value = playerInfo.username;
-// 		settingsPassword.value = "";
-// 		settingsCountry.value = playerInfo.country;
-// 		userInfoTemp = {
-// 			id: playerInfo.id,
-// 			Full_Name: playerInfo.name,
-// 			avatar_url: playerInfo.avatar,
-// 			password_hash: playerInfo.password,
-// 			Alias: playerInfo.username,
-// 			Country: playerInfo.country,
-// 			status: "",
-// 			updated_at: "",
-// 			created_at: "",
-// 		}
-// 	})
-// 	// here set fields to what database has currently stored to display in settings
-
-// 	return true;
-// }
-
-// document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
-//     e.preventDefault();
-
-//     const nameInput = document.getElementById("settingsName") as HTMLInputElement;
-//     const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
-//     const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
-//     const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
-//     const avatarFileInput = document.getElementById("avatarUpload") as HTMLInputElement; 
-
-//     const name = nameInput.value.trim();
-//     const username = usernameInput.value.trim();
-//     const password = passwordInput.value.trim(); // empty means "keep old password"
-//     const country = countryInput.value.trim();
-
-//     if (!username || !name || !country) {
-//         alert("Name, username, and country cannot be empty!");
-//         return;
-//     }
-//      console.log(userInfoTemp);
-//     const formData = new FormData();
-// 	formData.append("id", String(userInfoTemp.id));
-//     formData.append("name", name);
-//     formData.append("username", username); 
-//     formData.append("password", password || userInfoTemp.password_hash);
-//     formData.append("country", country);
-
-//     if (avatarFileInput.files && avatarFileInput.files[0]) {
-//         formData.append("avatar", avatarFileInput.files[0]);
-//     } else {
-//         formData.append("avatar_url", userInfoTemp.avatar_url); // keep current avatar
-//     }
-
-//     fetch("/updateUser", {
-//         method: "POST",
-//         body: formData
-//     })
-//     .then(res => res.json())
-//     .then(data => {
-//         alert(data.message);
-//         location.reload();
-//     })
-//     .catch(err => console.error("Update failed", err));
-// });
-
 
 async function loginToSettings(): Promise<boolean> {
 	const usernameInput = document.getElementById("settingsLoginUsername") as HTMLInputElement;
@@ -583,111 +485,11 @@ document.getElementById("loginButton")?.addEventListener("click", () => {
 });
 
 /** Create WebSocket connection */
-function createWebSocketConnection(username: string) {
-	game.websocket = new WebSocket(`ws://localhost:3000/ws?username=${username}`);
 
-	game.websocket.onopen = () => {
-		console.log("✅ WebSocket connection established successfully!");
-		// Send test message AFTER connection is established
-	};
+import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
+import { createWebSocketConnection } from "./websocketConnection.js";
 
-	game.websocket.onmessage = (event) => {
-		console.log("📥 Received from server:", event.data);
-		handleWebSocketMessage(event);
-	};
-
-	game.websocket.onclose = () => {
-		console.log("WebSocket connection closed.");
-	};
-
-	game.websocket.onerror = (error) => {
-		console.error("❌ WebSocket error:", error);
-	};
-}
-
-function getFriendList(username: string) {
-	fetch(`/getFriendList?username=${encodeURIComponent(username)}`)
-		.then(response => {
-			if (!response.ok) {
-				throw new Error("Failed to fetch friend list.");
-			}
-			return response.json();
-		})
-		.then(data => {
-			console.log("Friend list:", data.friendList);
-			game.friendList = data.friendList || [];
-			const friendListElement = document.getElementById("friendList");
-			if (friendListElement) {
-				friendListElement.innerHTML = ""; // Clear existing list
-				for (const friend of game.friendList) {
-					const listItem = document.createElement("li");
-					listItem.textContent = friend;
-					listItem.id = friend;
-					listItem.style.cursor = "pointer";
-					friendListElement.appendChild(listItem);
-				}
-			}
-		})
-		.catch(error => {
-			console.error("Error fetching friend list:", error);
-		});
-}
-
-function getFriendRequestList(username: string) {
-	fetch(`/getFriendRequestList?username=${encodeURIComponent(username)}`)
-		.then(response => {
-			if (!response.ok) {
-				throw new Error("Failed to fetch friend request list.");
-			}
-			return response.json();
-		})
-		.then(data => {
-			console.log("Friend request list:", data.friendRequestList);
-			game.friendRequestList = data.friendRequestList || [];
-			if (game.friendRequestList.length === 0) {
-				const friendRequestListElement = document.getElementById("friendRequestsList");
-				if (friendRequestListElement) {
-					friendRequestListElement.innerHTML = "<li>No friend requests</li>";
-				}
-			}
-			const friendRequestListElement = document.getElementById("friendRequestsList");
-			if (friendRequestListElement) {
-				friendRequestListElement.innerHTML = ""; // Clear existing list
-				for (const request of game.friendRequestList) {
-					const listItem = document.createElement("li");
-					listItem.textContent = request;
-					listItem.id = request;
-					listItem.style.cursor = "pointer";
-					friendRequestListElement.appendChild(listItem);
-				}
-			}
-		})
-		.catch(error => {
-			console.error("Error fetching friend request list:", error);
-		});
-}
-
-function getRejectedFriendRequests(username: string) {
-	fetch(`/getRejectedFriendRequests?username=${encodeURIComponent(username)}`)
-		.then(response => {
-			if (!response.ok) {
-				throw new Error("Failed to fetch rejected friend requests.");
-			}
-			return response.json();
-		})
-		.then(data => {
-			console.log("Rejected friend requests:", data.rejectedFriendRequests);
-			game.rejectedFriendRequests = data.rejectedFriendRequests || [];
-			for (const request of game.rejectedFriendRequests) {
-				alert(`Rejected friend request from: ${request}`);
-			}
-		})
-		.catch(error => {
-			console.error("Error fetching rejected friend requests:", error);
-		});
-}
-
-document.getElementById("friendRequestsList")?.addEventListener("click", (e) => {
+document.getElementById("friendRequestsList")?.addEventListener("click", (e) => {// TODO:
 	const target = e.target as HTMLElement;
 	if (target.tagName === "LI") {
 		console.log(`${target.textContent} clicked`);
@@ -729,23 +531,7 @@ document.getElementById("friendRequestsList")?.addEventListener("click", (e) => 
 	}
 });
 
-
-
-
-document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
-	e.preventDefault();
-	const usernameInput = document.getElementById("loginUsername") as HTMLInputElement;
-	const passwordInput = document.getElementById("loginPassword") as HTMLInputElement;
-	const username = usernameInput.value.trim();
-	const password = passwordInput.value.trim();
-	if (!username || !password) {
-		alert("Username and password cannot be empty!");
-		return;
-	}
-	var loginPlayer: PlayerLogin = {
-		username: username,
-		password: password,
-	};
+function loginRequest(loginPlayer: PlayerLogin) {
 	fetch("/login", {
 		method: "POST",
 		headers: {
@@ -768,8 +554,7 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 				gamesLost: 0,
 				gamesWon: 0,
 				playerscore: 0,
-			}
-			);
+			});
 			createWebSocketConnection(loginPlayer.username);
 			// get the friend list
 			getFriendList(loginPlayer.username);
@@ -782,10 +567,28 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 		.catch(error => {
 			console.error("Error during Login:", error);
 		});
+}
+
+
+document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
+	e.preventDefault();
+	const usernameInput = document.getElementById("loginUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("loginPassword") as HTMLInputElement;
+	const username = usernameInput.value.trim();
+	const password = passwordInput.value.trim();
+	if (!username || !password) {
+		alert("Username and password cannot be empty!");
+		return;
+	}
+	var loginPlayer: PlayerLogin = {
+		username: username,
+		password: password,
+	};
+	loginRequest(loginPlayer);
 });
 
 // ------------------------------------------------add friend-------------------------------------
-document.getElementById("sendMessage")?.addEventListener("click", () => {
+document.getElementById("sendMessage")?.addEventListener("click", () => {// TODO:
 	const input = document.getElementById("inputMessageBox") as HTMLInputElement;
 	const inputMessage: string = input.value.trim();
 	if (game.websocket) {
@@ -799,12 +602,18 @@ document.getElementById("sendMessage")?.addEventListener("click", () => {
 	input.value = "";
 });
 
-document.getElementById("friendList")?.addEventListener("click", (e) => {
+document.getElementById("friendList")?.addEventListener("click", (e) => {// TODO:
 	const target = e.target as HTMLElement;
 	if (target.tagName === "LI") {
 		console.log(`${target.textContent} clicked`);
 		game.sendMessageTo = target.id;
 		console.log(`Message will be sent to: ${game.sendMessageTo}`);
+		// Reset all other list items to white
+		const listItems = document.querySelectorAll("#friendList li");
+		listItems.forEach(li => {
+			(li as HTMLElement).style.backgroundColor = "white";
+		});
+		target.style.backgroundColor = "lightblue";
 		fetch(`/getChatHistory?username=${encodeURIComponent(game.username)}&friendname=${encodeURIComponent(game.sendMessageTo)}`)
 			.then(response => {
 				if (!response.ok) {
@@ -845,7 +654,7 @@ document.getElementById("friendList2")?.addEventListener("click", (e) => {// thi
 	}
 });
 
-document.getElementById("addFriend")?.addEventListener("click", () => {
+document.getElementById("addFriend")?.addEventListener("click", () => {// TODO:
 	const friendName = prompt("Enter the name of the friend to add:");
 	if (friendName) {
 		if (game.friendList.includes(friendName)) {
@@ -883,50 +692,6 @@ document.getElementById("addFriend")?.addEventListener("click", () => {
 		alert("Friend name cannot be empty!");
 	}
 });
-
-function handleFriendRequest(data: any) {
-	const friendName = data.from;
-	const result = confirm(`Do you want to accept the friend request from ${friendName}?`);
-	if (result) {
-		game.websocket?.send(JSON.stringify({ reply: "accept" }));
-		const friendList = document.getElementById("friendList");
-		if (friendList) {
-			const newFriendItem = document.createElement("li");
-			newFriendItem.id = friendName;
-			newFriendItem.style.cursor = "pointer";
-			newFriendItem.textContent = friendName;
-			friendList.appendChild(newFriendItem);
-		}
-	} else {
-		game.websocket?.send(JSON.stringify({ reply: "decline" }));
-	}
-}
-
-function handlePrivateMessage(data: any) {
-	const { from, message } = data;
-	const chatHistoryElement = document.getElementById("friendList2");
-	if (chatHistoryElement) {
-		const messageElement = document.createElement("LI");
-		messageElement.textContent = `${from}: ${message}`;
-		chatHistoryElement.appendChild(messageElement);
-		chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
-	}
-}
-
-function handleWebSocketMessage(event: MessageEvent) {
-	const data = JSON.parse(event.data);
-	switch (data.type) {
-		case "friendRequest":
-			handleFriendRequest(data);
-			break;
-		case "privateMessage":
-			handlePrivateMessage(data);
-			break;
-	}
-};
-
-
-
 
 document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
 	hideGeneralLoginModal();
