@@ -1,5 +1,5 @@
-import { game, ctx, keysPressed, gamefinished, rounds } from './index.js';
-import { showWinnerScreen, tournamentLogic} from "./tournament.js";
+import { game, ctx, keysPressed, gamefinished, rounds, handleKeydown, handleKeyup } from './index.js';
+import { showWinnerScreen, tournamentLogic, tournamentFinished } from "./tournament.js";
 import { TournamentStage } from './frontendStructures.js';
 
 
@@ -135,4 +135,17 @@ export function updateGame(): void {
 		}
 	}
 	requestAnimationFrame(updateGame);
+}
+
+export function clickWinnerScreenContinue() {
+	document.getElementById("WinnerScreenContinue")?.addEventListener("click", () => {
+		fetch("/gameContinue");
+		if (game.tournamentLoopActive && game.t.stage === TournamentStage.Complete)
+			tournamentFinished(game);
+		const winnerScreen = document.getElementById("WinnerScreen");
+		if (winnerScreen) winnerScreen.style.display = "none";
+		document.addEventListener("keydown", handleKeydown);
+		document.addEventListener("keyup", handleKeyup);
+		getGameStatus();
+	});
 }

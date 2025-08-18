@@ -1,7 +1,5 @@
 import { Player, canvasInfo, BallInfo, playerPaddle, GameInfo, TournamentStage, PlayerLogin, PlayerRegistration } from "./frontendStructures.js";
 import { tournamentEnd, tournamentLogic, tournamentPlayGame } from "./tournament.js";
-// import e{ rounds } from "./server.js";
-import { tournamentFinished, showWinnerScreen } from "./tournament.js";
 import { userInfo } from "./serverStructures.js";
 
 export let rounds = 1;
@@ -696,16 +694,7 @@ document.getElementById("tournamentResetButton")?.addEventListener("click", () =
 	// location.reload();
 });
 
-document.getElementById("WinnerScreenContinue")?.addEventListener("click", () => {
-	fetch("/gameContinue");
-	if (game.tournamentLoopActive && game.t.stage === TournamentStage.Complete)
-		tournamentFinished(game);
-	const winnerScreen = document.getElementById("WinnerScreen");
-	if (winnerScreen) winnerScreen.style.display = "none";
-	document.addEventListener("keydown", handleKeydown);
-	document.addEventListener("keyup", handleKeyup);
-	getGameStatus();
-});
+
 
 
 document.getElementById("playSelect")?.addEventListener("change", (event: Event) => {
@@ -767,5 +756,6 @@ document.getElementById("showTournamentPassword")?.addEventListener("click", () 
 });
 
 
-import { updateGame } from "./gamePlay.js";
+import { clickWinnerScreenContinue, updateGame } from "./gamePlay.js";
+clickWinnerScreenContinue();
 updateGame();
