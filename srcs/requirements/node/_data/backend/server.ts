@@ -39,171 +39,9 @@ try {
 
 export const db = new Database(path.join(__dirname, 'data', 'users.db'));
 
-// Create tables if they don't exist
-db.exec(`
-CREATE TABLE IF NOT EXISTS users (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	Full_Name TEXT UNIQUE NOT NULL,
-	Alias TEXT UNIQUE NOT NULL,
-	Country TEXT UNIQUE NOT NULL,
-	password_hash TEXT NOT NULL,
-	avatar_url TEXT DEFAULT '/avatars/default-avatar.png',
-	status TEXT DEFAULT 'offline',
-	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+import { buildDatabase } from './database.js';
 
--- Create the newFriend table
-CREATE TABLE IF NOT EXISTS newFriend (
-    username TEXT NOT NULL,
-    friendname TEXT NOT NULL,
-	status TEXT DEFAULT 'accepted',
-    UNIQUE (username, friendname)
-);
-
--- Create new chat history table
-CREATE TABLE IF NOT EXISTS chatHistory (
-	sender TEXT NOT NULL,
-	receiver TEXT NOT NULL,
-	message TEXT NOT NULL,
-	status TEXT DEFAULT 'sent',
-	timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS friends (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	user_id INTEGER NOT NULL,
-	friend_id INTEGER NOT NULL,
-	status TEXT DEFAULT 'pending',
-	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (user_id) REFERENCES users(id),
-	FOREIGN KEY (friend_id) REFERENCES users(id),
-	UNIQUE (user_id, friend_id)
-);
-
-CREATE TABLE IF NOT EXISTS matches (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	player1_id INTEGER NOT NULL,
-	player2_id INTEGER NOT NULL,
-	winner_id INTEGER,
-	score_player1 INTEGER DEFAULT 0,
-	score_player2 INTEGER DEFAULT 0,
-	Match_type TEXT DEFAULT 'Friendly',
-	match_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (player1_id) REFERENCES users(id),
-	FOREIGN KEY (player2_id) REFERENCES users(id),
-	FOREIGN KEY (winner_id) REFERENCES users(id)
-);
-
-CREATE TABLE IF NOT EXISTS user_stats (
-	user_id INTEGER PRIMARY KEY,
-	wins INTEGER DEFAULT 0,
-	losses INTEGER DEFAULT 0,
-	matches_played INTEGER DEFAULT 0,
-	FOREIGN KEY (user_id) REFERENCES users(id)
-);
-`);
-
-let rounds = 1;
-
-let gameFinished = false;
-
-function touchingPaddle1(): boolean {
-	return (
-		game.ball.ballX - game.ball.ballRadius < game.player1Paddle.x + game.player1Paddle.width &&
-		game.ball.ballX + game.ball.ballRadius > game.player1Paddle.x &&
-		game.ball.ballY + game.ball.ballRadius > game.player1Paddle.y &&
-		game.ball.ballY - game.ball.ballRadius < game.player1Paddle.y + game.player1Paddle.height
-	);
-}
-
-function touchingPaddle2(): boolean {
-	return (
-		game.ball.ballX - game.ball.ballRadius < game.player2Paddle.x + game.player2Paddle.width &&
-		game.ball.ballX + game.ball.ballRadius > game.player2Paddle.x &&
-		game.ball.ballY + game.ball.ballRadius > game.player2Paddle.y &&
-		game.ball.ballY - game.ball.ballRadius < game.player2Paddle.y + game.player2Paddle.height
-	);
-}
-
-function resetBall(): void {
-	game.ball.ballX = game.canvas.width / 2;
-	game.ball.ballY = game.canvas.height / 2;
-	game.ball.ballPaused = true;
-	game.ball.ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
-	game.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
-	game.player1Paddle.y = game.canvas.height / 2 - game.player1Paddle.height / 2;
-	game.player2Paddle.y = game.canvas.height / 2 - game.player2Paddle.height / 2;
-}
-
-let accaleration = 0.1; // Speed increase factor
-
-function calculateBallCoords(): void {
-	if (game.ball.ballPaused) return; // Skip updates if the ball is paused
-	game.ball.ballX += game.ball.ballSpeedX;
-	game.ball.ballY += game.ball.ballSpeedY;
-
-	// Bounce off top and bottom
-	if (game.ball.ballY - game.ball.ballRadius < 0 || game.ball.ballY + game.ball.ballRadius > game.canvas.height) {
-		game.ball.ballSpeedY *= -1;
-	}
-
-	// Check paddle collisions
-	if (touchingPaddle1() && game.ball.ballSpeedX > 0) {
-		// ballSpeedX *= -1 - accaleration;
-		if (game.ball.ballSpeedX < 30) {
-			game.ball.ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
-		} else {
-			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
-		}
-	} else if (touchingPaddle2() && game.ball.ballSpeedX < 0) {
-		// ballSpeedX *= -1 - accaleration;
-		if (game.ball.ballSpeedX > -30) {
-			game.ball.ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
-		} else {
-			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
-		}
-	}
-
-	// Check if ball passed player1 (left side)
-	if (game.ball.ballX - game.ball.ballRadius < 0) {
-		game.player1.playerscore++;
-		resetBall();
-	}
-
-	// Check if ball passed player2 (right side)
-	if (game.ball.ballX + game.ball.ballRadius > game.canvas.width) {
-		game.player2.playerscore++;
-		resetBall();
-	}
-}
-
-function resetGame(): void {
-	game.player1.playerscore = 0;
-	game.player2.playerscore = 0;
-	resetBall();
-	gameFinished = false;
-}
-
-function updateGame(): void {
-	if (!gameFinished) {
-		if (game.player1.playerscore === rounds) {
-			game.player1.gamesWon++;
-			game.player2.gamesLost++;
-			gameFinished = true;
-		}
-		if (game.player2.playerscore === rounds) {
-			game.player2.gamesWon++;
-			game.player1.gamesLost++;
-			gameFinished = true;
-		}
-		calculateBallCoords();
-	}
-}
-
-setInterval(() => {
-	updateGame();
-}, 1000 / 60);
+buildDatabase(db);
 
 app.register(fastifyStatic, {
 	root: path.join(__dirname, '../public'),
@@ -218,65 +56,16 @@ app.get('/ping', async () => {
 	return { pong: 'it works!' };
 });
 
-app.get('/pressspace', async (request, reply) => {
-	game.ball.ballPaused = !game.ball.ballPaused;
-	reply.send({ status: game.ball.ballPaused ? 'Ball paused' : 'Ball unpaused' });
-});
+export let rounds = 1;
 
-app.get('/pressArrowUp', async (request, reply) => {
-	if (game.player1Paddle.y > 0 && !game.ball.ballPaused) {
-		game.player1Paddle.y -= 5; // Move paddle up
-	}
-	reply.send({ status: 'Paddle 1 moved up' });
-});
+export let accaleration = 0.1; // Speed increase factor
 
-app.get('/pressArrowDown', async (request, reply) => {
-	if (game.player1Paddle.y + game.player1Paddle.height < game.canvas.height && !game.ball.ballPaused) {
-		game.player1Paddle.y += 5; // Move paddle down
-	}
-	reply.send({ status: 'Paddle 1 moved down' });
-});
+import { updateGame, interactWithGame } from './gamePlayServer.js';
 
-app.get('/pressW', async (request, reply) => {
-	if (game.player2Paddle.y > 0 && !game.ball.ballPaused) {
-		game.player2Paddle.y -= 5; // Move paddle up
-	}
-	reply.send({ status: 'Paddle 2 moved up' });
-});
-
-app.get('/pressS', async (request, reply) => {
-	if (game.player2Paddle.y + game.player2Paddle.height < game.canvas.height && !game.ball.ballPaused) {
-		game.player2Paddle.y += 5; // Move paddle down
-	}
-	reply.send({ status: 'Paddle 2 moved down' });
-});
-
-app.get('/resetgame', async (request, reply) => {
-	resetGame();
-	reply.type('application/json').send({
-		ballX: game.ball.ballX,
-		ballY: game.ball.ballY,
-		player1_y: game.player1Paddle.y,
-		player2_y: game.player2Paddle.y,
-		player1_score: game.player1.playerscore,
-		player2_score: game.player2.playerscore,
-		gamefinished: gameFinished,
-	});
-});
-
-app.get('/getstatus', async (request, reply) => {
-	reply.type('application/json').send({
-		ballX: game.ball.ballX,
-		ballY: game.ball.ballY,
-		player1_y: game.player1Paddle.y,
-		player2_y: game.player2Paddle.y,
-		player1_score: game.player1.playerscore,
-		player2_score: game.player2.playerscore,
-		gamefinished: gameFinished,
-		ballSpeedX: game.ball.ballSpeedX,
-	});
-});
-
+setInterval(() => {// TODO: not here
+	updateGame();
+}, 1000 / 60);
+interactWithGame(app, game);
 
 
 
@@ -317,7 +106,6 @@ app.post("/register", async (request, reply) => {
 	}
 
 	if (!name || !username || !password || !country) {
-		console.log("---------------------------------------------1---------------------------------------------");
 		reply.status(400).send({ status: 400, message: 'Missing required fields' });
 		return;
 	}
@@ -333,14 +121,11 @@ app.post("/register", async (request, reply) => {
 		VALUES (?, ?, ?, ?, ?)
 		`);
 		statement.run(fullName, alias, password_hash, Country, avatarPath);
-		console.log("---------------------------------------------4---------------------------------------------");
 		reply.send({ status: 200, message: 'User registered successfully', avatar: avatarPath });
 	} catch (err: any) {
 		if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-			console.log("---------------------------------------------2---------------------------------------------");
 			reply.status(400).send({ status: 400, message: 'User already exists' });
 		} else {
-			console.log("---------------------------------------------3---------------------------------------------");
 			reply.status(500).send({ status: 500, message: 'Server error' });
 		}
 	}
@@ -408,23 +193,6 @@ app.post("/updateUser", async (request, reply) => {
 	}
 });
 
-
-
-// app.get('/getstatus', async (request, reply) => {
-// 	reply.type('application/json').send({
-// 		ballX: game.ball.ballX,
-// 		ballY: game.ball.ballY,
-// 		player1_y: game.player1Paddle.y,
-// 		player2_y: game.player2Paddle.y,
-// 		player1_score: game.player1.playerscore,
-// 		player2_score: game.player2.playerscore,
-// 		gamefinished: gameFinished,
-// 		ballSpeedX: game.ball.ballSpeedX,
-// 	});
-// });
-
-
-
 app.post("/userInfo", async (request, reply) => {
 	const _username = request.body as { username: string };
 
@@ -465,12 +233,6 @@ app.post("/login", async (request, reply) => {
 		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
 		return;
 	}
-
-	// const user = loginInformation.find(user => user.username === username && user.password === password);
-	// if (!user) {
-	// 	reply.status(401).send({ status: 401, message: 'Invalid username or password' });
-	// 	return;
-	// }
 	reply.send({ status: 200, message: 'Login successful', user });
 });
 
