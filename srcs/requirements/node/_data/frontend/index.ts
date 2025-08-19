@@ -557,7 +557,7 @@ function loginRequest(loginPlayer: PlayerLogin) {
 			getFriendList(loginPlayer.username);
 			getFriendRequestList(loginPlayer.username);
 			getRejectedFriendRequests(loginPlayer.username);
-			// restoreScreen();
+			restoreScreen();
 			// location.reload();
 			return response.json();
 		})
