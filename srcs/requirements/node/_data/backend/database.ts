@@ -1,4 +1,6 @@
-export function buildDatabase(db) {
+import type { Database as DatabaseType } from 'better-sqlite3';
+
+export function buildDatabase(db: DatabaseType) {
 	db.exec(`
 CREATE TABLE IF NOT EXISTS users (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,

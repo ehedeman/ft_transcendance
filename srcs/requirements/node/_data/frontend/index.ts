@@ -391,20 +391,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	// Get avatar input and set up preview once
 	const avatarInput = document.getElementById("registerAvatar") as HTMLInputElement;
-	avatarInput.addEventListener("change", () => 
-	{
+	avatarInput.addEventListener("change", () => {
 		const file = avatarInput.files && avatarInput.files[0];
-		const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
+		const preview = document.getElementById("avatarPreview") as HTMLImageElement;
 		if (file) {
-			const src = URL.createObjectURL(file);
-			preview.src = src
+			preview.src = URL.createObjectURL(file);
 			preview.style.display = "block";
 		} else {
 			preview.src = "default-avatar.png";
 			preview.style.display = "none";
 		}
 	});
-	
+
 	// Handle registration form submission
 	document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
 		e.preventDefault();
