@@ -52,7 +52,9 @@ function restoreScreen(): void {
 	const registerModal = document.getElementById("generalRegistrationModal") as HTMLDivElement;
 	const settings = document.getElementById("settings") as HTMLElement;
 	const loginModal = document.getElementById("generalLoginModal") as HTMLDivElement;
+	const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
 
+	if (preview) preview.src = "avatars/default-avatar.png";
 	if (registerButton) registerButton.style.display = "block";
 	if (playSelect) playSelect.style.display = "block";
 	if (loginButton) loginButton.style.display = "block";
@@ -335,6 +337,15 @@ document.getElementById("settingsCancel")?.addEventListener("click", () => {
 
 
 
+document.getElementById("showRegisterPassword")?.addEventListener("click", () => 
+{
+	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
+	if (passwordInput.type === "password") {
+		passwordInput.type = "text";
+	} else {
+		passwordInput.type = "password";
+	}
+});
 
 
 function showGeneralRegistrationModal(game: GameInfo) {
@@ -380,18 +391,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	// Get avatar input and set up preview once
 	const avatarInput = document.getElementById("registerAvatar") as HTMLInputElement;
-	avatarInput.addEventListener("change", () => {
+	avatarInput.addEventListener("change", () => 
+	{
 		const file = avatarInput.files && avatarInput.files[0];
-		const preview = document.getElementById("avatarPreview") as HTMLImageElement;
+		const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
 		if (file) {
-			preview.src = URL.createObjectURL(file);
+			const src = URL.createObjectURL(file);
+			preview.src = src
 			preview.style.display = "block";
 		} else {
 			preview.src = "default-avatar.png";
 			preview.style.display = "none";
 		}
 	});
-
+	
 	// Handle registration form submission
 	document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
 		e.preventDefault();
