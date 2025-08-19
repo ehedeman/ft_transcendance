@@ -67,18 +67,26 @@ function emptyLoginFields(loginType: string): void {
 	switch (loginType) {
 		case "loginTournament":
 			const tournamentPassword = document.getElementById("tournamentPassword") as HTMLInputElement;
+			const tournamentUsername = document.getElementById("tournamentUsername") as HTMLInputElement;
+			if (tournamentUsername) tournamentUsername.value = "";
 			if (tournamentPassword) tournamentPassword.value = "";
 			break;
 		case "loginGeneral":
 			const loginPassword = document.getElementById("loginPassword") as HTMLInputElement;
+			const loginUsername = document.getElementById("loginUsername") as HTMLInputElement;
+			if (loginUsername) loginUsername.value = "";
 			if (loginPassword) loginPassword.value = "";
 			break;
 		case "loginSettings":
-			const settingPassword = document.getElementById("settingPassword") as HTMLInputElement;
+			const settingPassword = document.getElementById("settingsLoginPassword") as HTMLInputElement;
+			const settingUsername = document.getElementById("settingsLoginUsername") as HTMLInputElement;
+			if (settingUsername) settingUsername.value = "";
 			if (settingPassword) settingPassword.value = "";
 			break;
 		case "registerSettings":
 			const registerPassword = document.getElementById("registerPassword") as HTMLInputElement;
+			const registerUsername = document.getElementById("registerUsername") as HTMLInputElement;
+			if (registerUsername) registerUsername.value = "";
 			if (registerPassword) registerPassword.value = "";
 			break;
 		default:
@@ -205,6 +213,7 @@ document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
 			location.reload();
 		})
 		.catch(err => console.error("Update failed", err));
+	hideSettings();
 });
 
 async function loginToSettings(): Promise<boolean> {
@@ -240,6 +249,7 @@ async function loginToSettings(): Promise<boolean> {
 		return true;
 	} catch (error) {
 		console.error("Error during Login:", error);
+		emptyLoginFields("loginSettings");
 		return false;
 	}
 }
@@ -258,6 +268,7 @@ document.getElementById("settingsLogin")?.addEventListener("submit", async (e) =
 		hideSettingsLogin();
 		document.addEventListener("keydown", handleKeydown);
 		document.addEventListener("keyup", handleKeyup);
+		emptyLoginFields("loginSettings");
 		restoreScreen();
 	}
 });
@@ -276,6 +287,12 @@ function hideSettings(): void {
 function hideSettingsForm(): void {
 	const settingsForm = document.getElementById("settingsForm") as HTMLElement;
 	if (settingsForm) settingsForm.style.display = "none";
+	const saveButton = document.getElementById("settingsSave") as HTMLElement;
+	const deleteButton = document.getElementById("settingsDeleteAccount") as HTMLElement;
+	const showPasswordButton = document.getElementById("showSettingsPassword") as HTMLElement;
+	if (saveButton) saveButton.style.display = "none";
+	if (deleteButton) deleteButton.style.display = "none";
+	if (showPasswordButton) showPasswordButton.style.display = "none";
 }
 
 
@@ -285,6 +302,12 @@ function showSettingsForm(): void {
 
 	const settingsHeader = document.getElementById("settingsHeader") as HTMLElement;
 	if (settingsHeader) settingsHeader.textContent = "Settings";
+	const saveButton = document.getElementById("settingsSave") as HTMLElement;
+	const deleteButton = document.getElementById("settingsDeleteAccount") as HTMLElement;
+	const showPasswordButton = document.getElementById("showSettingsPassword") as HTMLElement;
+	if (saveButton) saveButton.style.display = "block";
+	if (deleteButton) deleteButton.style.display = "block";
+	if (showPasswordButton) showPasswordButton.style.display = "block";
 }
 
 function hideSettingsLogin(): void {
@@ -329,6 +352,7 @@ document.getElementById("settingsCancel")?.addEventListener("click", () => {
 	if (settings) settings.style.display = "none";
 	document.addEventListener("keydown", handleKeydown);
 	document.addEventListener("keyup", handleKeyup);
+	emptyLoginFields("loginSettings");
 	restoreScreen();
 });
 
@@ -393,7 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	const avatarInput = document.getElementById("registerAvatar") as HTMLInputElement;
 	avatarInput.addEventListener("change", () => {
 		const file = avatarInput.files && avatarInput.files[0];
-		const preview = document.getElementById("avatarPreview") as HTMLImageElement;
+		const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
 		if (file) {
 			preview.src = URL.createObjectURL(file);
 			preview.style.display = "block";

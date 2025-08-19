@@ -34,11 +34,10 @@
 	<body id="gameScreen " class="bg-gray-900 flex items-center justify-center h-screen text-white">
 		<div id="settings"
 			style="display:none; position:fixed; flex-grow:1; display:none; flex-direction:column; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width: 300px;">
-			<div style="display:flex; flex-direction:column; height:100%;">
-				<h2 id="settingsHeader">
-				</h2>
+			<div style="display:flex; flex-direction:column;  justify-content:space-between; align-items:center; height:100%;">
+				<h2 id="settingsHeader"></h2>
 				<form id="settingsForm" method="post"
-					style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
+					style="flex-grow:1; display:flex; flex-direction:column; margin-bottom:10px; justify-content:space-between; align-items:center;">
 					<input type="text" id="settingsName" name="name" required="false" />
 					<input type="text" id="settingsUsername" name="username" required="false" />
 					<input type="password" id="settingsPassword" name="password" />
@@ -49,16 +48,17 @@
 							style="width:100px; height:100px; border-radius:50%; cursor:pointer;" />
 						<input type="file" id="avatarUpload" name="avatar" accept="image/*" style="display:none;" />
 					</div>
-
-					<button type="button" id="showSettingsPassword"
-						class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
-					<button type="submit" id="settingsSave"
-						class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
-					<button type="button" id="settingsDeleteAccount"
-						class="bg-blue-500 text-white px-4 py-2 rounded">Delete Account</button>
+					<div style="display: flex; gap: 10px;">
+						<button style="flex: 1;" type="button" id="showSettingsPassword"
+							class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
+						<button style="flex: 1;" type="submit" id="settingsSave"
+							class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
+						<button style="flex: 1;" type="button" id="settingsDeleteAccount"
+							class="bg-blue-500 text-white px-4 py-2 rounded">Delete Account</button>
+					</div>
 				</form>
 				<form id="settingsLogin" method="post"
-					style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
+					style="flex-grow:1; display:flex; flex-direction:column; margin-bottom:10px; justify-content:space-between;">
 					<input type="text" id="settingsLoginUsername" name="username" placeholder="Username"
 						required="true" />
 					<input type="password" id="settingsLoginPassword" name="password" placeholder="Password"
@@ -67,7 +67,7 @@
 					<button type="submit" id="settingsLoginSubmit" class="bg-blue-500 text-white px-4 py-2 rounded">Log
 						In</button>
 				</form>
-				<button type="button" id="settingsCancel"
+				<button style="flex-grow:1; gap: 10px;" type="button" id="settingsCancel" 
 					class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
 			</div>
 		</div>
