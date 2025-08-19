@@ -15,17 +15,17 @@
 	</header>
 	<label for="gameScreen">
 		<button id="loginButton"
-			style="position: absolute; z-index: 2; left: 25%; top: 70px; transform: translateX(-50%);"
+			style="position:absolute; z-index: 2; left: 25%; top: 70px; transform: translateX(-50%);"
 			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
 			Log in
 		</button>
 		<button id="registerButton"
-			style="position: absolute; z-index: 2; left: 50%; top: 70px; transform: translateX(-50%);"
+			style="position:absolute; z-index: 2; left: 50%; top: 70px; transform: translateX(-50%);"
 			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
 			Register
 		</button>
 		<button id="settingsButton"
-			style="position: absolute; z-index: 2;left: 95%; top: 2%; transform: translateX(-50%);"
+			style="position:absolute; z-index: 2;left: 95%; top: 2%; transform: translateX(-50%);"
 			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
 			Settings
 		</button>
@@ -33,7 +33,7 @@
 
 	<body id="gameScreen " class="bg-gray-900 flex items-center justify-center h-screen text-white">
 		<div id="settings"
-			style="display:none; position:fixed; flex-grow:1; display:none; flex-direction:column; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width: 300px;">
+			style="display:none; position:absolute; flex-grow:1; display:none; flex-direction:column; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width: 300px;">
 			<div style="display:flex; flex-direction:column;  justify-content:space-between; align-items:center; height:100%;">
 				<h2 id="settingsHeader"></h2>
 				<form id="settingsForm" method="post"
@@ -72,7 +72,7 @@
 			</div>
 		</div>
 		<div id="generalRegistrationModal"
-			style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
+			style="display:none; position:absolute; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
 			<div>
 				<h2>
 					Register
@@ -110,7 +110,7 @@
 			</div>
 		</div>
 		<div id="generalLoginModal"
-			style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
+			style="display:none; position:absolute; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
 			<div style="display:flex; flex-direction:column; height:100%;">
 				<h2>
 					Login
@@ -133,7 +133,7 @@
 			</div>
 		</div>
 		<div id="tournamentRegistrationModal"
-			style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width: 300px;">
+			style="display:none; position:absolute; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width: 300px;">
 			<div style="display:flex; flex-direction:column; height:100%;">
 				<h2 id="tournamentRegisterHeader">
 					Register Tournament Players
@@ -157,31 +157,31 @@
 			</div>
 		</div>
 		<div id="tournamentResults"
-			style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+			style="display:none; position:absolute; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
 			<h2>Tournament Results</h2>
 			<ol id="placementList"></ol>
 		</div>
 		<button id="tournamentFinishContinue"
-			style="display:none; position: absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);"
+			style="display:none; position:absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);"
 			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
 			Continue
 		</button>
 		<button id="tournamentResetButton"
-			style="display:none; position: absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);"
+			style="display:none; position:absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);"
 			class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4">
 			Reset Tournament
 		</button>
 		<div>
 			<label for="playSelect">Play</label>
 			<select id="playSelect"
-				style="position: absolute; z-index: 2; left: 75%; top: 70px; transform: translateX(-50%);">
+				style="position:absolute; z-index: 2; left: 75%; top: 70px; transform: translateX(-50%);">
 				<option value="" disabled selected>Play</option>
 				<option value="tournament">Tournament</option>
 				<option value="multiplayer">Multiplayer</option>
 				<option value="1v1">1v1</option>
 			</select>
 			<div id="WinnerScreen"
-				style="display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+				style="display:none; position:absolute; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
 				<h2 id="WinnerScreenText"></h2>
 				<button type="button" id="WinnerScreenContinue"
 					class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Continue</button>
@@ -189,29 +189,30 @@
 		</div>
 		<div>
 			<canvas tabindex='1' id="gameCanvas" class="border-4 border-white"
-				style="position: absolute; left: 50%; top: 120px; transform: translateX(-50%);">
+				style="position:absolute; left: 50%; top: 120px; transform: translateX(-50%);">
 			</canvas>
 		</div>
-		<div
-			style="position: absolute; display: flex; top: calc(120px + 620px); left: 50%; transform: translateX(-50%);">
-			<div>
-				<header style="position: absolute;">Friends</header>
+		<div style="position:absolute; top: calc(120px + 620px)">
+			<header style="position:absolute;">Friends</header>
+		</div>
+		<div style="position: absolute; display: flex; flex-direction: row; top: calc(120px + 620px + 20px); left: 50%; transform: translateX(-50%);">
+			<div style="display: flex; gap: 20px;">
+				<ul id="friendList" style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
+					<li>Please login to see friends</li>
+				</ul>
+				<ul id="friendList2" style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
+					<li>Please click a friend to see the history...</li>
+				</ul>
+				<ul style="padding-left: 20px; max-width: 75px; max-height: 65px;">
+					<button style="width: 75px; height: 75px;" id="addFriend" class="bg-blue-500 text-white px-4 py-2 rounded">Add Friend</button>
+				</ul>
+				<ul id="friendRequestsList" style="width: 250px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
+					<li>Your new friend requests will appear here</li>
+				</ul>
 			</div>
-			<ul id="friendList" style="border: 1px solid #000000;">
-				<li>Please login to see friends</li>
-			</ul>
-			<ul id="friendList2"
-				style="margin-left: 20px; width: 200px; max-width: 200px; max-height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000; overflow-x: auto;">
-				<li>Please click a friend to see the history...</li>
-			</ul>
-			<button id="addFriend" class="bg-blue-500 text-white px-4 py-2 rounded">Add Friend</button>
-			<ul id="friendRequestsList"
-				style="margin-left: 20px; width: 100px; max-width: 100px; max-height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000; overflow-x: auto;">
-				<li>Your new friend requests will appear here</li>
-			</ul>
 		</div>
 		<div
-			style="position: absolute; display: flex; top: calc(120px + 620px + 120px); left: 50%; transform: translateX(-50%);">
+			style="position:absolute; display: flex; top: calc(120px + 620px + 20px + 120px); left: 50%; transform: translateX(-50%);">
 			<input type="text" id="inputMessageBox" placeholder="Please input your message here..."
 				class="border rounded px-2 py-1" style="width: 400px;" />
 			<button id="sendMessage" class="bg-blue-500 text-white px-4 py-2 rounded">Send Message</button>
