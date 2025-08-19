@@ -556,8 +556,10 @@ function loginRequest(loginPlayer: PlayerLogin) {
 			// get the friend list
 			getFriendList(loginPlayer.username);
 			getFriendRequestList(loginPlayer.username);
+			const addFriend = document.getElementById("addFriend") as HTMLElement;
+			if (addFriend) addFriend.style.display = "block";
 			getRejectedFriendRequests(loginPlayer.username);
-			restoreScreen();
+			//restoreScreen();
 			// location.reload();
 			return response.json();
 		})
