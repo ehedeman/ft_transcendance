@@ -21,7 +21,7 @@ const pump = promisify(pipeline);
 // import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { GameInfo, userInfo, loginInfo } from './serverStructures.js';
+import { GameInfo, userInfo } from './serverStructures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -1,0 +1,274 @@
+import { restoreScreen } from "./screenDisplay.js";
+import { emptyLoginFields } from "./inputFieldHandling.js";
+import { handleKeydown, handleKeyup } from "./index.js";
+import { PlayerLogin } from "./frontendStructures.js";
+
+import { userInfo } from "./serverStructures.js"
+
+var userInfoTemp: userInfo;
+
+export async function setSettingFields(loginPlayer: PlayerLogin, userInfoTemp: userInfo): Promise<boolean> {
+	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
+	const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
+	const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
+	const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
+	const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLImageElement;
+	const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
+
+	const response = await fetch("/userInfo", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username: loginPlayer.username })
+	});
+	const data = await response.json();
+
+	const playerInfo = {
+		id: data.id,
+		name: data.fullName,
+		username: data.alias,
+		country: data.country,
+		avatar: data.avatarPath, // painful bug
+		password: data.password
+	};
+
+	settingsName.placeholder = playerInfo.name;
+	settingsUsername.placeholder = playerInfo.username;
+	settingsPassword.placeholder = "Enter new password";
+	settingsCountry.placeholder = playerInfo.country;
+
+	// Set the avatar preview to whatever is in the database
+	avatarPreviewSettings.src = playerInfo.avatar;
+
+	settingsName.value = playerInfo.name;
+	settingsUsername.value = playerInfo.username;
+	settingsPassword.value = "";
+	settingsCountry.value = playerInfo.country;
+
+	userInfoTemp = {
+		id: playerInfo.id,
+		Full_Name: playerInfo.name,
+		avatar_url: playerInfo.avatar, // very <- important
+		password_hash: playerInfo.password,
+		Alias: playerInfo.username,
+		Country: playerInfo.country,
+		status: "",
+		updated_at: "",
+		created_at: "",
+	};
+	// here set fields to what database has currently stored to display in settings
+	return true;
+}
+
+function showSettings(): void {
+	const settings = document.getElementById("settings") as HTMLElement;
+	if (settings) settings.style.display = "flex";
+}
+
+function hideSettings(): void {
+	const settings = document.getElementById("settings") as HTMLElement;
+	if (settings) settings.style.display = "none";
+}
+
+function hideSettingsForm(): void {
+	const settingsForm = document.getElementById("settingsForm") as HTMLElement;
+	if (settingsForm) settingsForm.style.display = "none";
+	const saveButton = document.getElementById("settingsSave") as HTMLElement;
+	const deleteButton = document.getElementById("settingsDeleteAccount") as HTMLElement;
+	const showPasswordButton = document.getElementById("showSettingsPassword") as HTMLElement;
+	if (saveButton) saveButton.style.display = "none";
+	if (deleteButton) deleteButton.style.display = "none";
+	if (showPasswordButton) showPasswordButton.style.display = "none";
+}
+
+
+function showSettingsForm(): void {
+	const settingsForm = document.getElementById("settingsForm") as HTMLElement;
+	if (settingsForm) settingsForm.style.display = "flex";
+
+	const settingsHeader = document.getElementById("settingsHeader") as HTMLElement;
+	if (settingsHeader) settingsHeader.textContent = "Settings";
+	const saveButton = document.getElementById("settingsSave") as HTMLElement;
+	const deleteButton = document.getElementById("settingsDeleteAccount") as HTMLElement;
+	const showPasswordButton = document.getElementById("showSettingsPassword") as HTMLElement;
+	if (saveButton) saveButton.style.display = "block";
+	if (deleteButton) deleteButton.style.display = "block";
+	if (showPasswordButton) showPasswordButton.style.display = "block";
+}
+
+function hideSettingsLogin(): void {
+	const settingsLogin = document.getElementById("settingsLogin") as HTMLElement;
+	if (settingsLogin) settingsLogin.style.display = "none";
+}
+
+function showSettingsLogin(): void {
+	const settingsLogin = document.getElementById("settingsLogin") as HTMLElement;
+	if (settingsLogin) settingsLogin.style.display = "flex";
+	const settingsHeader = document.getElementById("settingsHeader") as HTMLElement;
+	if (settingsHeader) settingsHeader.textContent = "Log in to continue.";
+}
+
+async function loginToSettings(): Promise<boolean> {
+	const usernameInput = document.getElementById("settingsLoginUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("settingsLoginPassword") as HTMLInputElement;
+	const username = usernameInput.value.trim();
+	const password = passwordInput.value.trim();
+
+	if (!username || !password) {
+		alert("Username and password cannot be empty!");
+		return false;
+	}
+
+	const loginPlayer: PlayerLogin = { username, password };
+
+	try {
+		const response = await fetch("/login", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(loginPlayer)
+		});
+
+		if (!response.ok) {
+			const message = response.status === 401
+				? 'Username or password is incorrect'
+				: 'Login failed. Please try again.';
+			alert(message);
+			emptyLoginFields("loginSettings");
+			return false;
+		}
+		emptyLoginFields("loginSettings");
+		setSettingFields(loginPlayer, userInfoTemp);
+		return true;
+	} catch (error) {
+		console.error("Error during Login:", error);
+		emptyLoginFields("loginSettings");
+		return false;
+	}
+}
+
+export function callSettingsEventlisteners()
+{
+	document.getElementById("settingsDeleteAccount")?.addEventListener("click", () => 
+	{
+			// delete account from database here
+
+			//not sure of a way to get data on whose acc is being deleted tho
+			//at least not wihtout getting too hardcoded
+			restoreScreen();
+	});
+	document.getElementById('avatarPreviewSettings')?.addEventListener('click', function ()
+	{
+		document.getElementById('avatarUpload')?.click();
+	});
+
+	document.getElementById('avatarUpload')?.addEventListener('change', function (event) {
+		if (event) {
+			const input = event.target as HTMLInputElement;
+
+			var preview = document.getElementById('avatarPreviewSettings') as HTMLImageElement;
+			if (input) {
+				const file = input.files && input.files[0];
+				if (file) {
+					preview.src = URL.createObjectURL(file);
+					preview.style.display = "block";
+				}
+			}
+			else {
+				preview.src = "default-avatar.png";
+				preview.style.display = "none";
+			}
+		}
+	});
+	document.getElementById("settingsForm")?.addEventListener("submit", (e) => 
+	{
+		e.preventDefault();
+
+		const nameInput = document.getElementById("settingsName") as HTMLInputElement;
+		const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
+		const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
+		const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
+		const avatarFileInput = document.getElementById("avatarUpload") as HTMLInputElement; // **file input**
+
+		const formData = new FormData();
+		formData.append("id", String(userInfoTemp.id));
+		formData.append("name", nameInput.value.trim());
+		formData.append("username", usernameInput.value.trim());
+		formData.append("password", passwordInput.value.trim() || userInfoTemp.password_hash);
+		formData.append("country", countryInput.value.trim());
+
+		if (avatarFileInput.files && avatarFileInput.files[0]) {
+			formData.append("avatar", avatarFileInput.files[0]); // new avatar
+		} else {
+			formData.append("avatar_url", userInfoTemp.avatar_url); // keep the one in DB
+		}
+
+		fetch("/updateUser", {
+			method: "POST",
+			body: formData
+		})
+			.then(res => res.json())
+			.then(data => {
+				alert(data.message);
+				location.reload();
+			})
+			.catch(err => console.error("Update failed", err));
+		hideSettings();
+	});
+
+	document.getElementById("settingsLogin")?.addEventListener("submit", async (e) => 
+	{
+		e.preventDefault();
+		const success = await loginToSettings();
+
+		if (success) {
+			hideSettingsLogin();
+			showSettingsForm();
+		} else {
+			hideSettings();
+			hideSettingsForm();
+			hideSettingsLogin();
+			document.addEventListener("keydown", handleKeydown);
+			document.addEventListener("keyup", handleKeyup);
+			emptyLoginFields("loginSettings");
+			restoreScreen();
+		}
+	});
+
+	document.getElementById("settingsButton")?.addEventListener("click", () => 
+	{
+
+		const registerButton = document.getElementById("registerButton");
+		const playSelect = document.getElementById("playSelect");
+		const loginButton = document.getElementById("loginButton");
+		if (registerButton) registerButton.style.display = "none";
+		if (playSelect) playSelect.style.display = "none";
+		if (loginButton) loginButton.style.display = "none";
+
+		showSettings();
+		hideSettingsForm();
+		showSettingsLogin();
+		document.removeEventListener("keydown", handleKeydown);
+		document.removeEventListener("keyup", handleKeyup);
+	});
+
+	document.getElementById("showSettingsPassword")?.addEventListener("click", () =>
+	{
+		const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
+		if (passwordInput.type === "password") {
+			passwordInput.type = "text";
+		} else {
+			passwordInput.type = "password";
+		}
+	});
+
+	document.getElementById("settingsCancel")?.addEventListener("click", () =>
+	{
+		const settings = document.getElementById("settings") as HTMLElement;
+		if (settings) settings.style.display = "none";
+		document.addEventListener("keydown", handleKeydown);
+		document.addEventListener("keyup", handleKeyup);
+		emptyLoginFields("loginSettings");
+		restoreScreen();
+	});
+
+}
+
