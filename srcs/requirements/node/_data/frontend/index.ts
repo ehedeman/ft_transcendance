@@ -1,11 +1,10 @@
 import { Player, canvasInfo, BallInfo, playerPaddle, GameInfo, TournamentStage, PlayerLogin, PlayerRegistration } from "./frontendStructures.js";
 import { tournamentEnd, tournamentLogic, tournamentPlayGame } from "./tournament.js";
-// import e{ rounds } from "./server.js";
-import { tournamentFinished, showWinnerScreen } from "./tournament.js";
+import { userInfo } from "./serverStructures.js";
 
-let rounds = 1;
+export let rounds = 1;
 
-let game = new GameInfo();
+export let game = new GameInfo();
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 export const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -22,10 +21,9 @@ document.addEventListener("click", (e: MouseEvent) => {
 	if (e.target !== canvas) canvas_focus = false;
 });
 
-const keysPressed: { [key: string]: boolean } = {};
+export const keysPressed: { [key: string]: boolean } = {};
 
-export function handleKeydown(e: KeyboardEvent): void
-{
+export function handleKeydown(e: KeyboardEvent): void {
 	if (e.key === " " && !canvas_focus) {
 		fetch("/pressspace");
 	}
@@ -38,24 +36,340 @@ export function handleKeydown(e: KeyboardEvent): void
 	keysPressed[e.key] = true;
 }
 
-export function handleKeyup(e: KeyboardEvent): void
-{
+export function handleKeyup(e: KeyboardEvent): void {
 	keysPressed[e.key] = false;
 }
 
 document.addEventListener("keydown", handleKeydown);
 document.addEventListener("keyup", handleKeyup);
 
-let gamefinished = false;
-/*--------------------------two players game register----------------------------*/
+export let gamefinished = false;
+
+function restoreScreen(): void {
+	const registerButton = document.getElementById("registerButton");
+	const playSelect = document.getElementById("playSelect");
+	const loginButton = document.getElementById("loginButton");
+	const registerModal = document.getElementById("generalRegistrationModal") as HTMLDivElement;
+	const settings = document.getElementById("settings") as HTMLElement;
+	const loginModal = document.getElementById("generalLoginModal") as HTMLDivElement;
+	const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
+
+	if (preview) preview.src = "avatars/default-avatar.png";
+	if (registerButton) registerButton.style.display = "block";
+	if (playSelect) playSelect.style.display = "block";
+	if (loginButton) loginButton.style.display = "block";
+	if (registerModal) registerModal.style.display = "none";
+	if (settings) settings.style.display = "none";
+	if (loginModal) loginModal.style.display = "none";
+}
+
+function emptyLoginFields(loginType: string): void {
+	switch (loginType) {
+		case "loginTournament":
+			const tournamentPassword = document.getElementById("tournamentPassword") as HTMLInputElement;
+			const tournamentUsername = document.getElementById("tournamentUsername") as HTMLInputElement;
+			if (tournamentUsername) tournamentUsername.value = "";
+			if (tournamentPassword) tournamentPassword.value = "";
+			break;
+		case "loginGeneral":
+			const loginPassword = document.getElementById("loginPassword") as HTMLInputElement;
+			const loginUsername = document.getElementById("loginUsername") as HTMLInputElement;
+			if (loginUsername) loginUsername.value = "";
+			if (loginPassword) loginPassword.value = "";
+			break;
+		case "loginSettings":
+			const settingPassword = document.getElementById("settingsLoginPassword") as HTMLInputElement;
+			const settingUsername = document.getElementById("settingsLoginUsername") as HTMLInputElement;
+			if (settingUsername) settingUsername.value = "";
+			if (settingPassword) settingPassword.value = "";
+			break;
+		case "registerSettings":
+			const registerPassword = document.getElementById("registerPassword") as HTMLInputElement;
+			const registerUsername = document.getElementById("registerUsername") as HTMLInputElement;
+			if (registerUsername) registerUsername.value = "";
+			if (registerPassword) registerPassword.value = "";
+			break;
+		default:
+			break;
+	}
+}
+
+/*-------------------------------------settings------------------------------------*/
+
+document.getElementById("settingsDeleteAccount")?.addEventListener("click", () => {
+	// delete account from database here
+
+	//not sure of a way to get data on whose acc is being deleted tho
+	//at least not wihtout getting too hardcoded
+	restoreScreen();
+});
+
+// JavaScript to handle avatar click and preview
+document.getElementById('avatarPreviewSettings')?.addEventListener('click', function () {
+	document.getElementById('avatarUpload')?.click();
+});
+
+document.getElementById('avatarUpload')?.addEventListener('change', function (event) {
+	if (event) {
+		const input = event.target as HTMLInputElement;
+
+		var preview = document.getElementById('avatarPreviewSettings') as HTMLImageElement;
+		if (input) {
+			const file = input.files && input.files[0];
+			if (file) {
+				preview.src = URL.createObjectURL(file);
+				preview.style.display = "block";
+			}
+		}
+		else {
+			preview.src = "default-avatar.png";
+			preview.style.display = "none";
+		}
+	}
+});
+
+var userInfoTemp: userInfo;
+async function setSettingFields(loginPlayer: PlayerLogin): Promise<boolean> {
+	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
+	const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
+	const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
+	const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
+	const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLImageElement;
+	const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
+
+	const response = await fetch("/userInfo", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username: loginPlayer.username })
+	});
+	const data = await response.json();
+
+	const playerInfo = {
+		id: data.id,
+		name: data.fullName,
+		username: data.alias,
+		country: data.country,
+		avatar: data.avatarPath, // painful bug
+		password: data.password
+	};
+
+	settingsName.placeholder = playerInfo.name;
+	settingsUsername.placeholder = playerInfo.username;
+	settingsPassword.placeholder = "Enter new password";
+	settingsCountry.placeholder = playerInfo.country;
+
+	// Set the avatar preview to whatever is in the database
+	avatarPreviewSettings.src = playerInfo.avatar;
+
+	settingsName.value = playerInfo.name;
+	settingsUsername.value = playerInfo.username;
+	settingsPassword.value = "";
+	settingsCountry.value = playerInfo.country;
+
+	userInfoTemp = {
+		id: playerInfo.id,
+		Full_Name: playerInfo.name,
+		avatar_url: playerInfo.avatar, // very <- important
+		password_hash: playerInfo.password,
+		Alias: playerInfo.username,
+		Country: playerInfo.country,
+		status: "",
+		updated_at: "",
+		created_at: "",
+	};
+	// here set fields to what database has currently stored to display in settings
+	return true;
+}
+
+document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
+	e.preventDefault();
+
+	const nameInput = document.getElementById("settingsName") as HTMLInputElement;
+	const usernameInput = document.getElementById("settingsUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
+	const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
+	const avatarFileInput = document.getElementById("avatarUpload") as HTMLInputElement; // **file input**
+
+	const formData = new FormData();
+	formData.append("id", String(userInfoTemp.id));
+	formData.append("name", nameInput.value.trim());
+	formData.append("username", usernameInput.value.trim());
+	formData.append("password", passwordInput.value.trim() || userInfoTemp.password_hash);
+	formData.append("country", countryInput.value.trim());
+
+	if (avatarFileInput.files && avatarFileInput.files[0]) {
+		formData.append("avatar", avatarFileInput.files[0]); // new avatar
+	} else {
+		formData.append("avatar_url", userInfoTemp.avatar_url); // keep the one in DB
+	}
+
+	fetch("/updateUser", {
+		method: "POST",
+		body: formData
+	})
+		.then(res => res.json())
+		.then(data => {
+			alert(data.message);
+			location.reload();
+		})
+		.catch(err => console.error("Update failed", err));
+	hideSettings();
+});
+
+async function loginToSettings(): Promise<boolean> {
+	const usernameInput = document.getElementById("settingsLoginUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("settingsLoginPassword") as HTMLInputElement;
+	const username = usernameInput.value.trim();
+	const password = passwordInput.value.trim();
+
+	if (!username || !password) {
+		alert("Username and password cannot be empty!");
+		return false;
+	}
+
+	const loginPlayer: PlayerLogin = { username, password };
+
+	try {
+		const response = await fetch("/login", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(loginPlayer)
+		});
+
+		if (!response.ok) {
+			const message = response.status === 401
+				? 'Username or password is incorrect'
+				: 'Login failed. Please try again.';
+			alert(message);
+			emptyLoginFields("loginSettings");
+			return false;
+		}
+		emptyLoginFields("loginSettings");
+		setSettingFields(loginPlayer);
+		return true;
+	} catch (error) {
+		console.error("Error during Login:", error);
+		emptyLoginFields("loginSettings");
+		return false;
+	}
+}
 
 
+document.getElementById("settingsLogin")?.addEventListener("submit", async (e) => {
+	e.preventDefault();
+	const success = await loginToSettings();
+
+	if (success) {
+		hideSettingsLogin();
+		showSettingsForm();
+	} else {
+		hideSettings();
+		hideSettingsForm();
+		hideSettingsLogin();
+		document.addEventListener("keydown", handleKeydown);
+		document.addEventListener("keyup", handleKeyup);
+		emptyLoginFields("loginSettings");
+		restoreScreen();
+	}
+});
+
+
+function showSettings(): void {
+	const settings = document.getElementById("settings") as HTMLElement;
+	if (settings) settings.style.display = "flex";
+}
+
+function hideSettings(): void {
+	const settings = document.getElementById("settings") as HTMLElement;
+	if (settings) settings.style.display = "none";
+}
+
+function hideSettingsForm(): void {
+	const settingsForm = document.getElementById("settingsForm") as HTMLElement;
+	if (settingsForm) settingsForm.style.display = "none";
+	const saveButton = document.getElementById("settingsSave") as HTMLElement;
+	const deleteButton = document.getElementById("settingsDeleteAccount") as HTMLElement;
+	const showPasswordButton = document.getElementById("showSettingsPassword") as HTMLElement;
+	if (saveButton) saveButton.style.display = "none";
+	if (deleteButton) deleteButton.style.display = "none";
+	if (showPasswordButton) showPasswordButton.style.display = "none";
+}
+
+
+function showSettingsForm(): void {
+	const settingsForm = document.getElementById("settingsForm") as HTMLElement;
+	if (settingsForm) settingsForm.style.display = "flex";
+
+	const settingsHeader = document.getElementById("settingsHeader") as HTMLElement;
+	if (settingsHeader) settingsHeader.textContent = "Settings";
+	const saveButton = document.getElementById("settingsSave") as HTMLElement;
+	const deleteButton = document.getElementById("settingsDeleteAccount") as HTMLElement;
+	const showPasswordButton = document.getElementById("showSettingsPassword") as HTMLElement;
+	if (saveButton) saveButton.style.display = "block";
+	if (deleteButton) deleteButton.style.display = "block";
+	if (showPasswordButton) showPasswordButton.style.display = "block";
+}
+
+function hideSettingsLogin(): void {
+	const settingsLogin = document.getElementById("settingsLogin") as HTMLElement;
+	if (settingsLogin) settingsLogin.style.display = "none";
+}
+
+function showSettingsLogin(): void {
+	const settingsLogin = document.getElementById("settingsLogin") as HTMLElement;
+	if (settingsLogin) settingsLogin.style.display = "flex";
+	const settingsHeader = document.getElementById("settingsHeader") as HTMLElement;
+	if (settingsHeader) settingsHeader.textContent = "Log in to continue.";
+}
+
+document.getElementById("settingsButton")?.addEventListener("click", () => {
+
+	const registerButton = document.getElementById("registerButton");
+	const playSelect = document.getElementById("playSelect");
+	const loginButton = document.getElementById("loginButton");
+	if (registerButton) registerButton.style.display = "none";
+	if (playSelect) playSelect.style.display = "none";
+	if (loginButton) loginButton.style.display = "none";
+
+	showSettings();
+	hideSettingsForm();
+	showSettingsLogin();
+	document.removeEventListener("keydown", handleKeydown);
+	document.removeEventListener("keyup", handleKeyup);
+});
+
+document.getElementById("showSettingsPassword")?.addEventListener("click", () => {
+	const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
+	if (passwordInput.type === "password") {
+		passwordInput.type = "text";
+	} else {
+		passwordInput.type = "password";
+	}
+});
+
+document.getElementById("settingsCancel")?.addEventListener("click", () => {
+	const settings = document.getElementById("settings") as HTMLElement;
+	if (settings) settings.style.display = "none";
+	document.addEventListener("keydown", handleKeydown);
+	document.addEventListener("keyup", handleKeyup);
+	emptyLoginFields("loginSettings");
+	restoreScreen();
+});
 
 
 /*--------------------------registration modal declaration--------------------------*/
 
 
 
+document.getElementById("showRegisterPassword")?.addEventListener("click", () => 
+{
+	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
+	if (passwordInput.type === "password") {
+		passwordInput.type = "text";
+	} else {
+		passwordInput.type = "password";
+	}
+});
 
 
 function showGeneralRegistrationModal(game: GameInfo) {
@@ -64,26 +378,21 @@ function showGeneralRegistrationModal(game: GameInfo) {
 	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
 	const countryInput = document.getElementById("registerCountry") as HTMLInputElement;
 	const nameInput = document.getElementById("registerName") as HTMLInputElement;
+	const avatarInput = document.getElementById("registerAvatar") as HTMLInputElement;
+	if (avatarInput) {
+		avatarInput.value = "";
+		avatarInput.type = "file";
+		avatarInput.className = "mb-2 px-2 py-1 border rounded block";
+		// avatarInput.required = false; // optional
+	}
 	nameInput.value = "";
 	usernameInput.value = "";
 	passwordInput.value = "";
 	countryInput.value = "";
-	usernameInput.type = "text";
 	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
-	nameInput.type = "text";
 	nameInput.className = "mb-2 px-2 py-1 border rounded block";
-	countryInput.type = "text";
 	countryInput.className = "mb-2 px-2 py-1 border rounded block";
-	passwordInput.type = "password";
-	usernameInput.placeholder = "Username";
-	passwordInput.placeholder = "Password";
-	countryInput.placeholder = "Country";
-	nameInput.placeholder = "Name";
-	usernameInput.required = true;
-	passwordInput.required = true;
-	nameInput.required = true;
-	countryInput.required = true;
-	modal.style.display = "block";
+	modal.style.display = "flex";
 }
 
 function hideGeneralRegistrationModal() {
@@ -91,65 +400,90 @@ function hideGeneralRegistrationModal() {
 	modal.style.display = "none";
 }
 
-document.getElementById("registerButton")?.addEventListener("click", () => 
-{
+document.getElementById("registerButton")?.addEventListener("click", () => {
 	const registerButton = document.getElementById("registerButton");
-	const tournamentButton = document.getElementById("tournamentButton");
+	const playSelect = document.getElementById("playSelect");
 	const loginButton = document.getElementById("loginButton");
 	if (registerButton) registerButton.style.display = "none";
-	if (tournamentButton) tournamentButton.style.display = "none";
+	if (playSelect) playSelect.style.display = "none";
 	if (loginButton) loginButton.style.display = "none";
 	showGeneralRegistrationModal(game);
 });
 
-document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
-	e.preventDefault();
-	const nameInput = document.getElementById("registerName") as HTMLInputElement;
-	const usernameInput = document.getElementById("registerUsername") as HTMLInputElement;
-	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
-	const countryInput = document.getElementById("registerCountry") as HTMLInputElement;
-	const name = nameInput.value.trim();
-	const username = usernameInput.value.trim();
-	const password = passwordInput.value.trim();
-	const country = countryInput.value.trim();
-	if (!username || !password || !name || !country) {
-		alert("Name, username, password and country cannot be empty!");
-		return;
-	}
+document.addEventListener("DOMContentLoaded", () => {
+	console.log("DOM is fully loaded and parsed!");
 
-	const newPlayer: PlayerRegistration = {
-		name,
-		username,
-		password,
-		country,
-	};
-	fetch("/register", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify(newPlayer)
-	})
-		.then(response => {
-			if (!response.ok) {
-				alert("Registration failed. Please try again.");
-				return;
-			}
-			console.log("Registration successful:", response);
-			alert("Registration successful! You can now log in.");
-			hideGeneralRegistrationModal();
-			location.reload();// This will reload the page after registration
-			return response.json();
+	// Get avatar input and set up preview once
+	const avatarInput = document.getElementById("registerAvatar") as HTMLInputElement;
+	avatarInput.addEventListener("change", () => {
+		const file = avatarInput.files && avatarInput.files[0];
+		const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
+		if (file) {
+			preview.src = URL.createObjectURL(file);
+			preview.style.display = "block";
+		} else {
+			preview.src = "default-avatar.png";
+			preview.style.display = "none";
+		}
+	});
+
+	// Handle registration form submission
+	document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
+		e.preventDefault();
+
+		const nameInput = document.getElementById("registerName") as HTMLInputElement;
+		const usernameInput = document.getElementById("registerUsername") as HTMLInputElement;
+		const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
+		const countryInput = document.getElementById("registerCountry") as HTMLInputElement;
+		// Reuse avatarInput from above
+		const name = nameInput.value.trim();
+		const username = usernameInput.value.trim();
+		const password = passwordInput.value.trim();
+		const country = countryInput.value.trim();
+		const avatarFile = avatarInput.files && avatarInput.files[0];
+
+		if (!username || !password || !name || !country) {
+			alert("Name, username, password and country cannot be empty!");
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append("name", name);
+		formData.append("username", username);
+		formData.append("password", password);
+		formData.append("country", country);
+		if (avatarFile) {
+			formData.append("avatar", avatarFile);
+		}
+
+		fetch("/register", {
+			method: "POST",
+			body: formData
 		})
-		.catch(error => {
-			console.error("Error during Registration:", error);
-		});
+			.then(response => {
+				if (!response.ok) {
+					alert("Registration failed. Please try again_am _here.");
+					return;
+				}
+				console.log("Registration successful:", response);
+				alert("Registration successful! You can now log in.");
+				emptyLoginFields("registerSettings");
+				hideGeneralRegistrationModal();
+				restoreScreen();
+				// location.reload(); // reload page after registration
+				return response.json();
+			})
+			.catch(error => {
+				console.error("Error during Registration:", error);
+			});
+	});
 });
 
 
 document.getElementById("generalCancelRegistration")?.addEventListener("click", () => {
 	hideGeneralRegistrationModal();
-	location.reload();
+	restoreScreen();
+	// location.reload();
 });
 
 
@@ -163,14 +497,8 @@ function showGeneralLoginModal(game: GameInfo) {
 	const passwordInput = document.getElementById("loginPassword") as HTMLInputElement;
 	usernameInput.value = "";
 	passwordInput.value = "";
-	usernameInput.type = "text";
 	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
-	passwordInput.type = "password";
-	usernameInput.placeholder = "Username";
-	passwordInput.placeholder = "Password";
-	usernameInput.required = true;
-	passwordInput.required = true;
-	modal.style.display = "block";
+	modal.style.display = "flex";
 }
 
 function hideGeneralLoginModal() {
@@ -178,32 +506,29 @@ function hideGeneralLoginModal() {
 	modal.style.display = "none";
 }
 
-document.getElementById("loginButton")?.addEventListener("click", () => 
-{
+document.getElementById("loginButton")?.addEventListener("click", () => {
 	const registerButton = document.getElementById("registerButton");
-	const tournamentButton = document.getElementById("tournamentButton");
+	const playSelect = document.getElementById("playSelect");
 	const loginButton = document.getElementById("loginButton");
 	if (registerButton) registerButton.style.display = "none";
-	if (tournamentButton) tournamentButton.style.display = "none";
+	if (playSelect) playSelect.style.display = "none";
 	if (loginButton) loginButton.style.display = "none";
 
 	showGeneralLoginModal(game);
 });
 
-document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
-	e.preventDefault();
-	const usernameInput = document.getElementById("loginUsername") as HTMLInputElement;
-	const passwordInput = document.getElementById("loginPassword") as HTMLInputElement;
-	const username = usernameInput.value.trim();
-	const password = passwordInput.value.trim();
-	if (!username || !password) {
-		alert("Username and password cannot be empty!");
-		return;
-	}
-	var loginPlayer: PlayerLogin = {
-		username: username,
-		password: password,
-	};
+/** Create WebSocket connection */
+
+import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
+import { createWebSocketConnection } from "./websocketConnection.js";
+import { SendMessageHandler, getChatHistoryFunction, addFriendFunction, friendRequestListFunction } from "./friendSystemActions.js";
+
+SendMessageHandler();
+getChatHistoryFunction(game);
+addFriendFunction(game);
+friendRequestListFunction(game);
+
+function loginRequest(loginPlayer: PlayerLogin) {
 	fetch("/login", {
 		method: "POST",
 		headers: {
@@ -219,24 +544,67 @@ document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
 			}
 			alert("Login successful!");
 			hideGeneralLoginModal();
+			game.username = loginPlayer.username; // this is just for the note who is login now.
+			emptyLoginFields("loginGeneral");
 			game.players.push({
 				name: loginPlayer.username,
 				gamesLost: 0,
 				gamesWon: 0,
 				playerscore: 0,
-			}
-			);
-			location.reload();// This will reload the page after login
+			});
+			createWebSocketConnection(loginPlayer.username);
+			// get the friend list
+			getFriendList(loginPlayer.username);
+			getFriendRequestList(loginPlayer.username);
+			const addFriend = document.getElementById("addFriend") as HTMLElement;
+			if (addFriend) addFriend.style.display = "block";
+			getRejectedFriendRequests(loginPlayer.username);
+			//restoreScreen();
+			// location.reload();
 			return response.json();
 		})
 		.catch(error => {
 			console.error("Error during Login:", error);
 		});
+}
+
+
+document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
+	e.preventDefault();
+	const usernameInput = document.getElementById("loginUsername") as HTMLInputElement;
+	const passwordInput = document.getElementById("loginPassword") as HTMLInputElement;
+	const username = usernameInput.value.trim();
+	const password = passwordInput.value.trim();
+	if (!username || !password) {
+		alert("Username and password cannot be empty!");
+		return;
+	}
+	var loginPlayer: PlayerLogin = {
+		username: username,
+		password: password,
+	};
+	loginRequest(loginPlayer);
+});
+
+// ------------------------------------------------add friend-------------------------------------
+
+document.getElementById("friendList2")?.addEventListener("click", (e) => {// this is also just a test
+	const target = e.target as HTMLElement;
+	if (target.tagName === "LI") {
+		console.log(`${target.textContent} clicked`);
+
+		// Handle specific items
+		if (target.id === "Rank: Pro") {
+			console.log("I love this rank!");
+			// Handle rank logic here
+		}
+	}
 });
 
 document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
 	hideGeneralLoginModal();
-	location.reload();
+	restoreScreen();
+	// location.reload();
 });
 
 document.getElementById("showLoginPassword")?.addEventListener("click", () => {
@@ -277,20 +645,21 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(loginPlayer),
 			})
-			.then((response) => {
-				if (!response.ok) {
-					alert("Login failed. Please try again.");
-					return;
-				}
-				alert("Login successful!");
-				// return response.json();
-			})
-			.then((data) => {
-				console.log("Login successful:", data);
-			})
-			.catch(error => {
-				console.error("Error during Login:", error);
-			});
+				.then((response) => {
+					if (!response.ok) {
+						alert("Login failed. Please try again.");
+						return;
+					}
+					alert("Login successful!");
+					// return response.json();
+				})
+				.then((data) => {
+					console.log("Login successful:", data);
+				})
+				.catch(error => {
+					console.error("Error during Login:", error);
+				});
+			emptyLoginFields("loginTournament");
 			game.t.players.push({ name: username, score: 0 });
 			hidetournamentRegistrationModal();
 			resolve(loginPlayer);
@@ -299,8 +668,7 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
 }
 
 
-async function tournamentRegisterPlayers (game: GameInfo): Promise<void> 
-{
+async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 	const players: PlayerLogin[] = [];
 	for (let i = 1; i <= 4; i++) {
 		const player = await registerPlayer(i, game);
@@ -309,13 +677,14 @@ async function tournamentRegisterPlayers (game: GameInfo): Promise<void>
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(player),
 		})
-		.then((response) => {
-			if (!response.ok) {
-				tournamentEnd(0, game);
-				location.reload();
-				return;
-			}
-		})
+			.then((response) => {
+				if (!response.ok) {
+					tournamentEnd(0, game);
+					restoreScreen();
+					// location.reload();
+					return;
+				}
+			})
 		players.push(player);
 		game.players.push({ name: players[players.length - 1].username, gamesLost: 0, gamesWon: 0, playerscore: 0 });
 	}
@@ -337,15 +706,10 @@ function showtournamentRegistrationModal(playerNr: number): void {
 	header.textContent = `Register Tournament Player ${playerNr}`;
 	usernameInput.value = "";
 	passwordInput.value = "";
-	usernameInput.type = "text";
-	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
-	passwordInput.type = "password";
-	usernameInput.placeholder = "Username";
-	passwordInput.placeholder = "Password";
-	usernameInput.required = true;
-	passwordInput.required = true;
 
-	modal.style.display = "block";
+	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
+
+	modal.style.display = "flex";
 }
 
 
@@ -357,27 +721,20 @@ function hidetournamentRegistrationModal() {
 document.getElementById("tournamentFinishContinue")?.addEventListener("click", () => {
 	//game.t.finishScreenRunning = false;
 	tournamentEnd(0, game);
-	location.reload();
+	restoreScreen();
+	// location.reload();
 });
 
 document.getElementById("tournamentResetButton")?.addEventListener("click", () => {
 	// tournamentEnd(0, game);
-	location.reload();
-});
-
-document.getElementById("WinnerScreenContinue")?.addEventListener("click", () => {
-	fetch("/gameContinue");
-	if (game.tournamentLoopActive && game.t.stage === TournamentStage.Complete)
-		tournamentFinished(game);
-	const winnerScreen = document.getElementById("WinnerScreen");
-	if (winnerScreen) winnerScreen.style.display = "none";
-	document.addEventListener("keydown", handleKeydown);
-	document.addEventListener("keyup", handleKeyup);
-	getGameStatus();
+	restoreScreen();
+	// location.reload();
 });
 
 
-document.getElementById("playSelect")?.addEventListener("change",(event:Event) => {
+
+
+document.getElementById("playSelect")?.addEventListener("change", (event: Event) => {
 	const playSelect = document.getElementById("playSelect") as HTMLSelectElement;
 	const target = event.target as HTMLSelectElement;
 	const selectedOption = target.value;
@@ -393,7 +750,11 @@ document.getElementById("playSelect")?.addEventListener("change",(event:Event) =
 				const registerButton = document.getElementById("registerButton");
 				const select = document.getElementById("playSelect");
 				const loginButton = document.getElementById("loginButton");
+				const settingsButton = document.getElementById("settingsButton") as HTMLSelectElement;
+				const settings = document.getElementById("settings") as HTMLSelectElement;
 
+				if (settingsButton) settingsButton.style.display = "none";
+				if (settings) settings.style.display = "none";
 				if (registerButton) registerButton.style.display = "none";
 				if (select) select.style.display = "none";
 				if (loginButton) loginButton.style.display = "none";
@@ -403,10 +764,10 @@ document.getElementById("playSelect")?.addEventListener("change",(event:Event) =
 				tournamentRegisterPlayers(game);
 				break;
 			case "multiplayer":
-				
+
 				break
 			case "1v1":
-				
+
 				break
 			default:
 				break;
@@ -414,28 +775,12 @@ document.getElementById("playSelect")?.addEventListener("change",(event:Event) =
 	}
 });
 
-document.getElementById("tournamentButton")?.addEventListener("click", () => {
-	document.removeEventListener('keydown', handleKeydown);
-	document.removeEventListener('keyup', handleKeyup);
-	const registerButton = document.getElementById("registerButton");
-	const tournamentButton = document.getElementById("tournamentButton");
-	const loginButton = document.getElementById("loginButton");
-
-	if (registerButton) registerButton.style.display = "none";
-	if (tournamentButton) tournamentButton.style.display = "none";
-	if (loginButton) loginButton.style.display = "none";
-
-	const resetButton = document.getElementById("tournamentResetButton");
-	if (resetButton) resetButton.style.display = "block";
-
-	tournamentRegisterPlayers(game);
-});
-
 
 document.getElementById("CancelGeneralTournament")?.addEventListener("click", () => {
 	hidetournamentRegistrationModal();
 	tournamentEnd(1, game);
-	location.reload();	//restores the regular interface
+	restoreScreen();
+	// location.reload();
 });
 
 document.getElementById("showTournamentPassword")?.addEventListener("click", () => {
@@ -447,144 +792,7 @@ document.getElementById("showTournamentPassword")?.addEventListener("click", () 
 	}
 });
 
-/*--------------------------game logic----------------------------*/
-function drawMiddlePath(): void {
-	ctx.strokeStyle = "white";
-	ctx.lineWidth = 2;
-	for (let y = 0; y < game.canvas.height; y += 20) {
-		ctx.beginPath();
-		ctx.moveTo(game.canvas.width / 2, y);
-		ctx.lineTo(game.canvas.width / 2, y + 10);
-		ctx.stroke();
-	}
-}
 
-function drawCircle(x: number, y: number, radius: number): void {
-	ctx.beginPath();
-	ctx.arc(x, y, radius, 0, Math.PI * 2);
-	ctx.fillStyle = "white";
-	ctx.fill();
-	ctx.closePath();
-}
-
-function calculatePaddleCoords(): void
-{
-	if (keysPressed["ArrowUp"]) {
-		fetch("/pressArrowUp");
-	}
-	if (keysPressed["ArrowDown"]) {
-		fetch("/pressArrowDown");
-	}
-	if (keysPressed["w"]) {
-		fetch("/pressW");
-	}
-	if (keysPressed["s"]) {
-		fetch("/pressS");
-	}
-}
-
-function getGameStatus(): void {
-	if (!gamefinished) {
-		var length = game.t.matches.length;
-		fetch("/getstatus")
-		.then(response => response.json())
-		.then(data => {
-			game.ball.ballX = data.ballX;
-			game.ball.ballY = data.ballY;
-			game.player1Paddle.y = data.player1_y;
-			game.player2Paddle.y = data.player2_y;
-			if (game.tournamentLoopActive && length)
-			{
-				game.t.matches[length -1].player1.score = data.player1_score;
-				game.t.matches[length -1].player2.score = data.player2_score;
-			}
-			else
-			{
-				game.players[0].playerscore = data.player1_score;
-				game.players[1].playerscore = data.player2_score;
-			}
-			game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
-			if (data.gamefinished) {
-				fetch("/resetgame")
-				.then(response => response.json())
-				.then(data => {
-					game.ball.ballX = data.ballX;
-					game.ball.ballY = data.ballY;
-					game.player1Paddle.y = data.player1_y;
-					game.player2Paddle.y = data.player2_y;
-					if (game.tournamentLoopActive)
-					{
-						game.t.matches[length -1].player1.score = data.player1_score;
-						game.t.matches[length -1].player2.score = data.player2_score;
-					}
-					else
-					{
-						game.players[0].playerscore = data.player1_score;
-						game.players[1].playerscore = data.player2_score;
-					}
-				});
-			}
-		});
-	}
-}
-
-function singlePlayerGame(): void {
-	if (game.players[0].playerscore === rounds) {
-		game.players[0].gamesWon++;
-		game.players[1].gamesLost++;
-		showWinnerScreen(game, game.players[0].name);
-	}
-	if (game.players[1].playerscore === rounds) {
-		game.players[1].gamesWon++;
-		game.players[0].gamesLost++;
-		showWinnerScreen(game, game.players[1].name);
-	}
-	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
-	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(game.players[0].name + ": " + game.players[0].playerscore, 10, 25);
-	ctx.fillText(game.players[1].name + ": " + game.players[1].playerscore, 10, 50);
-	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
-	calculatePaddleCoords();
-	drawMiddlePath();
-	drawCircle(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
-	ctx.fillStyle = "white";
-	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
-	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
-	getGameStatus();
-}
-
-function tournamentGame(): number {
-	getGameStatus();
-	if (tournamentLogic(game) === 1)
-		return (0);
-	var length = game.t.matches.length;
-	if (game.t.stage === TournamentStage.Complete)
-			return 1;
-	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
-	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(game.t.matches[length -1].player1.name + ": " + game.t.matches[length -1].player1.score, 10, 25);
-	ctx.fillText(game.t.matches[length -1].player2.name + ": " + game.t.matches[length -1].player2.score, 10, 50);
-	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
-	calculatePaddleCoords();
-	drawMiddlePath();
-	drawCircle(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
-	ctx.fillStyle = "white";
-	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
-	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
-
-	return 0;
-}
-
-function updateGame(): void {
-	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration)
-	{
-		if (game.players.length >= 2 && !game.tournamentLoopActive) {
-			singlePlayerGame();
-		}
-		else if (game.tournamentLoopActive) {
-			tournamentGame();
-		}
-	}
-	requestAnimationFrame(updateGame);
-}
+import { clickWinnerScreenContinue, updateGame } from "./gamePlay.js";
+clickWinnerScreenContinue();
 updateGame();
