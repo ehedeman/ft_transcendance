@@ -169,11 +169,11 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement) {
 		modal.style.zIndex = "2000";
 
 		modal.innerHTML = `
-			<div style="background:#fff; padding:20px; border-radius:10px; width:300px; max-width:90%; position:relative; text-align:center;">
-				<span id="closeModal" style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:22px;">&times;</span>
-				<h3>User Details: ${target.id}</h3>
-				<div id="modalContent">Loading...</div>
-			</div>
+		<div style="background:#fff; padding:20px; border-radius:10px; width:300px; max-width:90%; position:relative; text-align:center;">
+		<span id="closeModal" style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:22px;">&times;</span>
+		<h3>User Details: ${target.id}</h3>
+		<div id="modalContent">Loading...</div>
+		</div>
 		`;
 
 		document.body.appendChild(modal);
@@ -279,7 +279,7 @@ export function showFriendStatus() {
 						if (tooltip && tooltip.parentNode) {
 							tooltip.parentNode.removeChild(tooltip);
 						}
-					}, 5000);
+					}, 3000);
 				}
 			}
 		});
