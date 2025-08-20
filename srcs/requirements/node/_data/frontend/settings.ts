@@ -1,24 +1,24 @@
 import { restoreScreen } from "./screenDisplay.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
 import { handleKeydown, handleKeyup } from "./index.js";
-import { PlayerLogin } from "./frontendStructures.js";
+import { GameInfo, PlayerLogin } from "./frontendStructures.js";
 
 import { userInfo } from "./serverStructures.js"
 
 var userInfoTemp: userInfo;
 
-export async function setSettingFields(loginPlayer: PlayerLogin, userInfoTemp: userInfo): Promise<boolean> {
+export async function setSettingFields(_username: string, userInfoTemp: userInfo): Promise<boolean> {
 	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
 	const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
 	const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
 	const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
 	const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLImageElement;
-	const avatarUpload = document.getElementById("avatarUpload") as HTMLInputElement;
 
+	console.log("settings: " + _username);
 	const response = await fetch("/userInfo", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ username: loginPlayer.username })
+		body: JSON.stringify({ username: _username })
 	});
 	const data = await response.json();
 
@@ -136,7 +136,7 @@ async function loginToSettings(): Promise<boolean> {
 			return false;
 		}
 		emptyLoginFields("loginSettings");
-		setSettingFields(loginPlayer, userInfoTemp);
+		setSettingFields(loginPlayer.username, userInfoTemp);
 		return true;
 	} catch (error) {
 		console.error("Error during Login:", error);
@@ -145,7 +145,7 @@ async function loginToSettings(): Promise<boolean> {
 	}
 }
 
-export function callSettingsEventlisteners()
+export function callSettingsEventlisteners(game:GameInfo)
 {
 	document.getElementById("settingsDeleteAccount")?.addEventListener("click", () => 
 	{
@@ -239,15 +239,26 @@ export function callSettingsEventlisteners()
 		const registerButton = document.getElementById("registerButton");
 		const playSelect = document.getElementById("playSelect");
 		const loginButton = document.getElementById("loginButton");
+		const logoutButton = document.getElementById("logoutButton")
 		if (registerButton) registerButton.style.display = "none";
 		if (playSelect) playSelect.style.display = "none";
 		if (loginButton) loginButton.style.display = "none";
-
+		if (logoutButton) logoutButton.style.display = "none";
 		showSettings();
 		hideSettingsForm();
-		showSettingsLogin();
-		document.removeEventListener("keydown", handleKeydown);
-		document.removeEventListener("keyup", handleKeyup);
+		if (game.currentlyLoggedIn.name === "default")
+		{
+			showSettingsLogin();
+			document.removeEventListener("keydown", handleKeydown);
+			document.removeEventListener("keyup", handleKeyup);
+		}
+		else
+		{
+			document.removeEventListener("keydown", handleKeydown);
+			document.removeEventListener("keyup", handleKeyup);
+			setSettingFields(game.currentlyLoggedIn.name, userInfoTemp);
+			showSettingsForm();
+		}
 	});
 
 	document.getElementById("showSettingsPassword")?.addEventListener("click", () =>
@@ -268,6 +279,13 @@ export function callSettingsEventlisteners()
 		document.addEventListener("keyup", handleKeyup);
 		emptyLoginFields("loginSettings");
 		restoreScreen();
+		if (game.currentlyLoggedIn.name !== "default")
+		{
+			const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
+			if (logoutButton) logoutButton.style.display = "block";
+			const loginButton = document.getElementById ("loginButton") as HTMLElement;
+			if (loginButton) loginButton.style.display = "none";
+		}
 	});
 
 }

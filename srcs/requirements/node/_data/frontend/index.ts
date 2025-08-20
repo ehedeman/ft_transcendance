@@ -51,7 +51,7 @@ export let gamefinished = false;
 
 /*-------------------------------------settings------------------------------------*/
 
-callSettingsEventlisteners();
+callSettingsEventlisteners(game);
 
 /*--------------------------registration modal declaration--------------------------*/
 

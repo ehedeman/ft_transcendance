@@ -60,9 +60,13 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 		const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
 		const registerButton = document.getElementById ("registerButton") as HTMLElement;
 		const playSelect = document.getElementById("playSelect");
+		const friendStuff = document.getElementById("friendStuff");
+		const messages = document.getElementById("messages");
 		if (logoutButton) logoutButton.style.display = "block";
 		if (registerButton) registerButton.style.display = "block";
 		if (playSelect) playSelect.style.display = "block";
+		if (friendStuff) friendStuff.style.display = "block";
+		if (messages) messages.style.display = "block";
 		return response.json();
 	})
 	.catch(error => {

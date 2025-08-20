@@ -197,27 +197,29 @@
 				style="position:absolute; left: 50%; top: 120px; transform: translateX(-50%);">
 			</canvas>
 		</div>
-		<div style="position:absolute; top: calc(120px + 620px)">
-			<header style="position:absolute;">Friends</header>
-		</div>
-		<div style="position: absolute; display: flex; flex-direction: row; top: calc(120px + 620px + 20px); left: 50%; transform: translateX(-50%);">
-			<div style="display: flex; gap: 20px;">
-				<ul id="friendList" style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
-					<li>Please login to see friends</li>
-				</ul>
-				<ul id="friendList2" style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
-					<li>Please click a friend to see the history...</li>
-				</ul>
-				<ul style="padding-left: 20px; max-width: 75px; max-height: 65px;">
-					<button style="width: 75px; height: 75px; display: none;" id="addFriend" class="bg-blue-500 text-white px-4 py-2 rounded">Add Friend</button>
-				</ul>
-				<ul id="friendRequestsList" style="width: 250px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
-					<li>Your new friend requests will appear here</li>
-				</ul>
+		<div id="friendStuff" style="display: none;">
+			<div style="position:absolute; top: calc(120px + 620px)">
+				<header style="position:absolute;">Friends</header>
+			</div>
+			<div style="position: absolute; flex-direction: row; top: calc(120px + 620px + 20px); left: 50%; transform: translateX(-50%);">
+				<div style="display: flex; gap: 20px;">
+					<ul id="friendList" style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
+						<li>Please login to see friends</li>
+					</ul>
+					<ul id="friendList2" style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
+						<li>Please click a friend to see the history...</li>
+					</ul>
+					<ul style="padding-left: 20px; max-width: 75px; max-height: 65px;">
+						<button style="width: 75px; height: 75px; display: none;" id="addFriend" class="bg-blue-500 text-white px-4 py-2 rounded">Add Friend</button>
+					</ul>
+					<ul id="friendRequestsList" style="width: 250px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
+						<li>Your new friend requests will appear here</li>
+					</ul>
+				</div>
 			</div>
 		</div>
 		<div
-			style="position:absolute; display: flex; top: calc(120px + 620px + 20px + 120px); left: 50%; transform: translateX(-50%);">
+			id="messages" style="position:absolute; display: none; top: calc(120px + 620px + 20px + 120px); left: 50%; transform: translateX(-50%);">
 			<input type="text" id="inputMessageBox" placeholder="Please input your message here..."
 				class="border rounded px-2 py-1" style="width: 400px;" />
 			<button id="sendMessage" class="bg-blue-500 text-white px-4 py-2 rounded">Send Message</button>

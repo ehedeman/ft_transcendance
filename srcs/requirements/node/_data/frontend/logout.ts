@@ -27,10 +27,14 @@ function logout(game:GameInfo)
 		const loginButton = document.getElementById ("loginButton") as HTMLElement;
 		const registerButton = document.getElementById ("registerButton") as HTMLElement;
 		const playSelect = document.getElementById("playSelect");
+		const friendStuff = document.getElementById("friendStuff");
+		const messages = document.getElementById("messages");
 		if (logoutButton) logoutButton.style.display = "none";
 		if (loginButton) loginButton.style.display = "block";
 		if (registerButton) registerButton.style.display = "block";
 		if (playSelect) playSelect.style.display = "none";
+		if (friendStuff) friendStuff.style.display = "none";
+		if (messages) messages.style.display = "none";
 		return response.json();
 	})
 	.catch(error => {
