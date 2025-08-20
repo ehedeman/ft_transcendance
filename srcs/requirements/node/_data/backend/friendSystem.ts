@@ -190,4 +190,25 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		const stmt2 = db.prepare(`DELETE FROM newFriend WHERE username = ? AND status = 'rejected'`);
 		stmt2.run(username);
 	});
+
+	app.get("/userStatus", async (request, reply) => {
+		const { username } = request.query as { username: string };
+
+		if (!username) {
+			reply.status(400).send({ status: 400, message: "Missing username" });
+			return;
+		}
+
+		const stmt = db.prepare(`SELECT status FROM users WHERE full_name = ?`);
+		const user = stmt.get(username);
+
+		if (!user) {
+			reply.status(404).send({ status: 404, message: "User not found" });
+			return;
+		}
+
+		const status = user.status;
+
+		reply.send({ onlineStatus: status, this: "is a test", that: "is another test", these: "are more tests", those: "are yet more tests" });
+	});
 }

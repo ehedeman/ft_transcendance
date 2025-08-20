@@ -361,8 +361,7 @@ document.getElementById("settingsCancel")?.addEventListener("click", () => {
 
 
 
-document.getElementById("showRegisterPassword")?.addEventListener("click", () => 
-{
+document.getElementById("showRegisterPassword")?.addEventListener("click", () => {
 	const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
 	if (passwordInput.type === "password") {
 		passwordInput.type = "text";
@@ -521,12 +520,13 @@ document.getElementById("loginButton")?.addEventListener("click", () => {
 
 import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
 import { createWebSocketConnection } from "./websocketConnection.js";
-import { SendMessageHandler, getChatHistoryFunction, addFriendFunction, friendRequestListFunction } from "./friendSystemActions.js";
+import { SendMessageHandler, getChatHistoryFunction, addFriendFunction, friendRequestListFunction, showFriendStatus } from "./friendSystemActions.js";
 
 SendMessageHandler();
 getChatHistoryFunction(game);
 addFriendFunction(game);
 friendRequestListFunction(game);
+showFriendStatus();
 
 function loginRequest(loginPlayer: PlayerLogin) {
 	fetch("/login", {

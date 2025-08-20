@@ -150,3 +150,80 @@ export function friendRequestListFunction(game: GameInfo) {
 		}
 	});
 }
+
+export function showFriendStatus() {
+	document.addEventListener("DOMContentLoaded", () => {
+		const friendList = document.getElementById("friendList");
+
+		let hoverTimer: number | null = null;
+
+		friendList?.addEventListener("mousemove", (e) => {
+			const target = e.target as HTMLElement;
+
+			// Only handle LI elements
+			if (target.tagName === "LI") {
+				if (hoverTimer === null) {
+					// Start 3-second timer
+					hoverTimer = window.setTimeout(() => {
+						let userinfo = document.createElement("ul");
+						userinfo.id = "userinfo";
+						userinfo.style.position = "absolute";
+						userinfo.style.left = `${e.clientX + 10}px`;
+						userinfo.style.top = `${e.clientY + 10}px`;
+						userinfo.style.backgroundColor = "#e4da17ff";
+						userinfo.style.color = "black";
+						userinfo.style.padding = "5px 8px";
+						userinfo.style.borderRadius = "5px";
+						userinfo.style.fontSize = "12px";
+						userinfo.style.pointerEvents = "none";
+						userinfo.style.zIndex = "1000";
+						document.body.appendChild(userinfo);
+						fetch(`/userStatus?username=${target.id}`)
+							.then(response => {
+								if (!response.ok) {
+									console.error("Failed to fetch user status");
+									return;
+								}
+								return response.json();
+							})
+							.then(data => {
+								console.log("User info fetched:", data);
+								for (const key in data) {
+									const value = data[key];
+									const infoItem = document.createElement("li");
+									infoItem.textContent = `${key}: ${value}`;
+									userinfo.appendChild(infoItem);
+								}
+							});
+						console.log("Hover timer triggered for:", target.id);
+					}, 3000);
+				}
+
+				// Update tooltip position if it's already visible
+			}
+		});
+
+		friendList?.addEventListener("mouseleave", () => {
+			// Reset timer and hide tooltip when mouse leaves UL
+			if (hoverTimer) {
+				clearTimeout(hoverTimer);
+				hoverTimer = null;
+			}
+		});
+
+		friendList?.addEventListener("mouseout", (e) => {
+			const target = e.target as HTMLElement;
+			if (target.tagName === "LI") {
+				// Reset timer when leaving the LI
+				if (hoverTimer) {
+					clearTimeout(hoverTimer);
+					hoverTimer = null;
+				}
+				const tooltip = document.getElementById("userinfo");
+				if (tooltip) {
+					document.body.removeChild(tooltip);
+				}
+			}
+		});
+	});
+}
