@@ -62,7 +62,7 @@ export let accaleration = 0.1; // Speed increase factor
 
 import { updateGame, interactWithGame } from './gamePlayServer.js';
 
-setInterval(() => {// TODO: not here
+setInterval(() => {
 	updateGame();
 }, 1000 / 60);
 interactWithGame(app, game);
