@@ -12,7 +12,7 @@ export function restoreScreen(): void {
 
 	if (preview) preview.src = "avatars/default-avatar.png";
 	if (registerButton) registerButton.style.display = "block";
-	if (playSelect) playSelect.style.display = "block";
+	if (playSelect) playSelect.style.display = "none";
 	if (loginButton) loginButton.style.display = "block";
 	if (registerModal) registerModal.style.display = "none";
 	if (settings) settings.style.display = "none";
