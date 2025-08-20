@@ -34,7 +34,8 @@
 	<body id="gameScreen " class="bg-gray-900 flex items-center justify-center h-screen text-white">
 		<div id="settings"
 			style="display:none; position:absolute; flex-grow:1; display:none; flex-direction:column; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width: 300px;">
-			<div style="display:flex; flex-direction:column;  justify-content:space-between; align-items:center; height:100%;">
+			<div
+				style="display:flex; flex-direction:column;  justify-content:space-between; align-items:center; height:100%;">
 				<h2 id="settingsHeader"></h2>
 				<form id="settingsForm" method="post"
 					style="flex-grow:1; display:flex; flex-direction:column; margin-bottom:10px; justify-content:space-between; align-items:center;">
@@ -67,7 +68,7 @@
 					<button type="submit" id="settingsLoginSubmit" class="bg-blue-500 text-white px-4 py-2 rounded">Log
 						In</button>
 				</form>
-				<button style="flex-grow:1; gap: 10px;" type="button" id="settingsCancel" 
+				<button style="flex-grow:1; gap: 10px;" type="button" id="settingsCancel"
 					class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
 			</div>
 		</div>
@@ -195,18 +196,23 @@
 		<div style="position:absolute; top: calc(120px + 620px)">
 			<header style="position:absolute;">Friends</header>
 		</div>
-		<div style="position: absolute; display: flex; flex-direction: row; top: calc(120px + 620px + 20px); left: 50%; transform: translateX(-50%);">
+		<div
+			style="position: absolute; display: flex; flex-direction: row; top: calc(120px + 620px + 20px); left: 50%; transform: translateX(-50%);">
 			<div style="display: flex; gap: 20px;">
-				<ul id="friendList" style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
+				<ul id="friendList"
+					style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
 					<li>Please login to see friends</li>
 				</ul>
-				<ul id="friendList2" style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
+				<ul id="friendList2"
+					style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
 					<li>Please click a friend to see the history...</li>
 				</ul>
 				<ul style="padding-left: 20px; max-width: 75px; max-height: 65px;">
-					<button style="width: 75px; height: 75px; display: none;" id="addFriend" class="bg-blue-500 text-white px-4 py-2 rounded">Add Friend</button>
+					<button style="width: 75px; height: 75px; display: none;" id="addFriend"
+						class="bg-blue-500 text-white px-4 py-2 rounded">Add Friend</button>
 				</ul>
-				<ul id="friendRequestsList" style="width: 250px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
+				<ul id="friendRequestsList"
+					style="width: 250px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
 					<li>Your new friend requests will appear here</li>
 				</ul>
 			</div>
@@ -217,7 +223,10 @@
 				class="border rounded px-2 py-1" style="width: 400px;" />
 			<button id="sendMessage" class="bg-blue-500 text-white px-4 py-2 rounded">Send Message</button>
 		</div>
-		<script type="module" src="/index.js"></script>
+		<div id="toolTipForShowingUserInfo" 
+		style="position: absolute; background-color: #333; color: white; padding: 5px 8px; border-radius: 5px; font-size: 12px; display: none; pointer-events: none; z-index: 1000;"></div>
+		<script type="module" src="/index.js">
+		</script>
 	</body>
 </div>
 
