@@ -151,6 +151,52 @@ export function friendRequestListFunction(game: GameInfo) {
 	});
 }
 
+function labelButton(target: HTMLElement, userinfo: HTMLElement) {
+	let detailButton = document.createElement("button");
+	detailButton.textContent = "View Details";
+	detailButton.addEventListener("click", () => {
+		const modal = document.createElement("div");
+		modal.id = "userModal";
+		modal.style.position = "fixed";
+		modal.style.top = "0";
+		modal.style.left = "0";
+		modal.style.width = "100%";
+		modal.style.height = "100%";
+		modal.style.backgroundColor = "rgba(0,0,0,0.5)";
+		modal.style.display = "flex";
+		modal.style.justifyContent = "center";
+		modal.style.alignItems = "center";
+		modal.style.zIndex = "2000";
+
+		modal.innerHTML = `
+			<div style="background:#fff; padding:20px; border-radius:10px; width:300px; max-width:90%; position:relative; text-align:center;">
+				<span id="closeModal" style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:22px;">&times;</span>
+				<h3>User Details: ${target.id}</h3>
+				<div id="modalContent">Loading...</div>
+			</div>
+		`;
+
+		document.body.appendChild(modal);
+
+		// Close button
+		modal.querySelector("#closeModal")?.addEventListener("click", () => {
+			document.body.removeChild(modal);
+		});
+
+		// Fetch user details
+		fetch(`/userStatus?username=${target.id}`)
+			.then(res => res.json())
+			.then(data => {
+				const content = modal.querySelector("#modalContent")!;
+				content.innerHTML = `
+					${data.avatarUrl ? `<img src="${data.avatarUrl}" alt="${target.id}'s avatar" style="width:80px; height:80px; border-radius:50%; margin-bottom:10px;">` : ""}
+					${Object.entries(data).filter(([k]) => k !== "avatarUrl").map(([k, v]) => `<p>${k}: ${v}</p>`).join("")}
+				`;
+			});
+	});
+	userinfo.appendChild(detailButton);
+}
+
 export function showFriendStatus() {
 	document.addEventListener("DOMContentLoaded", () => {
 		const friendList = document.getElementById("friendList");
@@ -203,13 +249,7 @@ export function showFriendStatus() {
 									}
 								}
 							});
-						let detailButton = document.createElement("button");
-						detailButton.textContent = "View Details";
-						detailButton.addEventListener("click", () => {
-							// Handle view details action
-							console.log("View details for:", target.id);
-						});
-						userinfo.appendChild(detailButton);
+						labelButton(target, userinfo);
 						console.log("Hover timer triggered for:", target.id);
 					}, 1000);
 				}
@@ -245,14 +285,4 @@ export function showFriendStatus() {
 		});
 
 	});
-	// document.getElementById("userinfo")?.addEventListener("mouseenter", () => {
-	// 	// Do nothing, keep the tooltip visible
-	// });
-
-	// document.getElementById("userinfo")?.addEventListener("mouseleave", () => {
-	// 	const tooltip = document.getElementById("userinfo");
-	// 	if (tooltip) {
-	// 		document.body.removeChild(tooltip);
-	// 	}
-	// });
 }
