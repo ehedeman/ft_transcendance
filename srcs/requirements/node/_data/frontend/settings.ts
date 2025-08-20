@@ -6,6 +6,9 @@ import { GameInfo, PlayerLogin } from "./frontendStructures.js";
 import { userInfo } from "./serverStructures.js"
 
 var userInfoTemp: userInfo;
+var settingsAlreadyLoggedIn: boolean = false;
+//to determine whether user was logged in before accessing settings
+//or if the user had first logged in in the settings
 
 export async function setSettingFields(_username: string, userInfoTemp: userInfo): Promise<boolean> {
 	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
@@ -107,7 +110,7 @@ function showSettingsLogin(): void {
 	if (settingsHeader) settingsHeader.textContent = "Log in to continue.";
 }
 
-async function loginToSettings(): Promise<boolean> {
+async function loginToSettings(game: GameInfo): Promise<boolean> {
 	const usernameInput = document.getElementById("settingsLoginUsername") as HTMLInputElement;
 	const passwordInput = document.getElementById("settingsLoginPassword") as HTMLInputElement;
 	const username = usernameInput.value.trim();
@@ -136,7 +139,8 @@ async function loginToSettings(): Promise<boolean> {
 			return false;
 		}
 		emptyLoginFields("loginSettings");
-		setSettingFields(loginPlayer.username, userInfoTemp);
+		game.currentlyLoggedIn.name = loginPlayer.username;
+		setSettingFields(game.currentlyLoggedIn.name, userInfoTemp);
 		return true;
 	} catch (error) {
 		console.error("Error during Login:", error);
@@ -149,11 +153,32 @@ export function callSettingsEventlisteners(game:GameInfo)
 {
 	document.getElementById("settingsDeleteAccount")?.addEventListener("click", () => 
 	{
-			// delete account from database here
+		fetch("/deleteUser", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({ username: game.currentlyLoggedIn.name })
+		})
+		.then(response => {
+			if (!response.ok) {
+				const message: string = response.status === 401 ? 'Username not found' : 'deletion failed. Please try again.';
+				alert(message);
+				return;
+			}
+			alert("Account deleted successfully!");
 
-			//not sure of a way to get data on whose acc is being deleted tho
-			//at least not wihtout getting too hardcoded
+			game.currentlyLoggedIn.name = "default";
+			game.currentlyLoggedIn.gamesLost = 0;
+			game.currentlyLoggedIn.gamesWon = 0;
+			game.currentlyLoggedIn.playerscore = 0;
+
 			restoreScreen();
+			return response.json();
+		})
+		.catch(error => {
+			console.error("Error during deletion:", error);
+		});
 	});
 	document.getElementById('avatarPreviewSettings')?.addEventListener('click', function ()
 	{
@@ -217,7 +242,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 	document.getElementById("settingsLogin")?.addEventListener("submit", async (e) => 
 	{
 		e.preventDefault();
-		const success = await loginToSettings();
+		const success = await loginToSettings(game);
 
 		if (success) {
 			hideSettingsLogin();
@@ -248,12 +273,14 @@ export function callSettingsEventlisteners(game:GameInfo)
 		hideSettingsForm();
 		if (game.currentlyLoggedIn.name === "default")
 		{
+			settingsAlreadyLoggedIn = false;
 			showSettingsLogin();
 			document.removeEventListener("keydown", handleKeydown);
 			document.removeEventListener("keyup", handleKeyup);
 		}
 		else
 		{
+			settingsAlreadyLoggedIn = true;
 			document.removeEventListener("keydown", handleKeydown);
 			document.removeEventListener("keyup", handleKeyup);
 			setSettingFields(game.currentlyLoggedIn.name, userInfoTemp);
@@ -279,13 +306,15 @@ export function callSettingsEventlisteners(game:GameInfo)
 		document.addEventListener("keyup", handleKeyup);
 		emptyLoginFields("loginSettings");
 		restoreScreen();
-		if (game.currentlyLoggedIn.name !== "default")
+		if (settingsAlreadyLoggedIn === true)
 		{
 			const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
 			if (logoutButton) logoutButton.style.display = "block";
 			const loginButton = document.getElementById ("loginButton") as HTMLElement;
 			if (loginButton) loginButton.style.display = "none";
 		}
+		else
+			game.currentlyLoggedIn.name = "default";
 	});
 
 }

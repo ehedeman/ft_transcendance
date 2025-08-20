@@ -178,10 +178,10 @@ app.post("/updateUser", async (request, reply) => {
 		}
 
 		const updateQuery = `
-            UPDATE users
-            SET Full_Name = ?, Alias = ?, password_hash = ?, Country = ?, avatar_url = ?
-            WHERE id = ?
-        `;
+			UPDATE users
+			SET Full_Name = ?, Alias = ?, password_hash = ?, Country = ?, avatar_url = ?
+			WHERE id = ?
+		`;
 		db.prepare(updateQuery).run(name, username, password_hash, country, avatarPath, id);
 
 		reply.send({ status: 200, message: "User updated successfully", avatar: avatarPath });
@@ -215,13 +215,27 @@ app.post("/userInfo", async (request, reply) => {
 	});
 })
 
+app.post("/deleteUser", async (request, reply) => {
+	const { username } = request.body as { username: string };
+
+	const user = db.prepare("SELECT * FROM users WHERE Alias = ?").get(username);
+	if (!user) {
+		reply.status(401).send({ status: 401, message: "Invalid username" });
+		return;
+	}
+	db.prepare("DELETE FROM users WHERE Alias = ?").run(username);
+
+	reply.status(200).send({ status: 200, message: "User successfully deleted" });
+});
+
+
 app.post("/logout", async (request, reply) => {
 	const { username } = request.body as { username: string };
 
 	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
 	const user = stmt.get(username) as any;
 	if (!user) {
-		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
+		reply.status(401).send({ status: 401, message: 'Invalid username' });
 		return;
 	}
 	reply.send({ status: 200, message: 'Logout successful', user });

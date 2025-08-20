@@ -2,7 +2,6 @@ import { GameInfo } from "./frontendStructures";
 
 function logout(game:GameInfo)
 {
-	console.log("current player:" + game.currentlyLoggedIn.name);
 	fetch("/logout", {
 		method: "POST",
 		headers: {
