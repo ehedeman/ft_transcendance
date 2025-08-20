@@ -27,6 +27,10 @@ export function getChatHistoryFunction(game: GameInfo) {
 	document.getElementById("friendList")?.addEventListener("click", (e) => {
 		const target = e.target as HTMLElement;
 		if (target.tagName === "LI") {
+			if (!target.id) {
+				console.log("LI element is missing an ID:", target);
+				return;
+			}
 			console.log(`${target.textContent} clicked`);
 			game.sendMessageTo = target.id;
 			console.log(`Message will be sent to: ${game.sendMessageTo}`);
@@ -208,6 +212,10 @@ export function showFriendStatus() {
 
 			// Only handle LI elements
 			if (target.tagName === "LI") {
+				if (!target.id) {
+					console.log("LI element is missing an ID:", target);
+					return;
+				}
 				if (hoverTimer === null) {
 					// Start 3-second timer
 					hoverTimer = window.setTimeout(() => {
@@ -248,9 +256,11 @@ export function showFriendStatus() {
 										userinfo.appendChild(infoItem);
 									}
 								}
+							})
+							.then(() => {
+								labelButton(target, userinfo);
+								console.log("Hover timer triggered for:", target.id);
 							});
-						labelButton(target, userinfo);
-						console.log("Hover timer triggered for:", target.id);
 					}, 1000);
 				}
 			}
