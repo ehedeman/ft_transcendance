@@ -34,6 +34,22 @@
 			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
 			Settings
 		</button>
+		<div>
+			<label for="playSelect">Play</label>
+			<select id="playSelect"
+				style="position:absolute; display: none; z-index: 2; left: 75%; top: 70px; transform: translateX(-50%);">
+				<option value="" disabled selected>Play</option>
+				<option value="tournament">Tournament</option>
+				<option value="multiplayer">Multiplayer</option>
+				<option value="1v1">1v1</option>
+			</select>
+			<div id="WinnerScreen"
+				style="display:none; position:absolute; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+				<h2 id="WinnerScreenText"></h2>
+				<button type="button" id="WinnerScreenContinue"
+					class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Continue</button>
+			</div>
+		</div>
 	</label>
 
 	<body id="gameScreen " class="bg-gray-900 flex items-center justify-center h-screen text-white">
@@ -176,22 +192,6 @@
 			class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4">
 			Reset Tournament
 		</button>
-		<div>
-			<label for="playSelect">Play</label>
-			<select id="playSelect"
-				style="position:absolute; z-index: 2; left: 75%; top: 70px; transform: translateX(-50%);">
-				<option value="" disabled selected>Play</option>
-				<option value="tournament">Tournament</option>
-				<option value="multiplayer">Multiplayer</option>
-				<option value="1v1">1v1</option>
-			</select>
-			<div id="WinnerScreen"
-				style="display:none; position:absolute; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
-				<h2 id="WinnerScreenText"></h2>
-				<button type="button" id="WinnerScreenContinue"
-					class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Continue</button>
-			</div>
-		</div>
 		<div>
 			<canvas tabindex='1' id="gameCanvas" class="border-4 border-white"
 				style="position:absolute; left: 50%; top: 120px; transform: translateX(-50%);">

@@ -1,8 +1,9 @@
 import { GameInfo } from "./frontendStructures.js";
 import { callSettingsEventlisteners } from "./settings.js";
 import { callRegistrationEventListeners } from "./registration.js";
-import { callLoginEventListeners } from "./login_logout.js";
+import { callLoginEventListeners } from "./login.js";
 import { callTournamentEventListeners } from "./tournamentRegistration.js";
+import { callLogoutEventListeners } from "./logout.js";
 export let rounds = 1;
 
 export let game = new GameInfo();
@@ -59,6 +60,10 @@ callRegistrationEventListeners();
 /*-----------------------------login modal declaration------------------------------*/
 
 callLoginEventListeners(game);
+
+/*-----------------------------logout modal declaration------------------------------*/
+
+callLogoutEventListeners(game);
 
 /*--------------------------tournament modal declaration----------------------------*/
 

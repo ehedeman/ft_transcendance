@@ -149,6 +149,8 @@ export class GameInfo {
 
 	rejectedFriendRequests: string[];
 
+	currentlyLoggedIn: Player;
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();
@@ -179,6 +181,8 @@ export class GameInfo {
 		this.friendRequestList = [];
 
 		this.rejectedFriendRequests = [];
+
+		this.currentlyLoggedIn = { name:"default", gamesLost:0, gamesWon: 0, playerscore: 0	};
 	}
 }
 

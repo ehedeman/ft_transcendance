@@ -1,4 +1,4 @@
-import { GameInfo, PlayerLogin } from "./frontendStructures";
+import { GameInfo, PlayerLogin } from "./frontendStructures.js";
 import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
 import { createWebSocketConnection } from "./websocketConnection.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
@@ -28,40 +28,46 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 		},
 		body: JSON.stringify(loginPlayer)
 	})
-		.then(response => {
-			if (!response.ok) {
-				const message: string = response.status === 401 ? 'Username or password is incorrect' : 'Login failed. Please try again.';
-				alert(message);
-				return;
-			}
-			alert("Login successful!");
-			hideGeneralLoginModal();
-			game.username = loginPlayer.username; // this is just for the note who is login now.
-			emptyLoginFields("loginGeneral");
-			game.players.push({
-				name: loginPlayer.username,
-				gamesLost: 0,
-				gamesWon: 0,
-				playerscore: 0,
-			});
-			createWebSocketConnection(loginPlayer.username);
-			// get the friend list
-			getFriendList(loginPlayer.username);
-			getFriendRequestList(loginPlayer.username);
-			const addFriend = document.getElementById("addFriend") as HTMLElement;
-			if (addFriend) addFriend.style.display = "block";
-			getRejectedFriendRequests(loginPlayer.username);
-			// const loginButton = document.getElementById ("loginButton") as HTMLElement;
-			const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
-			// if (loginButton) loginButton.style.display = "none";
-			if (logoutButton) logoutButton.style.display = "block";
-			//restoreScreen();
-			// location.reload();
-			return response.json();
-		})
-		.catch(error => {
-			console.error("Error during Login:", error);
-		});
+	.then(response => {
+		if (!response.ok) {
+			const message: string = response.status === 401 ? 'Username or password is incorrect' : 'Login failed. Please try again.';
+			alert(message);
+			return;
+		}
+		alert("Login successful!");
+		hideGeneralLoginModal();
+		game.username = loginPlayer.username; // this is just for the note who is login now.
+		emptyLoginFields("loginGeneral");
+		game.currentlyLoggedIn = {
+			name: loginPlayer.username,
+			gamesLost: 0,
+			gamesWon: 0,
+			playerscore: 0,
+		}
+		// game.players.push({
+		// 	name: loginPlayer.username,
+		// 	gamesLost: 0,
+		// 	gamesWon: 0,
+		// 	playerscore: 0,
+		// });
+		createWebSocketConnection(loginPlayer.username);
+		// get the friend list
+		getFriendList(loginPlayer.username);
+		getFriendRequestList(loginPlayer.username);
+		const addFriend = document.getElementById("addFriend") as HTMLElement;
+		if (addFriend) addFriend.style.display = "block";
+		getRejectedFriendRequests(loginPlayer.username);
+		const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
+		const registerButton = document.getElementById ("registerButton") as HTMLElement;
+		const playSelect = document.getElementById("playSelect");
+		if (logoutButton) logoutButton.style.display = "block";
+		if (registerButton) registerButton.style.display = "block";
+		if (playSelect) playSelect.style.display = "block";
+		return response.json();
+	})
+	.catch(error => {
+		console.error("Error during Login:", error);
+	});
 }
 
 
