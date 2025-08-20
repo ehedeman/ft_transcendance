@@ -168,14 +168,14 @@ export function showFriendStatus() {
 						let userinfo = document.createElement("ul");
 						userinfo.id = "userinfo";
 						userinfo.style.position = "absolute";
-						userinfo.style.left = `${e.clientX + 10}px`;
-						userinfo.style.top = `${e.clientY + 10}px`;
+						userinfo.style.left = `${e.clientX}px`;
+						userinfo.style.top = `${e.clientY}px`;
 						userinfo.style.backgroundColor = "#e4da17ff";
 						userinfo.style.color = "black";
 						userinfo.style.padding = "5px 8px";
 						userinfo.style.borderRadius = "5px";
 						userinfo.style.fontSize = "12px";
-						userinfo.style.pointerEvents = "none";
+						userinfo.style.pointerEvents = "auto";
 						userinfo.style.zIndex = "1000";
 						document.body.appendChild(userinfo);
 						fetch(`/userStatus?username=${target.id}`)
@@ -203,11 +203,16 @@ export function showFriendStatus() {
 									}
 								}
 							});
+						let detailButton = document.createElement("button");
+						detailButton.textContent = "View Details";
+						detailButton.addEventListener("click", () => {
+							// Handle view details action
+							console.log("View details for:", target.id);
+						});
+						userinfo.appendChild(detailButton);
 						console.log("Hover timer triggered for:", target.id);
 					}, 1000);
 				}
-
-				// Update tooltip position if it's already visible
 			}
 		});
 
@@ -229,9 +234,25 @@ export function showFriendStatus() {
 				}
 				const tooltip = document.getElementById("userinfo");
 				if (tooltip) {
-					document.body.removeChild(tooltip);
+					// document.body.removeChild(tooltip);
+					setTimeout(() => {
+						if (tooltip && tooltip.parentNode) {
+							tooltip.parentNode.removeChild(tooltip);
+						}
+					}, 5000);
 				}
 			}
 		});
+
 	});
+	// document.getElementById("userinfo")?.addEventListener("mouseenter", () => {
+	// 	// Do nothing, keep the tooltip visible
+	// });
+
+	// document.getElementById("userinfo")?.addEventListener("mouseleave", () => {
+	// 	const tooltip = document.getElementById("userinfo");
+	// 	if (tooltip) {
+	// 		document.body.removeChild(tooltip);
+	// 	}
+	// });
 }
