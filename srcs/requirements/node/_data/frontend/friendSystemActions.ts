@@ -261,7 +261,7 @@ export function showFriendStatus() {
 								labelButton(target, userinfo);
 								console.log("Hover timer triggered for:", target.id);
 							});
-					}, 1000);
+					}, 3000);
 				}
 			}
 		});
@@ -289,7 +289,7 @@ export function showFriendStatus() {
 						if (tooltip && tooltip.parentNode) {
 							tooltip.parentNode.removeChild(tooltip);
 						}
-					}, 3000);
+					}, 1000);
 				}
 			}
 		});
