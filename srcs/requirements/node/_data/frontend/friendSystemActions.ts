@@ -187,16 +187,24 @@ export function showFriendStatus() {
 								return response.json();
 							})
 							.then(data => {
-								console.log("User info fetched:", data);
+								const avatarUrl = data.avatarUrl || "";
+								const avatarImg = document.createElement("img");
+								console.log("Avatar URL:", avatarUrl);
+								avatarImg.src = avatarUrl;
+								avatarImg.alt = `${target.id}'s avatar`;
+								avatarImg.style.width = "50px";
+								avatarImg.style.height = "50px";
+								userinfo.appendChild(avatarImg);
 								for (const key in data) {
-									const value = data[key];
-									const infoItem = document.createElement("li");
-									infoItem.textContent = `${key}: ${value}`;
-									userinfo.appendChild(infoItem);
+									if (key !== "avatarUrl") {
+										const infoItem = document.createElement("li");
+										infoItem.textContent = `${key}: ${data[key]}`;
+										userinfo.appendChild(infoItem);
+									}
 								}
 							});
 						console.log("Hover timer triggered for:", target.id);
-					}, 3000);
+					}, 1000);
 				}
 
 				// Update tooltip position if it's already visible

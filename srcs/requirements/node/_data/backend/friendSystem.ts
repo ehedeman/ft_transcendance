@@ -199,7 +199,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			return;
 		}
 
-		const stmt = db.prepare(`SELECT status FROM users WHERE full_name = ?`);
+		const stmt = db.prepare(`SELECT status, avatar_url FROM users WHERE full_name = ?`);
 		const user = stmt.get(username);
 
 		if (!user) {
@@ -209,6 +209,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 
 		const status = user.status;
 
-		reply.send({ onlineStatus: status, this: "is a test", that: "is another test", these: "are more tests", those: "are yet more tests" });
+		const picPath = user.avatar_url;
+		reply.send({ onlineStatus: status, avatarUrl: picPath, this: "is just a test", that: "is also a test", these: "are also tests", those: "are also tests" });
 	});
 }
