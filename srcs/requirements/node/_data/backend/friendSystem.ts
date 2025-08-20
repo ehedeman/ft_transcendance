@@ -76,6 +76,9 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			const stmt = db.prepare(`SELECT friendname FROM newFriend WHERE username = ? AND status = 'accepted'`);
 			const rows = stmt.all(username) as { friendname: string }[];
 			const friends = rows.map(row => row.friendname);
+			const stmt2 = db.prepare(`SELECT username FROM newFriend WHERE friendname = ? AND status = 'accepted'`);
+			const rows2 = stmt2.all(username) as { username: string }[];
+			friends.push(...rows2.map(row => row.username));
 			reply.send({ friendList: friends });
 		} catch (err) {
 			reply.status(500).send({ error: 'Database error' });
@@ -132,8 +135,6 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		try {
 			const stmt = db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`);
 			stmt.run(username, friendname);
-			const stmt2 = db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, 'accepted')`);
-			stmt2.run(friendname, username);
 			reply.send({ message: `Friend request from ${friendname} accepted` });
 		} catch (err) {
 			reply.status(500).send({ error: 'Database error' });
