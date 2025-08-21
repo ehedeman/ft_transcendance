@@ -134,7 +134,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 
 		try {
 			const stmt = db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`);
-			stmt.run(username, friendname);
+			stmt.run(username, friendname);	
 			reply.send({ message: `Friend request from ${friendname} accepted` });
 		} catch (err) {
 			reply.status(500).send({ error: 'Database error' });

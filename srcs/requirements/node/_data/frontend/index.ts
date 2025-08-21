@@ -528,6 +528,40 @@ addFriendFunction(game);
 friendRequestListFunction(game);
 showFriendStatus();
 
+function getUserInfoAndCreateUserInterface(username: string) {
+	fetch(`userStatus?username=${username}`)
+		.then(response => {
+			if (!response.ok) {
+				console.error("Error fetching user status:", response);
+				return;
+			}
+			return response.json();
+		})
+		.then(userInfo => {
+			if (!userInfo) return;
+
+			// Create user interface elements
+			const userStatusInterFace = document.createElement("ul");
+			userStatusInterFace.id = "userStatusInterface";
+			userStatusInterFace.style.position = "absolute";
+			userStatusInterFace.style.left = "0";
+			userStatusInterFace.style.top = "0";
+			userStatusInterFace.style.backgroundColor = "rgba(76, 192, 149, 0.8)";
+			userStatusInterFace.style.width = "200px";
+			userStatusInterFace.style.height = "auto";
+			userStatusInterFace.style.border = "1px solid #000000ff";
+			document.body.appendChild(userStatusInterFace);
+			userStatusInterFace.innerHTML = `
+				<li><strong>Username:</strong> ${username}</li>
+				<li><img src="${userInfo.avatarUrl}" alt="${username}'s avatar" style="width:80px; height:80px; border-radius:50%; margin-bottom:10px;" /></li>
+				${Object.entries(userInfo).filter(([key]) => key !== "avatarUrl").map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`).join("")}
+			`;
+		})
+		.catch(error => {
+			console.error("Error fetching user status:", error);
+		});
+}
+
 function loginRequest(loginPlayer: PlayerLogin) {
 	fetch("/login", {
 		method: "POST",
@@ -559,6 +593,9 @@ function loginRequest(loginPlayer: PlayerLogin) {
 			const addFriend = document.getElementById("addFriend") as HTMLElement;
 			if (addFriend) addFriend.style.display = "block";
 			getRejectedFriendRequests(loginPlayer.username);
+
+			getUserInfoAndCreateUserInterface(loginPlayer.username);
+
 			//restoreScreen();
 			// location.reload();
 			return response.json();
