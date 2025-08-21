@@ -15,7 +15,25 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			rep.status(404).send({ error: 'User not found' });
 			return;
 		} else {
-			db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, ?)`).run(accountName, nameToAdd, 'pending');
+			const stmt = db.prepare(`SELECT status FROM newFriend WHERE username = ? AND friendname = ?`);
+			let result = stmt.get(accountName, nameToAdd);
+			if (!result) {
+				result = stmt.get(nameToAdd, accountName);
+			}
+			if (result) {
+				if (result === 'accepted') {
+					rep.status(400).send({ error: 'Already friends' });
+					return;
+				} else if (result === 'pending') {
+					rep.status(400).send({ error: 'Friend request already sent' });
+					return;
+				} else if (result === 'blocked') {
+					rep.status(400).send({ error: 'You can not send friend requests to this user' });
+					return;
+				}
+			} else {
+				db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, ?)`).run(accountName, nameToAdd, 'pending');
+			}
 		}
 		// Check if the user is online
 		if (game.sockets.has(nameToAdd)) {
@@ -134,7 +152,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 
 		try {
 			const stmt = db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`);
-			stmt.run(username, friendname);	
+			stmt.run(username, friendname);
 			reply.send({ message: `Friend request from ${friendname} accepted` });
 		} catch (err) {
 			reply.status(500).send({ error: 'Database error' });
@@ -212,5 +230,32 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 
 		const picPath = user.avatar_url;
 		reply.send({ onlineStatus: status, avatarUrl: picPath, this: "is just a test", that: "is also a test", these: "are also tests", those: "are also tests" });
+	});
+
+	app.get("/blockUser", async (request, reply) => {
+		const { blockUserName, UserName } = request.query as { blockUserName: string, UserName: string };
+
+		if (!blockUserName || !UserName) {
+			reply.status(400).send({ status: 400, message: "Missing username" });
+			return;
+		}
+
+		try {
+			const stmt = db.prepare(`SELECT status FROM newFriend WHERE username = ? and friendname = ?`);
+			let status = stmt.get(UserName, blockUserName);
+			if (!status) {
+				status = stmt.get(blockUserName, UserName);
+				if (status) {
+					const stmt2 = db.prepare(`UPDATE newFriend SET status = 'blocked' WHERE username = ? and friendname = ?`);
+					stmt2.run(blockUserName, UserName);
+				}
+			} else {
+				const stmt2 = db.prepare(`UPDATE newFriend SET status = 'blocked' WHERE username = ? and friendname = ?`);
+				stmt2.run(UserName, blockUserName);
+			}
+			reply.send({ status: 200, message: `User ${blockUserName} blocked` });
+		} catch (err) {
+			reply.status(500).send({ status: 500, message: "Database error" });
+		}
 	});
 }

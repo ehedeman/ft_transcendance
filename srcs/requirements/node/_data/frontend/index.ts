@@ -526,7 +526,7 @@ SendMessageHandler();
 getChatHistoryFunction(game);
 addFriendFunction(game);
 friendRequestListFunction(game);
-showFriendStatus();
+showFriendStatus(game);
 
 function getUserInfoAndCreateUserInterface(username: string) {
 	fetch(`userStatus?username=${username}`)

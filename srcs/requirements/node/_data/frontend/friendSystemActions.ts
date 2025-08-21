@@ -99,6 +99,7 @@ export function addFriendFunction(game: GameInfo) {
 								})
 							})
 						} else {
+							console.error(response);
 							alert("Failed to add friend.");
 						}
 					})
@@ -155,7 +156,7 @@ export function friendRequestListFunction(game: GameInfo) {
 	});
 }
 
-function labelButton(target: HTMLElement, userinfo: HTMLElement) {
+function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo) {
 	let detailButton = document.createElement("button");
 	detailButton.textContent = "View Details";
 	detailButton.addEventListener("click", () => {
@@ -196,12 +197,34 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement) {
 					${data.avatarUrl ? `<img src="${data.avatarUrl}" alt="${target.id}'s avatar" style="width:80px; height:80px; border-radius:50%; margin-bottom:10px;">` : ""}
 					${Object.entries(data).filter(([k]) => k !== "avatarUrl").map(([k, v]) => `<p>${k}: ${v}</p>`).join("")}
 				`;
+				const blockButton = document.createElement("button");
+				blockButton.textContent = "Block User";
+				blockButton.addEventListener("click", () => {
+					const result = confirm(`Are you sure you want to block ${target.id}?`);
+					if (result) {
+						fetch(`/blockUser?blockUserName=${target.id}&UserName=${game.username}`)
+							.then(response => {
+								if (!response.ok) {
+									throw new Error("Failed to block user.");
+								}
+							return response.json();
+						})
+						.then(data => {
+							alert(data.message);
+						})
+						.catch(error => {
+							console.error("Error blocking user:", error);
+						});
+					}
+				});
+				modal.appendChild(blockButton);
 			});
+
 	});
 	userinfo.appendChild(detailButton);
 }
 
-export function showFriendStatus() {
+export function showFriendStatus(game: GameInfo) {
 	document.addEventListener("DOMContentLoaded", () => {
 		const friendList = document.getElementById("friendList");
 
@@ -258,7 +281,7 @@ export function showFriendStatus() {
 								}
 							})
 							.then(() => {
-								labelButton(target, userinfo);
+								labelButton(target, userinfo, game);
 								console.log("Hover timer triggered for:", target.id);
 							});
 					}, 3000);
