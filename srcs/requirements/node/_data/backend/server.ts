@@ -260,6 +260,58 @@ app.post("/login", async (request, reply) => {
 	reply.send({ status: 200, message: 'Login successful', user });
 });
 
+app.post("/api/match_history", async (request, reply) => {
+	const body = request.body as {
+		player1_alias: string;
+		player2_alias: string;
+		winner_alias: string;
+		loser_alias: string;
+		score_player1: number;
+		score_player2: number;
+		match_type?: string;
+		match_date?: string;
+	};
+
+	try {
+		// Lookup players by alias
+		const users = db.prepare(
+			`SELECT id, alias FROM users WHERE alias IN (?, ?, ?, ?)`
+		).all(body.player1_alias, body.player2_alias, body.winner_alias, body.loser_alias);
+
+		// Map alias → id
+		const player1 = users.find(u => u.alias === body.player1_alias);
+		const player2 = users.find(u => u.alias === body.player2_alias);
+		const winner = users.find(u => u.alias === body.winner_alias);
+		const loser = users.find(u => u.alias === body.loser_alias);
+
+		if (!player1 || !player2 || !winner) {
+			return reply.status(400).send({ status: 400, message: "One or more users not found" });
+		}
+
+		// Save match history with IDs
+		const stmt = db.prepare(`
+      INSERT INTO matches (player1_id, player2_id, winner_id, loser_id, score_player1, score_player2, Match_type, match_date)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+		stmt.run(
+			player1.id,
+			player2.id,
+			winner.id,
+			loser.id,
+			body.score_player1,
+			body.score_player2,
+			body.match_type || "Friendly",
+			body.match_date || new Date().toISOString()
+		);
+
+		reply.send({ status: 200, message: "Match history saved" });
+	} catch (err) {
+		reply.status(500).send({ status: 500, message: "Server error" });
+	}
+});
+
+
 import { websocketAndSocketMessage } from './websocketAndSocketMessage.js';
 
 websocketAndSocketMessage(app, db, game);

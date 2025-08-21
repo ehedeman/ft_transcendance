@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS matches (
 	player1_id INTEGER NOT NULL,
 	player2_id INTEGER NOT NULL,
 	winner_id INTEGER,
+	loser_id  INTEGER,
 	score_player1 INTEGER DEFAULT 0,
 	score_player2 INTEGER DEFAULT 0,
 	Match_type TEXT DEFAULT 'Friendly',
