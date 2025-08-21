@@ -217,7 +217,7 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 						});
 					}
 				});
-				modal.appendChild(blockButton);
+				content.appendChild(blockButton);
 			});
 
 	});
@@ -312,7 +312,7 @@ export function showFriendStatus(game: GameInfo) {
 						if (tooltip && tooltip.parentNode) {
 							tooltip.parentNode.removeChild(tooltip);
 						}
-					}, 1000);
+					}, 2000);
 				}
 			}
 		});
