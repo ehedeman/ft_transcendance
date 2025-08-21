@@ -161,6 +161,8 @@ export function callTournamentEventListeners(game:GameInfo)
 		if (resetButton) resetButton.style.display = "none";
 		tournamentEnd(1, game);
 		restoreScreen();
+		const playSelect = document.getElementById("playSelect");
+		if (playSelect) playSelect.style.display = "block";
 
 	});
 

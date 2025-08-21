@@ -4,6 +4,7 @@ import { callRegistrationEventListeners } from "./registration.js";
 import { callLoginEventListeners } from "./login.js";
 import { callTournamentEventListeners } from "./tournamentRegistration.js";
 import { callLogoutEventListeners } from "./logout.js";
+import { callHTMLclassDefines } from "./html_classes.js";
 export let rounds = 1;
 
 export let game = new GameInfo();
@@ -45,9 +46,8 @@ export function handleKeyup(e: KeyboardEvent): void {
 document.addEventListener("keydown", handleKeydown);
 document.addEventListener("keyup", handleKeyup);
 
-export let gamefinished = false;
 
-
+callHTMLclassDefines();
 
 /*-------------------------------------settings------------------------------------*/
 
@@ -55,9 +55,11 @@ callSettingsEventlisteners(game);
 
 /*--------------------------registration modal declaration--------------------------*/
 
+
 callRegistrationEventListeners();
 
 /*-----------------------------login modal declaration------------------------------*/
+
 
 callLoginEventListeners(game);
 
@@ -66,6 +68,7 @@ callLoginEventListeners(game);
 callLogoutEventListeners(game);
 
 /*--------------------------tournament modal declaration----------------------------*/
+
 
 callTournamentEventListeners(game);
 

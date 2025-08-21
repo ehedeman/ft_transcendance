@@ -1,0 +1,25 @@
+
+//just name the basics and add whatever special thing is visible specifically for the page
+
+HOME:
+
+    visible:    loginButton    registerButton   settingsButton canvas
+
+    invisible: playSelect   friendList
+
+LOGGED_IN:
+
+    visible:    loginButton    registerButton   settingsButton  playSelect   friendList canvas
+
+    invisible: 
+
+SETTINGS:
+
+    visible:    settingsModal   canvas
+
+    invisible: loginButton    registerButton   settingsButton  playSelect   friendList
+
+TOURNAMENT:
+    visible: resetButton    canvas  friendlist(cause of chat)
+
+    invisible: loginButton    registerButton   settingsButton  playSelect

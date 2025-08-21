@@ -120,7 +120,24 @@ export class Tournament {
 	}
 }
 
+// from each of those, going back = HOME
+export enum pageIndex {
+	HOME,
+	SETTINGS,
+	TOURNAMENT,
+	MULTIPLAYER,
+	MATCH,
+	CHECKING_PROFILE
+}	//match = 1v1
 
+// export type pages = {
+// 	page0: string;
+// 	page1: string;
+// 	page2: string;
+// 	page3: string;
+// 	page4: string;
+// 	page5: string;
+// }	//add more as needed
 
 export class GameInfo {
 	ball: BallInfo;
@@ -150,6 +167,12 @@ export class GameInfo {
 	rejectedFriendRequests: string[];
 
 	currentlyLoggedIn: Player;
+
+	availablePages: string[];
+
+	currentPage: string;
+
+	gamefinished: boolean;
 
 	constructor() 
 	{
@@ -183,6 +206,12 @@ export class GameInfo {
 		this.rejectedFriendRequests = [];
 
 		this.currentlyLoggedIn = { name:"default", gamesLost:0, gamesWon: 0, playerscore: 0	};
+	
+		this.availablePages = ["home", "settings", "tournament", "multiplayer", "match", "profile"];
+
+		this.currentPage = this.availablePages[pageIndex.HOME];
+
+		this.gamefinished =false;
 	}
 }
 

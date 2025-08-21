@@ -1,4 +1,4 @@
-import { game, ctx, keysPressed, gamefinished, rounds, handleKeydown, handleKeyup } from './index.js';
+import { game, ctx, keysPressed, rounds, handleKeydown, handleKeyup } from './index.js';
 import { showWinnerScreen, tournamentLogic, tournamentFinished } from "./tournament.js";
 import { TournamentStage } from './frontendStructures.js';
 
@@ -38,7 +38,7 @@ function calculatePaddleCoords(): void {
 }
 
 function getGameStatus(): void {
-	if (!gamefinished) {
+	if (!game.gamefinished) {
 		var length = game.t.matches.length;
 		fetch("/getstatus")
 			.then(response => response.json())
