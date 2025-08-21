@@ -99,7 +99,7 @@ export function addFriendFunction(game: GameInfo) {
 						}
 					})
 			}
-		} else {
+		} else if (friendName === ""){
 			alert("Friend name cannot be empty!");
 		}
 	});

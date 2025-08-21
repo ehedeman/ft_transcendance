@@ -48,6 +48,7 @@ document.addEventListener("keyup", handleKeyup);
 
 
 callHTMLclassDefines();
+callGameEventListeners(game);
 
 /*-------------------------------------settings------------------------------------*/
 
@@ -73,6 +74,6 @@ callLogoutEventListeners(game);
 callTournamentEventListeners(game);
 
 
-import { clickWinnerScreenContinue, updateGame } from "./gamePlay.js";
+import { callGameEventListeners, clickWinnerScreenContinue, updateGame } from "./gamePlay.js";
 clickWinnerScreenContinue();
 updateGame();
