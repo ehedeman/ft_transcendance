@@ -1,11 +1,10 @@
 import { restoreScreen } from "./screenDisplay.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
-import { handleKeydown, handleKeyup } from "./index.js";
-import { GameInfo, PlayerLogin } from "./frontendStructures.js";
+import { handleKeydown, handleKeyup, navigate } from "./index.js";
+import { GameInfo, pageIndex, PlayerLogin } from "./frontendStructures.js";
 
 import { userInfo } from "./serverStructures.js"
 
-var userInfoTemp: userInfo;
 var settingsAlreadyLoggedIn: boolean = false;
 //to determine whether user was logged in before accessing settings
 //or if the user had first logged in in the settings
@@ -17,7 +16,6 @@ export async function setSettingFields(_username: string, userInfoTemp: userInfo
 	const settingsCountry = document.getElementById("settingsCountry") as HTMLInputElement;
 	const avatarPreviewSettings = document.getElementById("avatarPreviewSettings") as HTMLImageElement;
 
-	console.log("settings: " + _username);
 	const response = await fetch("/userInfo", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -46,7 +44,7 @@ export async function setSettingFields(_username: string, userInfoTemp: userInfo
 	settingsUsername.value = playerInfo.username;
 	settingsPassword.value = "";
 	settingsCountry.value = playerInfo.country;
-
+	console.log("ID: " + playerInfo.id);
 	userInfoTemp = {
 		id: playerInfo.id,
 		Full_Name: playerInfo.name,
@@ -58,6 +56,7 @@ export async function setSettingFields(_username: string, userInfoTemp: userInfo
 		updated_at: "",
 		created_at: "",
 	};
+	console.log("ID after: " + userInfoTemp.id);
 	// here set fields to what database has currently stored to display in settings
 	return true;
 }
@@ -140,7 +139,7 @@ async function loginToSettings(game: GameInfo): Promise<boolean> {
 		}
 		emptyLoginFields("loginSettings");
 		game.currentlyLoggedIn.name = loginPlayer.username;
-		setSettingFields(game.currentlyLoggedIn.name, userInfoTemp);
+		setSettingFields(game.currentlyLoggedIn.name, game.userInfoTemp);
 		return true;
 	} catch (error) {
 		console.error("Error during Login:", error);
@@ -174,6 +173,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 			game.currentlyLoggedIn.playerscore = 0;
 
 			restoreScreen();
+			navigate(game.availablePages[pageIndex.HOME]);
 			return response.json();
 		})
 		.catch(error => {
@@ -203,6 +203,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 			}
 		}
 	});
+
 	document.getElementById("settingsForm")?.addEventListener("submit", (e) => 
 	{
 		e.preventDefault();
@@ -213,17 +214,19 @@ export function callSettingsEventlisteners(game:GameInfo)
 		const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
 		const avatarFileInput = document.getElementById("avatarUpload") as HTMLInputElement; // **file input**
 
+		console.log(game.userInfoTemp.id);
+		console.log(usernameInput.value);
 		const formData = new FormData();
-		formData.append("id", String(userInfoTemp.id));
+		formData.append("id", String(game.userInfoTemp.id));
 		formData.append("name", nameInput.value.trim());
 		formData.append("username", usernameInput.value.trim());
-		formData.append("password", passwordInput.value.trim() || userInfoTemp.password_hash);
+		formData.append("password", passwordInput.value.trim() || game.userInfoTemp.password_hash);
 		formData.append("country", countryInput.value.trim());
 
 		if (avatarFileInput.files && avatarFileInput.files[0]) {
 			formData.append("avatar", avatarFileInput.files[0]); // new avatar
 		} else {
-			formData.append("avatar_url", userInfoTemp.avatar_url); // keep the one in DB
+			formData.append("avatar_url", game.userInfoTemp.avatar_url); // keep the one in DB
 		}
 
 		fetch("/updateUser", {
@@ -233,9 +236,15 @@ export function callSettingsEventlisteners(game:GameInfo)
 			.then(res => res.json())
 			.then(data => {
 				alert(data.message);
-				location.reload();
+				restoreScreen();
+				if (settingsAlreadyLoggedIn === true)
+				{
+					const playSelect = document.getElementById ("playSelect") as HTMLElement;
+					if (playSelect) playSelect.style.display = "block";
+				}
 			})
 			.catch(err => console.error("Update failed", err));
+		navigate(game.availablePages[pageIndex.HOME]);
 		hideSettings();
 	});
 
@@ -247,6 +256,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 		if (success) {
 			hideSettingsLogin();
 			showSettingsForm();
+			navigate(game.availablePages[pageIndex.SETTINGS]);
 		} else {
 			hideSettings();
 			hideSettingsForm();
@@ -260,7 +270,6 @@ export function callSettingsEventlisteners(game:GameInfo)
 
 	document.getElementById("settingsButton")?.addEventListener("click", () => 
 	{
-
 		const registerButton = document.getElementById("registerButton");
 		const playSelect = document.getElementById("playSelect");
 		const loginButton = document.getElementById("loginButton");
@@ -273,6 +282,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 		hideSettingsForm();
 		if (game.currentlyLoggedIn.name === "default")
 		{
+			navigate(game.availablePages[pageIndex.SETTINGS_LOGIN]);
 			settingsAlreadyLoggedIn = false;
 			showSettingsLogin();
 			document.removeEventListener("keydown", handleKeydown);
@@ -280,10 +290,11 @@ export function callSettingsEventlisteners(game:GameInfo)
 		}
 		else
 		{
+			navigate(game.availablePages[pageIndex.SETTINGS]);
 			settingsAlreadyLoggedIn = true;
 			document.removeEventListener("keydown", handleKeydown);
 			document.removeEventListener("keyup", handleKeyup);
-			setSettingFields(game.currentlyLoggedIn.name, userInfoTemp);
+			setSettingFields(game.currentlyLoggedIn.name, game.userInfoTemp);
 			showSettingsForm();
 		}
 	});
@@ -312,10 +323,12 @@ export function callSettingsEventlisteners(game:GameInfo)
 			if (logoutButton) logoutButton.style.display = "block";
 			const loginButton = document.getElementById ("loginButton") as HTMLElement;
 			if (loginButton) loginButton.style.display = "none";
+			const playSelect = document.getElementById ("playSelect") as HTMLElement;
+			if (playSelect) playSelect.style.display = "block";
 		}
 		else
 			game.currentlyLoggedIn.name = "default";
+		navigate(game.availablePages[pageIndex.HOME]);
 	});
-
 }
 

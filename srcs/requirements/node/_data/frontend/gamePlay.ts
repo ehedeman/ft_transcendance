@@ -1,7 +1,7 @@
-import { game, ctx, keysPressed, rounds, handleKeydown, handleKeyup } from './index.js';
+import { game, ctx, keysPressed, rounds, handleKeydown, handleKeyup, navigate } from './index.js';
 import { showWinnerScreen, tournamentLogic, tournamentFinished } from "./tournament.js";
 import { tournamentRegisterPlayers } from './tournamentRegistration.js';
-import { GameInfo, TournamentStage } from './frontendStructures.js';
+import { GameInfo, pageIndex, TournamentStage } from './frontendStructures.js';
 
 export function callGameEventListeners (game: GameInfo)
 {
@@ -16,6 +16,7 @@ export function callGameEventListeners (game: GameInfo)
 				// case "play":
 				// 	break ;
 				case "tournament":
+					navigate(game.availablePages[pageIndex.TOURNAMENT]);
 					document.removeEventListener('keydown', handleKeydown);
 					document.removeEventListener('keyup', handleKeyup);
 					const registerButton = document.getElementById("registerButton");

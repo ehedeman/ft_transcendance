@@ -1,4 +1,4 @@
-import { GameInfo } from "./frontendStructures.js";
+import { GameInfo, pageIndex } from "./frontendStructures.js";
 import { callSettingsEventlisteners } from "./settings.js";
 import { callRegistrationEventListeners } from "./registration.js";
 import { callLoginEventListeners } from "./login.js";
@@ -46,7 +46,6 @@ export function handleKeyup(e: KeyboardEvent): void {
 document.addEventListener("keydown", handleKeydown);
 document.addEventListener("keyup", handleKeyup);
 
-
 callHTMLclassDefines();
 callGameEventListeners(game);
 
@@ -57,7 +56,7 @@ callSettingsEventlisteners(game);
 /*--------------------------registration modal declaration--------------------------*/
 
 
-callRegistrationEventListeners();
+callRegistrationEventListeners(game);
 
 /*-----------------------------login modal declaration------------------------------*/
 
@@ -73,6 +72,30 @@ callLogoutEventListeners(game);
 
 callTournamentEventListeners(game);
 
+const render = (view: string) => {
+	console.log("loading" + view + "...");
+};
+
+export const navigate = (view: string) => {
+  history.pushState({ view }, '', `#${view}`);
+  render(view);
+};
+
+// document.getElementById('loginButton')!.addEventListener('click', () => navigate('login'));
+// document.getElementById('registerButton')!.addEventListener('click', () => navigate('register'));
+// document.getElementById('playSelect')!.addEventListener('change', () => navigate('play'));
+
+// Handle browser back/forward
+window.addEventListener('hashchange', () => {
+  const view = location.hash.replace('#', '') || game.availablePages[pageIndex.HOME];
+  render(view);
+});
+
+// Initial load
+window.addEventListener('load', () => {
+  const view = location.hash.replace('#', '') || game.availablePages[pageIndex.HOME];
+  render(view);
+});
 
 import { callGameEventListeners, clickWinnerScreenContinue, updateGame } from "./gamePlay.js";
 clickWinnerScreenContinue();

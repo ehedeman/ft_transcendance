@@ -1,3 +1,5 @@
+import { GameInfo, pageIndex } from "./frontendStructures.js";
+import { navigate } from "./index.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
 import { restoreScreen } from "./screenDisplay.js";
 
@@ -29,7 +31,7 @@ export function hideGeneralRegistrationModal() {
 	modal.style.display = "none";
 }
 
-export function callRegistrationEventListeners()
+export function callRegistrationEventListeners(game:GameInfo)
 {
 	document.getElementById("showRegisterPassword")?.addEventListener("click", () => 
 	{
@@ -41,6 +43,7 @@ export function callRegistrationEventListeners()
 		}
 	});
 	document.getElementById("registerButton")?.addEventListener("click", () => {
+		navigate(game.availablePages[pageIndex.REGISTER]);
 		const registerButton = document.getElementById("registerButton");
 		const playSelect = document.getElementById("playSelect");
 		const loginButton = document.getElementById("loginButton");
@@ -109,6 +112,7 @@ export function callRegistrationEventListeners()
 			{
 				if (!response.ok) {
 					alert("Registration failed. Please try again_am _here.");
+					// navigate(game.availablePages[pageIndex.HOME]);
 					return;
 				}
 				console.log("Registration successful:", response);
@@ -116,7 +120,7 @@ export function callRegistrationEventListeners()
 				emptyLoginFields("registerSettings");
 				hideGeneralRegistrationModal();
 				restoreScreen();
-				// location.reload(); // reload page after registration
+				navigate(game.availablePages[pageIndex.HOME]);
 				return response.json();
 			})
 			.catch(error => 
@@ -131,6 +135,6 @@ export function callRegistrationEventListeners()
 	{
 		hideGeneralRegistrationModal();
 		restoreScreen();
-		// location.reload();
+		navigate(game.availablePages[pageIndex.HOME]);
 	});
 }

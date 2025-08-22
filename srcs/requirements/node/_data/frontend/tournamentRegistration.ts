@@ -1,8 +1,8 @@
-import { GameInfo, PlayerLogin, TournamentStage } from "./frontendStructures.js";
+import { GameInfo, pageIndex, PlayerLogin, TournamentStage } from "./frontendStructures.js";
 import { tournamentEnd, tournamentPlayGame } from "./tournament.js";
 import { restoreScreen } from "./screenDisplay.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
-import { handleKeydown, handleKeyup } from "./index.js";
+import { handleKeydown, handleKeyup, navigate } from "./index.js";
 
 function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin> {
 	return new Promise((resolve) => {
@@ -120,6 +120,7 @@ export function callTournamentEventListeners(game:GameInfo)
 		if (resetButton) resetButton.style.display = "none";
 		tournamentEnd(1, game);
 		restoreScreen();
+		navigate(game.availablePages[pageIndex.HOME]);
 		const playSelect = document.getElementById("playSelect");
 		if (playSelect) playSelect.style.display = "block";
 

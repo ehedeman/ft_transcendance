@@ -1,3 +1,5 @@
+import { userInfo } from "./serverStructures";
+
 export class canvasInfo {
 	width: number;
 	height: number;
@@ -20,7 +22,6 @@ export type PlayerLogin = {
 		username: string;
 		password: string;
 };
-
 
 let canvas = new canvasInfo();// maybe I can delete this
 
@@ -127,7 +128,10 @@ export enum pageIndex {
 	TOURNAMENT,
 	MULTIPLAYER,
 	MATCH,
-	CHECKING_PROFILE
+	CHECKING_PROFILE,
+	REGISTER,
+	LOGIN,
+	SETTINGS_LOGIN
 }	//match = 1v1
 
 // export type pages = {
@@ -170,9 +174,9 @@ export class GameInfo {
 
 	availablePages: string[];
 
-	currentPage: string;
-
 	gamefinished: boolean;
+
+	userInfoTemp: userInfo;
 
 	constructor() 
 	{
@@ -207,11 +211,22 @@ export class GameInfo {
 
 		this.currentlyLoggedIn = { name:"default", gamesLost:0, gamesWon: 0, playerscore: 0	};
 	
-		this.availablePages = ["home", "settings", "tournament", "multiplayer", "match", "profile"];
-
-		this.currentPage = this.availablePages[pageIndex.HOME];
+		this.availablePages = ["home", "settings", "tournament", "multiplayer", "match", "profile", "register", "login", "settings-login"];
 
 		this.gamefinished =false;
+
+		this.userInfoTemp = 
+		{
+			id: 0,
+			Full_Name: "default",
+			Alias : "defaulty",
+			Country : "defaultLand",
+			password_hash : "defaultPassword",
+			avatar_url : "default.png",
+			status : "default",
+			updated_at : "default",
+			created_at : "default",
+		}
 	}
 }
 

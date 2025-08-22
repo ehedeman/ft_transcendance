@@ -1,9 +1,10 @@
-import { GameInfo, PlayerLogin } from "./frontendStructures.js";
+import { GameInfo, pageIndex, PlayerLogin } from "./frontendStructures.js";
 import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
 import { createWebSocketConnection } from "./websocketConnection.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
 import { SendMessageHandler, getChatHistoryFunction, addFriendFunction, friendRequestListFunction } from "./friendSystemActions.js";
 import { restoreScreen } from "./screenDisplay.js";
+import { navigate } from "./index.js";
 
 function showGeneralLoginModal(game: GameInfo) {
 	const modal = document.getElementById("generalLoginModal") as HTMLDivElement;
@@ -67,6 +68,7 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 		if (playSelect) playSelect.style.display = "block";
 		if (friendStuff) friendStuff.style.display = "block";
 		if (messages) messages.style.display = "block";
+		navigate(game.availablePages[pageIndex.HOME]);
 		return response.json();
 	})
 	.catch(error => {
@@ -78,6 +80,7 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 export function callLoginEventListeners(game: GameInfo)
 {
 	document.getElementById("loginButton")?.addEventListener("click", () => {
+		navigate(game.availablePages[pageIndex.LOGIN]);
 		const registerButton = document.getElementById("registerButton");
 		const playSelect = document.getElementById("playSelect");
 		const loginButton = document.getElementById("loginButton");
@@ -127,7 +130,7 @@ export function callLoginEventListeners(game: GameInfo)
 	document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
 		hideGeneralLoginModal();
 		restoreScreen();
-		// location.reload();
+		navigate(game.availablePages[pageIndex.HOME]);
 	});
 
 	document.getElementById("showLoginPassword")?.addEventListener("click", () => {
