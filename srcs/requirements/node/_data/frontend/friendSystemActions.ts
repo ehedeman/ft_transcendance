@@ -282,6 +282,7 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 								getFriendList(game.username);
 								getFriendRequestList(game.username);
 								alert(data.message);
+								document.body.removeChild(modal);
 							})
 							.catch(error => {
 								console.error("Error blocking user:", error);
