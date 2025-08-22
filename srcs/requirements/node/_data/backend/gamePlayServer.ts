@@ -78,16 +78,22 @@ function resetGame(): void {
 	gameFinished = false;
 }
 
-export function updateGame(): void {
+export function updateGame(db: any): void {
 	if (!gameFinished) {
 		if (game.player1.playerscore === rounds) {
-			game.player1.gamesWon++;
-			game.player2.gamesLost++;
+			console.log('player1 name:', game.player1.name);
+			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
+			stmt.run(game.player1.name);
+			stmt = db.prepare("UPDATE users SET losses = losses + 1 WHERE full_name = ?");
+			stmt.run(game.player2.name);
 			gameFinished = true;
 		}
 		if (game.player2.playerscore === rounds) {
-			game.player2.gamesWon++;
-			game.player1.gamesLost++;
+			console.log('player2 name:', game.player2.name);
+			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
+			stmt.run(game.player2.name);
+			stmt = db.prepare("UPDATE users SET losses = losses + 1 WHERE full_name = ?");
+			stmt.run(game.player1.name);
 			gameFinished = true;
 		}
 		calculateBallCoords();
@@ -152,5 +158,12 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 			gamefinished: gameFinished,
 			ballSpeedX: game.ball.ballSpeedX,
 		});
+	});
+
+	app.get('/makeTheBackendHaveThePlayer', async (request: FastifyRequest, reply: FastifyReply) => {
+		const { username, opponent } = request.query as { username: string; opponent: string };
+		game.player1.name = username;
+		game.player2.name = opponent;
+		reply.send({ status: 'Player added to game' });
 	});
 }

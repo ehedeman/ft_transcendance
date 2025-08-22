@@ -127,6 +127,19 @@ async function loginTotwoPlayerMatch(game: GameInfo): Promise<boolean> {
 		game.players.push(newPlayer);
 		// needs to be added to game here cause its the second player playing
 
+		fetch(`/makeTheBackendHaveThePlayer?username=${encodeURIComponent(game.currentlyLoggedIn.name)}&opponent=${loginPlayer.username}`)
+			.then(response => {
+				if (!response.ok) {
+					throw new Error(response.statusText);
+				}
+				return response.json();
+			})
+			.then(data => {
+				console.log("Player added to game:", data);
+			})
+			.catch(error => {
+				console.error("Error adding player to game:", error);
+			});
 		return true;
 	} catch (error) {
 		console.error("Error during Login:", error);
