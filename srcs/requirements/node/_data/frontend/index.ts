@@ -50,14 +50,14 @@ document.addEventListener("keyup", handleKeyup);
 const initialView = 'home';
 history.replaceState({ view: initialView }, '', `#${initialView}`);
 render(initialView, {
-	view: "home",
-	info: "",
-	snapShot: { players: game.players, currentlyLoggedIn: game.currentlyLoggedIn },
-}, game);
+		view: "home",
+		info: "",
+		snapShot: {players: game.players, currentlyLoggedIn: game.currentlyLoggedIn},
+	}, game);
 
 
-export const navigate = (view: string, infoString: string, game: GameInfo) => {
-	var gameSnapShot_: gameSnapShot = { players: game.players, currentlyLoggedIn: game.currentlyLoggedIn };
+export const navigate = (view: string, infoString: string, game:GameInfo) => {
+	var gameSnapShot_: gameSnapShot = {players: game.players, currentlyLoggedIn: game.currentlyLoggedIn};
 
 	var renderInfo_: renderInfo = {
 		view: view,
@@ -66,8 +66,7 @@ export const navigate = (view: string, infoString: string, game: GameInfo) => {
 	}
 
 	history.pushState({
-		view: view, info: infoString, snapShot: gameSnapShot_
-	}, '', `#${view}`);
+		view: view, info: infoString, snapShot: gameSnapShot_}, '', `#${view}`);
 	render(view, renderInfo_, game);
 };
 
@@ -84,9 +83,9 @@ window.addEventListener('popstate', (event) => {
 
 // Initial load
 window.onpopstate = (event: PopStateEvent) => {
-	const state = event.state as renderInfo;
-	const view = state?.view || 'home';
-	render(view, state, game);
+  const state = event.state as renderInfo;
+  const view = state?.view || 'home';
+  render(view, state, game);
 };
 
 callHTMLclassDefines();

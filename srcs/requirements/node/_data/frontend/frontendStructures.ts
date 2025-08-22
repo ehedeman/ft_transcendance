@@ -111,7 +111,7 @@ export class Tournament {
 		this.players = [];
 		this.matches = [];
 		this.currentRound = 0;
-		this.stage = TournamentStage.Registration;
+		this.stage = TournamentStage.Not_Running;
 		this.winners = [];
 		this.losers = [];
 		this.finishScreenRunning = false;

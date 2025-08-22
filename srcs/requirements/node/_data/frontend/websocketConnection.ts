@@ -36,11 +36,12 @@ function handlePrivateMessage(data: any) {
 		}
 	}
 }
-
+// import { startRemote1v1Game } from "./remote1v1GameInterface.js";
 async function handleGameInvitation(data: any) {
 	const { from, module } = data;
 	const result = await createConfirmModal(`Do you want to accept the game invitation from ${from} for a ${module} game?`);
 	if (result) {
+		// startRemote1v1Game(game.currentlyLoggedIn.name, from);
 		game.websocket?.send(JSON.stringify({ reply: "accept" }));
 	} else {
 		game.websocket?.send(JSON.stringify({ reply: "decline" }));

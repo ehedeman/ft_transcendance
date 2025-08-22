@@ -99,18 +99,19 @@ function hidetournamentRegistrationModal() {
 }
 
 
-export function callTournamentEventListeners(game: GameInfo) {
+export function callTournamentEventListeners(game:GameInfo)
+{
 	document.getElementById("tournamentFinishContinue")?.addEventListener("click", () => {
 		//game.t.finishScreenRunning = false;
 		tournamentEnd(0, game);
 		restoreScreen(game);
-
+		 
 	});
 
 	document.getElementById("tournamentResetButton")?.addEventListener("click", () => {
 		tournamentEnd(0, game);
 		restoreScreen(game);
-
+		 
 	});
 
 	document.getElementById("CancelGeneralTournament")?.addEventListener("click", () => {

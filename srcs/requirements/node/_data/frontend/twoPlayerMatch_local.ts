@@ -3,30 +3,35 @@ import { GameInfo, pageIndex, Player, PlayerLogin } from "./frontendStructures.j
 import { emptyLoginFields } from "./inputFieldHandling.js";
 import { hideDefaultButtons, restoreScreen, restoreScreenLoggedIn } from "./screenDisplay.js";
 
-export function twoPlayerMatchStart(game: GameInfo) {
+export function twoPlayerMatchStart(game:GameInfo)
+{
 	hideDefaultButtons();
 	const twoPlayerMatch = document.getElementById("twoPlayerMatchContainer") as HTMLDivElement;
 	if (twoPlayerMatch) twoPlayerMatch.style.display = "block";
 }
 
-function showTwoPlayerMatchSelect() {
+function showTwoPlayerMatchSelect()
+{
 	const select = document.getElementById("twoPlayerMatchSelect");
 	if (select) select.style.display = "block";
 }
 
-function hideTwoPlayerMatchSelect() {
+function hideTwoPlayerMatchSelect()
+{
 	const select = document.getElementById("twoPlayerMatchSelect");
 	if (select) select.style.display = "none";
 }
 
-function showGuestPlayerButtons() {
+function showGuestPlayerButtons()
+{
 	const guestButton = document.getElementById("twoPlayerMatchGuestGame") as HTMLButtonElement;
 	const playerButton = document.getElementById("twoPlayerMatchPlayerGame") as HTMLButtonElement;
 	if (guestButton) guestButton.style.display = "block";
 	if (playerButton) playerButton.style.display = "block";
 }
 
-function hideGuestPlayerButtons() {
+function hideGuestPlayerButtons()
+{
 	const guestButton = document.getElementById("twoPlayerMatchGuestGame") as HTMLButtonElement;
 	const playerButton = document.getElementById("twoPlayerMatchPlayerGame") as HTMLButtonElement;
 	const header = document.getElementById("twoPlayerMatchHeader");
@@ -35,33 +40,38 @@ function hideGuestPlayerButtons() {
 	if (playerButton) playerButton.style.display = "none";
 }
 
-function hideLogin() {
+function hideLogin()
+{
 	const login = document.getElementById("twoPlayerMatchLogin") as HTMLButtonElement;
 	if (login) login.style.display = "none";
 }
 
-function showLogin() {
+function showLogin()
+{
 	const login = document.getElementById("twoPlayerMatchLogin") as HTMLButtonElement;
 	if (login) login.style.display = "block";
 }
 
-function localMatch(game: GameInfo): void {
+function localMatch(game: GameInfo): void
+{
 	hideTwoPlayerMatchSelect();
 	showGuestPlayerButtons();
 }
 
-function remoteMatch(game: GameInfo): void {
+function remoteMatch(game: GameInfo): void
+{
 
 }
 
-export function restoreMatchState() {
+export function restoreMatchState()
+{
 	hideLogin();
 	hideGuestPlayerButtons();
 	showTwoPlayerMatchSelect();
 	const header = document.getElementById("twoPlayerMatchHeader");
-	if (header) header.style.display = "block"
+		if (header) header.style.display = "block"
 	const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
-	if (container) container.style.display = "none";
+		if (container) container.style.display = "none";
 }
 
 async function loginTotwoPlayerMatch(game: GameInfo): Promise<boolean> {
@@ -92,7 +102,8 @@ async function loginTotwoPlayerMatch(game: GameInfo): Promise<boolean> {
 			emptyLoginFields("twoPlayerMatch");
 			return false;
 		}
-		else if (loginPlayer.username === game.currentlyLoggedIn.name) {
+		else if (loginPlayer.username === game.currentlyLoggedIn.name)
+		{
 			const message = "Playing against yourself is forbidden.";
 			alert(message);
 			emptyLoginFields("twoPlayerMatch");
@@ -120,7 +131,8 @@ async function loginTotwoPlayerMatch(game: GameInfo): Promise<boolean> {
 	}
 }
 
-export function callTwoPlayerMatchEventListeners(game: GameInfo) {
+export function callTwoPlayerMatchEventListeners(game:GameInfo)
+{
 	document.getElementById("twoPlayerMatchSelect")?.addEventListener("change", (event: Event) => {
 		const twoPlayerMatchSelect = document.getElementById("twoPlayerMatchSelect") as HTMLSelectElement;
 		const target = event.target as HTMLSelectElement;
@@ -145,11 +157,13 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 	document.getElementById("twoPlayerMatchGuestGame")?.addEventListener("click", (event: Event) => {
 		hideGuestPlayerButtons();
 	});
-	document.getElementById("twoPlayerMatchPlayerGame")?.addEventListener("click", (event: Event) => {
+	document.getElementById("twoPlayerMatchPlayerGame")?.addEventListener("click", (event: Event) => 
+	{
 		hideGuestPlayerButtons();
 		showLogin();
 	});
-	document.getElementById("twoPlayerMatchLogin")?.addEventListener("submit", async (e) => {
+	document.getElementById("twoPlayerMatchLogin")?.addEventListener("submit", async (e) => 
+	{
 		e.preventDefault();
 
 		const success = await loginTotwoPlayerMatch(game);

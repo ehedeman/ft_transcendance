@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
 	Alias TEXT UNIQUE NOT NULL,
 	Country TEXT UNIQUE NOT NULL,
 	password_hash TEXT NOT NULL,
-	avatar_url TEXT DEFAULT '/avatars/default-avatar.png',
+	avatar_url TEXT DEFAULT './avatars/default-avatar.png',
 	status TEXT DEFAULT 'offline',
 	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP

@@ -15,25 +15,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			rep.status(404).send({ error: 'User not found' });
 			return;
 		} else {
-			const stmt = db.prepare(`SELECT status FROM newFriend WHERE username = ? AND friendname = ?`);
-			let result = stmt.get(accountName, nameToAdd);
-			if (!result) {
-				result = stmt.get(nameToAdd, accountName);
-			}
-			if (result) {
-				if (result === 'accepted') {
-					rep.status(400).send({ error: 'Already friends' });
-					return;
-				} else if (result === 'pending') {
-					rep.status(400).send({ error: 'Friend request already sent' });
-					return;
-				} else if (result === 'blocked') {
-					rep.status(400).send({ error: 'You can not send friend requests to this user' });
-					return;
-				}
-			} else {
-				db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, ?)`).run(accountName, nameToAdd, 'pending');
-			}
+			db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, ?)`).run(accountName, nameToAdd, 'pending');
 		}
 		// Check if the user is online
 		if (game.sockets.has(nameToAdd)) {
@@ -54,12 +36,32 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 							.run(accountName, nameToAdd);
 						rep.send({ message: `Friend '${nameToAdd}' added successfully` });
 					} else {
-						rep.status(404).send({ Notification: 'Friend request rejected' });
+						rep.status(404).send({ error: 'User not found' });
 					}
 				});
 			}
 		} else {
 			rep.status(202).send({ message: 'Friend request sent' });
+		}
+	});
+
+	app.put('/addFriendlist', async (request: FastifyRequest, reply: FastifyReply) => {
+		const { username, friendname } = request.body as {
+			username: string;
+			friendname: string;
+		};
+
+		if (!username || !friendname) {
+			reply.status(400).send({ error: 'Username and friendname are required' });
+			return;
+		}
+
+		try {
+			const stmt = db.prepare(`INSERT INTO newFriend (username, friendname) VALUES (?, ?)`);
+			stmt.run(username, friendname);
+			reply.send({ message: `Friend '${friendname}' added to ${username}'s friend list` });
+		} catch (err) {
+			reply.status(500).send({ error: 'Database error' });
 		}
 	});
 
@@ -74,9 +76,6 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			const stmt = db.prepare(`SELECT friendname FROM newFriend WHERE username = ? AND status = 'accepted'`);
 			const rows = stmt.all(username) as { friendname: string }[];
 			const friends = rows.map(row => row.friendname);
-			const stmt2 = db.prepare(`SELECT username FROM newFriend WHERE friendname = ? AND status = 'accepted'`);
-			const rows2 = stmt2.all(username) as { username: string }[];
-			friends.push(...rows2.map(row => row.username));
 			reply.send({ friendList: friends });
 		} catch (err) {
 			reply.status(500).send({ error: 'Database error' });
@@ -133,6 +132,8 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		try {
 			const stmt = db.prepare(`UPDATE newFriend SET status = 'accepted' WHERE username = ? AND friendname = ?`);
 			stmt.run(username, friendname);
+			const stmt2 = db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, 'accepted')`);
+			stmt2.run(friendname, username);
 			reply.send({ message: `Friend request from ${friendname} accepted` });
 		} catch (err) {
 			reply.status(500).send({ error: 'Database error' });
@@ -272,6 +273,8 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			});
 
 			if (response.reply === 'accept') {
+				// game.player1.name = username;
+				// game.player2.name = invitedUser;
 				return reply.status(200).send({ message: `Game invitation accepted by ${invitedUser}` });
 			} else {
 				return reply.status(403).send({ error: 'Game invitation declined' });

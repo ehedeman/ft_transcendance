@@ -21,7 +21,7 @@ const pump = promisify(pipeline);
 // import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { GameInfo, userInfo, loginInfo } from './serverStructures.js';
+import { GameInfo, userInfo } from './serverStructures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,7 +62,7 @@ export let accaleration = 0.1; // Speed increase factor
 
 import { updateGame, interactWithGame } from './gamePlayServer.js';
 
-setInterval(() => {
+setInterval(() => {// TODO: not here
 	updateGame();
 }, 1000 / 60);
 interactWithGame(app, game);
@@ -72,7 +72,7 @@ interactWithGame(app, game);
 app.post("/register", async (request, reply) => {
 	const parts = request.parts();
 	let name = '', username = '', password = '', country = '';
-	let avatarPath = '/avatars/default-avatar.png';
+	let avatarPath = './avatars/default-avatar.png';
 	let avatarUploaded = false;
 
 	for await (const part of parts) {
@@ -178,10 +178,10 @@ app.post("/updateUser", async (request, reply) => {
 		}
 
 		const updateQuery = `
-            UPDATE users
-            SET Full_Name = ?, Alias = ?, password_hash = ?, Country = ?, avatar_url = ?
-            WHERE id = ?
-        `;
+			UPDATE users
+			SET Full_Name = ?, Alias = ?, password_hash = ?, Country = ?, avatar_url = ?
+			WHERE id = ?
+		`;
 		db.prepare(updateQuery).run(name, username, password_hash, country, avatarPath, id);
 
 		reply.send({ status: 200, message: "User updated successfully", avatar: avatarPath });

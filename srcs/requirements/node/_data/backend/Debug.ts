@@ -162,13 +162,4 @@ export function debugFunctions(app: FastifyInstance, db: any) {
 			reply.status(500).send({ error: 'Database error' });
 		}
 	});
-
-	app.get('/debug/cleanTable/newFriend', async (request: FastifyRequest, reply: FastifyReply) => {
-		try {
-			db.prepare(`DELETE FROM newFriend`).run();
-			reply.send({ message: `Table 'newFriend' cleaned.` });
-		} catch (err) {
-			reply.status(500).send({ error: 'Database error' });
-		}
-	});
 }

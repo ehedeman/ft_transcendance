@@ -159,6 +159,7 @@ function tournamentGame(): number {
 export function updateGame(): void {
 	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration) {
 		if (game.players.length >= 2 && !game.tournamentLoopActive) {
+			console.log("Single Player Game");
 			singlePlayerGame();
 		}
 		else if (game.tournamentLoopActive) {

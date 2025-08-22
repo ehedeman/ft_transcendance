@@ -224,7 +224,7 @@ export function friendRequestListFunction(game: GameInfo) {
 		}
 	});
 }
-
+// import { startRemote1v1Game } from "./remote1v1GameInterface.js";
 function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo) {
 	let detailButton = document.createElement("button");
 	detailButton.textContent = "View Details";
@@ -299,8 +299,9 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 							if (!response.ok) {
 								throw new Error(response.statusText);
 							} else if (response.status === 200) {
-								alert(data);
+								alert("The game will start soon.");
 								document.body.removeChild(modal);
+								// startRemote1v1Game(game.currentlyLoggedIn.name, target.id);
 							}
 						})
 						.catch(error => {

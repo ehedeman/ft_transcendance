@@ -103,6 +103,7 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 		});
 }
 
+
 export function callLoginEventListeners(game: GameInfo) {
 	document.getElementById("loginButton")?.addEventListener("click", () => {
 		navigate(game.availablePages[pageIndex.LOGIN], "", game);

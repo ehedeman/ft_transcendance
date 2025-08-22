@@ -8,7 +8,7 @@ mkdir -p data/public/avatars
 # mv ./index.js ./data/public/index.js
 mv ./index.html ./data/public/index.html
 mv ./styles.css ./data/public/styles.css
-mv ./avatars/default-avatar.png ./data/public/avatars/default-avatar.png
+# mv ./avatars/default-avatar.png ./data/public/avatars/default-avatar.png
 
 # mv ./index.ts ./data/frontend/index.ts
 # mv ./server.ts ./data/backend/server.ts
