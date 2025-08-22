@@ -1,8 +1,8 @@
 import { game } from "./index.js";
-
-function handleFriendRequest(data: any) {
+import { createConfirmModal } from "./friendSystemActions.js";
+async function handleFriendRequest(data: any) {
 	const friendName = data.from;
-	const result = confirm(`Do you want to accept the friend request from ${friendName}?`);
+	const result = await createConfirmModal(`Do you want to accept the friend request from ${friendName}?`);
 	if (result) {
 		game.websocket?.send(JSON.stringify({ reply: "accept" }));
 		const friendList = document.getElementById("friendList");
@@ -49,7 +49,7 @@ function handleWebSocketMessage(event: MessageEvent) {
 };
 
 export function createWebSocketConnection(username: string) {
-	game.websocket = new WebSocket(`ws://10.12.11.10:3000/ws?username=${username}`);//TODO: change this everytime when we move to a new computer
+	game.websocket = new WebSocket(`ws://10.12.12.9:3000/ws?username=${username}`);//TODO: change this everytime when we move to a new computer
 
 	game.websocket.onopen = () => {
 		console.log("✅ WebSocket connection established successfully!");

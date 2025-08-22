@@ -54,32 +54,12 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 							.run(accountName, nameToAdd);
 						rep.send({ message: `Friend '${nameToAdd}' added successfully` });
 					} else {
-						rep.status(404).send({ error: 'User not found' });
+						rep.status(404).send({ Notification: 'Friend request rejected' });
 					}
 				});
 			}
 		} else {
 			rep.status(202).send({ message: 'Friend request sent' });
-		}
-	});
-
-	app.put('/addFriendlist', async (request: FastifyRequest, reply: FastifyReply) => {
-		const { username, friendname } = request.body as {
-			username: string;
-			friendname: string;
-		};
-
-		if (!username || !friendname) {
-			reply.status(400).send({ error: 'Username and friendname are required' });
-			return;
-		}
-
-		try {
-			const stmt = db.prepare(`INSERT INTO newFriend (username, friendname) VALUES (?, ?)`);
-			stmt.run(username, friendname);
-			reply.send({ message: `Friend '${friendname}' added to ${username}'s friend list` });
-		} catch (err) {
-			reply.status(500).send({ error: 'Database error' });
 		}
 	});
 

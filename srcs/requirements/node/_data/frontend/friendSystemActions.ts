@@ -90,14 +90,6 @@ export function addFriendFunction(game: GameInfo) {
 								newFriendItem.textContent = friendName;
 								friendList.appendChild(newFriendItem);
 							}
-							fetch(`/addFriendlist`, {
-								method: "PUT",
-								headers: { "Content-Type": "application/json" },
-								body: JSON.stringify({
-									username: game.username,
-									friendname: friendName
-								})
-							})
 						} else {
 							console.error(response);
 							alert("Failed to add friend.");
@@ -112,13 +104,90 @@ export function addFriendFunction(game: GameInfo) {
 
 import { getFriendList, getFriendRequestList } from "./friendSystemFunctions.js";
 
+export function createConfirmModal(message: string): Promise<boolean> {
+	return new Promise((resolve) => {
+		// Create overlay
+		const overlay = document.createElement("div");
+		overlay.style.position = "fixed";
+		overlay.style.top = "0";
+		overlay.style.left = "0";
+		overlay.style.width = "100vw";
+		overlay.style.height = "100vh";
+		overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+		overlay.style.display = "flex";
+		overlay.style.alignItems = "center";
+		overlay.style.justifyContent = "center";
+		overlay.style.zIndex = "2000";
+
+		// Create modal box
+		const modal = document.createElement("div");
+		modal.style.backgroundColor = "white";
+		modal.style.padding = "20px";
+		modal.style.borderRadius = "10px";
+		modal.style.boxShadow = "0 5px 15px rgba(0,0,0,0.3)";
+		modal.style.textAlign = "center";
+		modal.style.width = "280px";
+		modal.style.fontFamily = "Arial, sans-serif";
+
+		// Message
+		const msg = document.createElement("p");
+		msg.textContent = message;
+		msg.style.marginBottom = "15px";
+		msg.style.fontSize = "14px";
+
+		// Buttons container
+		const buttonContainer = document.createElement("div");
+		buttonContainer.style.display = "flex";
+		buttonContainer.style.justifyContent = "space-around";
+
+		// Yes button
+		const yesBtn = document.createElement("button");
+		yesBtn.textContent = "Yes";
+		yesBtn.style.backgroundColor = "#4CAF50";
+		yesBtn.style.color = "white";
+		yesBtn.style.border = "none";
+		yesBtn.style.padding = "6px 12px";
+		yesBtn.style.borderRadius = "5px";
+		yesBtn.style.cursor = "pointer";
+
+		// No button
+		const noBtn = document.createElement("button");
+		noBtn.textContent = "No";
+		noBtn.style.backgroundColor = "#f44336";
+		noBtn.style.color = "white";
+		noBtn.style.border = "none";
+		noBtn.style.padding = "6px 12px";
+		noBtn.style.borderRadius = "5px";
+		noBtn.style.cursor = "pointer";
+
+		// Append everything
+		buttonContainer.appendChild(yesBtn);
+		buttonContainer.appendChild(noBtn);
+		modal.appendChild(msg);
+		modal.appendChild(buttonContainer);
+		overlay.appendChild(modal);
+		document.body.appendChild(overlay);
+
+		// Event listeners
+		yesBtn.addEventListener("click", () => {
+			document.body.removeChild(overlay);
+			resolve(true);
+		});
+
+		noBtn.addEventListener("click", () => {
+			document.body.removeChild(overlay);
+			resolve(false);
+		});
+	});
+}
+
 export function friendRequestListFunction(game: GameInfo) {
-	document.getElementById("friendRequestsList")?.addEventListener("click", (e) => {
+	document.getElementById("friendRequestsList")?.addEventListener("click", async (e) => {
 		const target = e.target as HTMLElement;
 		if (target.tagName === "LI") {
 			console.log(`${target.textContent} clicked`);
 			const friendName = target.id;
-			const reply = confirm(`Do you want to accept the friend request from ${friendName}?`);
+			const reply = await createConfirmModal(`Do you want to accept the friend request from ${friendName}?`);
 			if (reply) {
 				fetch(`/acceptFriendRequest?username=${encodeURIComponent(friendName)}&friendname=${encodeURIComponent(game.username)}`)
 					.then(response => {
@@ -199,22 +268,24 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 				`;
 				const blockButton = document.createElement("button");
 				blockButton.textContent = "Block User";
-				blockButton.addEventListener("click", () => {
-					const result = confirm(`Are you sure you want to block ${target.id}?`);
+				blockButton.addEventListener("click", async () => {
+					const result = await createConfirmModal(`Are you sure you want to block ${target.id}?`);
 					if (result) {
 						fetch(`/blockUser?blockUserName=${target.id}&UserName=${game.username}`)
 							.then(response => {
 								if (!response.ok) {
 									throw new Error("Failed to block user.");
 								}
-							return response.json();
-						})
-						.then(data => {
-							alert(data.message);
-						})
-						.catch(error => {
-							console.error("Error blocking user:", error);
-						});
+								return response.json();
+							})
+							.then(data => {
+								getFriendList(game.username);
+								getFriendRequestList(game.username);
+								alert(data.message);
+							})
+							.catch(error => {
+								console.error("Error blocking user:", error);
+							});
 					}
 				});
 				content.appendChild(blockButton);
