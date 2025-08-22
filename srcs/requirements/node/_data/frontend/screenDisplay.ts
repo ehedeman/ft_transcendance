@@ -1,6 +1,8 @@
+import { restoreMatchState } from "./twoPlayerMatch_local.js";
+import { ctx } from "./index.js";
+import { GameInfo } from "./frontendStructures.js";
 
-
-export function restoreScreen(): void {
+export function restoreScreen(game:GameInfo): void {
 	const registerButton = document.getElementById("registerButton");
 	const settingsButton = document.getElementById("settingsButton");
 	const playSelect = document.getElementById("playSelect");
@@ -11,8 +13,12 @@ export function restoreScreen(): void {
 	const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
 	const friendStuff = document.getElementById("friendStuff") as HTMLDivElement;
 	const messages = document.getElementById("messages");
+	const logoutButton = document.getElementById("logoutButton");
+	restoreMatchState();
+	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 
 	if (messages) messages.style.display = "none";
+	if (logoutButton) logoutButton.style.display = "none";
 	if (preview) preview.src = "./avatars/default-avatar.png";
 	if (registerButton) registerButton.style.display = "block";
 	if (playSelect) playSelect.style.display = "none";
@@ -38,7 +44,7 @@ export function hideDefaultButtons(): void
 	const messages = document.getElementById("messages");
 
 	if (messages) messages.style.display = "none";
-	if (logoutButton) logoutButton.style.display = "none;"
+	if (logoutButton) logoutButton.style.display = "none";
 	if (registerButton) registerButton.style.display = "none";
 	if (playSelect) playSelect.style.display = "none";
 	if (loginButton) loginButton.style.display = "none";
@@ -61,6 +67,7 @@ export function restoreScreenLoggedIn(): void {
 	const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
 	const friendStuff = document.getElementById("friendStuff") as HTMLDivElement;
 	const messages = document.getElementById("messages");
+	restoreMatchState();
 
 	if (messages) messages.style.display = "block";
 	if (logoutButton) logoutButton.style.display = "block";

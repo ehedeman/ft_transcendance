@@ -3,7 +3,6 @@ import { GameInfo } from "./serverStructures.js";
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 
 let gameFinished = false;
-
 function touchingPaddle1(): boolean {
 	return (
 		game.ball.ballX - game.ball.ballRadius < game.player1Paddle.x + game.player1Paddle.width &&

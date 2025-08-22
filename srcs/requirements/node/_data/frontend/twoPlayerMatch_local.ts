@@ -63,7 +63,7 @@ function remoteMatch(game: GameInfo): void
 
 }
 
-function restoreState()
+export function restoreMatchState()
 {
 	hideLogin();
 	hideGuestPlayerButtons();
@@ -169,19 +169,19 @@ export function callTwoPlayerMatchEventListeners(game:GameInfo)
 		const success = await loginTotwoPlayerMatch(game);
 
 		if (success) {
-			restoreState();
+			restoreMatchState();
 			const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
 			if (container) container.style.display = "none";
-			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
+			// navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 		} else {
-			restoreState();
+			restoreMatchState();
 			navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 			emptyLoginFields("twoPlayerMatch");
-			// restoreScreen();
+			// restoreScreen(game);
 		}
 	});
 	document.getElementById("twoPlayerMatchCancel")?.addEventListener("click", (event: Event) => {
-		restoreState();
+		restoreMatchState();
 		restoreScreenLoggedIn();
 	});
 }

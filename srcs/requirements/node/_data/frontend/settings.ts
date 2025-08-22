@@ -196,7 +196,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 			game.currentlyLoggedIn.gamesWon = 0;
 			game.currentlyLoggedIn.playerscore = 0;
 
-			// restoreScreen();
+			// restoreScreen(game);
 			navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 			return response.json();
 		})
@@ -268,7 +268,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 				else
 				{
 					navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
-					// restoreScreen();
+					// restoreScreen(game);
 				}
 			})
 			.catch(err => console.error("Update failed", err));
@@ -292,7 +292,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 			document.addEventListener("keyup", handleKeyup);
 			navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 			emptyLoginFields("loginSettings");
-			// restoreScreen();
+			// restoreScreen(game);
 		}
 	});
 
@@ -319,7 +319,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 		document.addEventListener("keydown", handleKeydown);
 		document.addEventListener("keyup", handleKeyup);
 		emptyLoginFields("loginSettings");
-		restoreScreen();
+		restoreScreen(game);
 		if (settingsAlreadyLoggedIn === true)
 		{
 			restoreScreenLoggedIn();

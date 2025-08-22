@@ -23,7 +23,7 @@ function logout(game:GameInfo)
 		game.currentlyLoggedIn.gamesWon = 0;
 		game.currentlyLoggedIn.playerscore = 0;
 
-		restoreScreen();
+		restoreScreen(game);
 		// const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
 		// const loginButton = document.getElementById ("loginButton") as HTMLElement;
 		// const registerButton = document.getElementById ("registerButton") as HTMLElement;

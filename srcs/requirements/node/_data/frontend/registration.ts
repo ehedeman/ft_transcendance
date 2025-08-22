@@ -118,7 +118,7 @@ export function callRegistrationEventListeners(game:GameInfo)
 				alert("Registration successful! You can now log in.");
 				emptyLoginFields("registerSettings");
 				// hideGeneralRegistrationModal();
-				// restoreScreen();
+				// restoreScreen(game);
 				navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 				return response.json();
 			})
@@ -133,7 +133,7 @@ export function callRegistrationEventListeners(game:GameInfo)
 	document.getElementById("generalCancelRegistration")?.addEventListener("click", () =>
 	{
 		// hideGeneralRegistrationModal();
-		// restoreScreen();
+		// restoreScreen(game);
 		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 	});
 }

@@ -32,7 +32,8 @@ function mimicLogin(game: GameInfo)
 
 export const render = (view: string, state: any, game:GameInfo) => {
 	console.log("loading" + view + "...");
-
+	restoreScreen(game);
+	
 	var stateTest = state?.view || null;
 	if (stateTest)
 	{
@@ -53,7 +54,7 @@ export const render = (view: string, state: any, game:GameInfo) => {
 				if (data && data.info === "loggedIn")
 					restoreScreenLoggedIn();
 				else
-					restoreScreen();
+					restoreScreen(game);
 				break;
 			case game.availablePages[pageIndex.REGISTER]:
 				mimicRegistration();
@@ -75,5 +76,5 @@ export const render = (view: string, state: any, game:GameInfo) => {
 		}
 	}
 	else
-		restoreScreen();
+		restoreScreen(game);
 };

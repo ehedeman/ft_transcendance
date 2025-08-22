@@ -61,7 +61,7 @@ export async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 			.then((response) => {
 				if (!response.ok) {
 					tournamentEnd(0, game);
-					restoreScreen();
+					restoreScreen(game);
 					return;
 				}
 			})
@@ -104,13 +104,13 @@ export function callTournamentEventListeners(game:GameInfo)
 	document.getElementById("tournamentFinishContinue")?.addEventListener("click", () => {
 		//game.t.finishScreenRunning = false;
 		tournamentEnd(0, game);
-		restoreScreen();
+		restoreScreen(game);
 		 
 	});
 
 	document.getElementById("tournamentResetButton")?.addEventListener("click", () => {
 		tournamentEnd(0, game);
-		restoreScreen();
+		restoreScreen(game);
 		 
 	});
 
@@ -119,7 +119,7 @@ export function callTournamentEventListeners(game:GameInfo)
 		const resetButton = document.getElementById("tournamentResetButton") as HTMLElement;
 		if (resetButton) resetButton.style.display = "none";
 		tournamentEnd(1, game);
-		// restoreScreen();
+		// restoreScreen(game);
 		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 		const playSelect = document.getElementById("playSelect");
 		if (playSelect) playSelect.style.display = "block";

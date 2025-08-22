@@ -80,8 +80,11 @@ function getGameStatus(): void {
 					game.t.matches[length - 1].player2.score = data.player2_score;
 				}
 				else {
-					game.players[0].playerscore = data.player1_score;
-					game.players[1].playerscore = data.player2_score;
+					if (game.players.length >= 2)
+					{
+						game.players[0].playerscore = data.player1_score;
+						game.players[1].playerscore = data.player2_score;
+					}
 				}
 				game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
 				if (data.gamefinished) {
@@ -167,9 +170,14 @@ export function updateGame(): void {
 
 export function clickWinnerScreenContinue() {
 	document.getElementById("WinnerScreenContinue")?.addEventListener("click", () => {
-		fetch("/gameContinue");
+		// fetch("/gameContinue");
 		if (game.tournamentLoopActive && game.t.stage === TournamentStage.Complete)
 			tournamentFinished(game);
+		else if (!game.tournamentLoopActive)
+		{
+			game.players.splice(0, game.players.length);
+			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
+		}
 		const winnerScreen = document.getElementById("WinnerScreen");
 		if (winnerScreen) winnerScreen.style.display = "none";
 		document.addEventListener("keydown", handleKeydown);

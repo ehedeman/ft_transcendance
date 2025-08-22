@@ -113,7 +113,7 @@ export function callLoginEventListeners(game: GameInfo)
 
 	document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
 		hideGeneralLoginModal();
-		restoreScreen();
+		restoreScreen(game);
 		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 	});
 
