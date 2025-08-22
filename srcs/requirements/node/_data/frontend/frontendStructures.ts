@@ -1,3 +1,5 @@
+import { userInfo } from "./serverStructures.js";
+
 export class canvasInfo {
 	width: number;
 	height: number;
@@ -20,7 +22,6 @@ export type PlayerLogin = {
 		username: string;
 		password: string;
 };
-
 
 let canvas = new canvasInfo();// maybe I can delete this
 
@@ -84,6 +85,7 @@ export type Match = {
 };
 
 export enum TournamentStage {
+	Not_Running,
 	Registration,
 	Playing,
 	Regular1,	//	first round -> player1 vs player3
@@ -120,6 +122,39 @@ export class Tournament {
 	}
 }
 
+// from each of those, going back = HOME
+// needs to match "available pages" array
+export enum pageIndex {
+	HOME,
+	SETTINGS,
+	TOURNAMENT,
+	MULTIPLAYER,
+	MATCH,
+	CHECKING_PROFILE,
+	REGISTER,
+	LOGIN,
+}	//match = 1v1
+
+// export type pages = {
+// 	page0: string;
+// 	page1: string;
+// 	page2: string;
+// 	page3: string;
+// 	page4: string;
+// 	page5: string;
+// }	//add more as needed
+
+export type gameSnapShot = {
+	players: Player[];
+	websocket?: WebSocket;
+	currentlyLoggedIn: Player;
+}
+
+export type renderInfo = {
+	view: string;
+	info: string;
+	snapShot: gameSnapShot;
+}
 
 
 export class GameInfo {
@@ -137,8 +172,6 @@ export class GameInfo {
 
 	websocket?: WebSocket;// for the websocket connection
 
-	username: string;
-
 	sendMessageTo: string;
 
 	friendList: string[];
@@ -148,6 +181,14 @@ export class GameInfo {
 	friendRequestList: string[];
 
 	rejectedFriendRequests: string[];
+
+	currentlyLoggedIn: Player;
+
+	availablePages: string[];
+
+	gamefinished: boolean;
+
+	userInfoTemp: userInfo;
 
 	constructor() 
 	{
@@ -167,8 +208,6 @@ export class GameInfo {
 		this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
 
 		this.tournamentLoopActive = false;
-		
-		this.username = "";
 
 		this.sendMessageTo = "";
 
@@ -179,6 +218,25 @@ export class GameInfo {
 		this.friendRequestList = [];
 
 		this.rejectedFriendRequests = [];
+
+		this.currentlyLoggedIn = { name:"default", gamesLost:0, gamesWon: 0, playerscore: 0	};
+	
+		this.availablePages = ["home", "settings", "tournament", "multiplayer", "match", "profile", "register", "login", "settings-login", "remote-match", "local-match"];
+
+		this.gamefinished =false;
+
+		this.userInfoTemp = 
+		{
+			id: 0,
+			Full_Name: "default",
+			Alias : "defaulty",
+			Country : "defaultLand",
+			password_hash : "defaultPassword",
+			avatar_url : "default.png",
+			status : "default",
+			updated_at : "default",
+			created_at : "default",
+		}
 	}
 }
 

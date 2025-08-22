@@ -14,7 +14,7 @@ export function SendMessageHandler() {
 			game.websocket.send(JSON.stringify({
 				type: "privateMessage",
 				target: game.sendMessageTo,
-				from: game.username,
+				from: game.currentlyLoggedIn.name,
 				message: inputMessage
 			}));
 		}
@@ -40,7 +40,7 @@ export function getChatHistoryFunction(game: GameInfo) {
 				(li as HTMLElement).style.backgroundColor = "white";
 			});
 			target.style.backgroundColor = "lightblue";
-			fetch(`/getChatHistory?username=${encodeURIComponent(game.username)}&friendname=${encodeURIComponent(game.sendMessageTo)}`)
+			fetch(`/getChatHistory?username=${encodeURIComponent(game.currentlyLoggedIn.name)}&friendname=${encodeURIComponent(game.sendMessageTo)}`)
 				.then(response => {
 					if (!response.ok) {
 						throw new Error("Failed to fetch chat history.");
@@ -74,10 +74,10 @@ export function addFriendFunction(game: GameInfo) {
 		if (friendName) {
 			if (game.friendList.includes(friendName)) {
 				alert("Friend already added!");
-			} else if (game.username === friendName) {
+			} else if (game.currentlyLoggedIn.name === friendName) {
 				alert("You cannot add yourself as a friend!");
 			} else {
-				fetch(`/addFriend?nameToAdd=${encodeURIComponent(friendName)}&accountName=${encodeURIComponent(game.username)}`)
+				fetch(`/addFriend?nameToAdd=${encodeURIComponent(friendName)}&accountName=${encodeURIComponent(game.currentlyLoggedIn.name)}`)
 					.then(response => {
 						if (response.status === 202) {
 							alert("Friend request sent!");
@@ -189,7 +189,7 @@ export function friendRequestListFunction(game: GameInfo) {
 			const friendName = target.id;
 			const reply = await createConfirmModal(`Do you want to accept the friend request from ${friendName}?`);
 			if (reply) {
-				fetch(`/acceptFriendRequest?username=${encodeURIComponent(friendName)}&friendname=${encodeURIComponent(game.username)}`)
+				fetch(`/acceptFriendRequest?username=${encodeURIComponent(friendName)}&friendname=${encodeURIComponent(game.currentlyLoggedIn.name)}`)
 					.then(response => {
 						if (!response.ok) {
 							throw new Error("Failed to send accept friend request.");
@@ -198,14 +198,14 @@ export function friendRequestListFunction(game: GameInfo) {
 					})
 					.then(data => {
 						console.log("Friend request accepted:", data);
-						getFriendList(game.username);
-						getFriendRequestList(game.username);
+						getFriendList(game.currentlyLoggedIn.name);
+						getFriendRequestList(game.currentlyLoggedIn.name);
 					})
 					.catch(error => {
 						console.error("Error accepting friend request:", error);
 					});
 			} else {
-				fetch(`/rejectFriendRequest?username=${encodeURIComponent(friendName)}&friendname=${encodeURIComponent(game.username)}`)
+				fetch(`/rejectFriendRequest?username=${encodeURIComponent(friendName)}&friendname=${encodeURIComponent(game.currentlyLoggedIn.name)}`)
 					.then(response => {
 						if (!response.ok) {
 							throw new Error("Failed to send reject friend request.");
@@ -214,8 +214,8 @@ export function friendRequestListFunction(game: GameInfo) {
 					})
 					.then(data => {
 						console.log("Friend request rejected:", data);
-						getFriendList(game.username);
-						getFriendRequestList(game.username);
+						getFriendList(game.currentlyLoggedIn.name);
+						getFriendRequestList(game.currentlyLoggedIn.name);
 					})
 					.catch(error => {
 						console.error("Error rejecting friend request:", error);
@@ -271,7 +271,7 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 				blockButton.addEventListener("click", async () => {
 					const result = await createConfirmModal(`Are you sure you want to block ${target.id}?`);
 					if (result) {
-						fetch(`/blockUser?blockUserName=${target.id}&UserName=${game.username}`)
+						fetch(`/blockUser?blockUserName=${target.id}&UserName=${game.currentlyLoggedIn.name}`)
 							.then(response => {
 								if (!response.ok) {
 									throw new Error("Failed to block user.");
@@ -279,8 +279,8 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 								return response.json();
 							})
 							.then(data => {
-								getFriendList(game.username);
-								getFriendRequestList(game.username);
+								getFriendList(game.currentlyLoggedIn.name);
+								getFriendRequestList(game.currentlyLoggedIn.name);
 								alert(data.message);
 								document.body.removeChild(modal);
 							})
@@ -294,7 +294,7 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 				inviteButton.textContent = "Invite User";
 				content.appendChild(inviteButton);
 				inviteButton.addEventListener("click", async () => {
-					fetch(`/inviteUserTo1v1Game?invitedUser=${encodeURIComponent(target.id)}&username=${game.username}`)
+					fetch(`/inviteUserTo1v1Game?invitedUser=${encodeURIComponent(target.id)}&username=${game.currentlyLoggedIn.name}`)
 						.then(response => {
 							if (!response.ok) {
 								throw new Error(response.statusText);

@@ -1,7 +1,35 @@
-import { game, ctx, keysPressed, gamefinished, rounds, handleKeydown, handleKeyup } from './index.js';
-import { showWinnerScreen, tournamentLogic, tournamentFinished } from "./tournament.js";
-import { TournamentStage } from './frontendStructures.js';
+import { game, ctx, keysPressed, rounds, handleKeydown, handleKeyup, navigate } from './index.js';
+import { showWinnerScreen, tournamentLogic, tournamentFinished, tournamentStart } from "./tournament.js";
+import { GameInfo, pageIndex, TournamentStage } from './frontendStructures.js';
+import { twoPlayerMatchStart } from './twoPlayerMatch_local.js';
 
+export function callGameEventListeners (game: GameInfo)
+{
+	document.getElementById("playSelect")?.addEventListener("change", (event: Event) => {
+		const playSelect = document.getElementById("playSelect") as HTMLSelectElement;
+		const target = event.target as HTMLSelectElement;
+		const selectedOption = target.value;
+		if (playSelect)
+			playSelect.selectedIndex = 0;
+		if (selectedOption) {
+			switch (selectedOption) {
+				case "tournament":
+					navigate(game.availablePages[pageIndex.TOURNAMENT], "", game);
+					// tournamentStart(game);
+					break;
+				case "multiplayer":
+
+					break
+				case "1v1":
+					navigate(game.availablePages[pageIndex.MATCH], "", game);
+					// twoPlayerMatchStart(game);
+					break
+				default:
+					break;
+			}
+		}
+	});
+}
 
 function drawMiddlePath(): void {
 	ctx.strokeStyle = "white";
@@ -38,7 +66,7 @@ function calculatePaddleCoords(): void {
 }
 
 function getGameStatus(): void {
-	if (!gamefinished) {
+	if (!game.gamefinished) {
 		var length = game.t.matches.length;
 		fetch("/getstatus")
 			.then(response => response.json())
@@ -52,8 +80,11 @@ function getGameStatus(): void {
 					game.t.matches[length - 1].player2.score = data.player2_score;
 				}
 				else {
-					game.players[0].playerscore = data.player1_score;
-					game.players[1].playerscore = data.player2_score;
+					if (game.players.length >= 2)
+					{
+						game.players[0].playerscore = data.player1_score;
+						game.players[1].playerscore = data.player2_score;
+					}
 				}
 				game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
 				if (data.gamefinished) {
@@ -139,9 +170,14 @@ export function updateGame(): void {
 
 export function clickWinnerScreenContinue() {
 	document.getElementById("WinnerScreenContinue")?.addEventListener("click", () => {
-		fetch("/gameContinue");
+		// fetch("/gameContinue");
 		if (game.tournamentLoopActive && game.t.stage === TournamentStage.Complete)
 			tournamentFinished(game);
+		else if (!game.tournamentLoopActive)
+		{
+			game.players.splice(0, game.players.length);
+			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
+		}
 		const winnerScreen = document.getElementById("WinnerScreen");
 		if (winnerScreen) winnerScreen.style.display = "none";
 		document.addEventListener("keydown", handleKeydown);

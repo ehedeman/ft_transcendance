@@ -240,6 +240,8 @@ app.post("/logout", async (request, reply) => {
 	}
 	const stmt2 = db.prepare(`UPDATE users SET status = 'offline' WHERE full_name = ?`);//TODO: I add the database changes here
 	stmt2.run(username);
+	game.sockets.get(username)?.close();//TODO: close the user's socket connection
+	game.sockets.delete(username);
 	reply.send({ status: 200, message: 'Logout successful', user });
 });
 
