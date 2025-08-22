@@ -24,6 +24,12 @@ export function emptyLoginFields(loginType: string): void {
 			if (registerUsername) registerUsername.value = "";
 			if (registerPassword) registerPassword.value = "";
 			break;
+		case "twoPlayerMatch":
+			const twoPlayerMatchPassword = document.getElementById("twoPlayerMatchPassword") as HTMLInputElement;
+			const twoPlayerMatchUsername = document.getElementById("twoPlayerMatchUsername") as HTMLInputElement;
+			if (twoPlayerMatchPassword) twoPlayerMatchPassword.value = "";
+			if (twoPlayerMatchUsername) twoPlayerMatchUsername.value = "";
+			break;
 		default:
 			break;
 	}

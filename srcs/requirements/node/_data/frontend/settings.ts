@@ -1,4 +1,4 @@
-import { restoreScreen } from "./screenDisplay.js";
+import { hideDefaultButtons, restoreScreen, restoreScreenLoggedIn } from "./screenDisplay.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
 import { handleKeydown, handleKeyup, navigate } from "./index.js";
 import { GameInfo, pageIndex, PlayerLogin } from "./frontendStructures.js";
@@ -236,16 +236,18 @@ export function callSettingsEventlisteners(game:GameInfo)
 			.then(res => res.json())
 			.then(data => {
 				alert(data.message);
-				restoreScreen();
 				if (settingsAlreadyLoggedIn === true)
 				{
-					const playSelect = document.getElementById ("playSelect") as HTMLElement;
-					if (playSelect) playSelect.style.display = "block";
-					const loginButton = document.getElementById ("loginButton") as HTMLElement;
-					if (loginButton) loginButton.style.display = "none";
-					const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
-					if (logoutButton) logoutButton.style.display = "block";
+					restoreScreenLoggedIn();
+				// 	const playSelect = document.getElementById ("playSelect") as HTMLElement;
+				// 	if (playSelect) playSelect.style.display = "block";
+				// 	const loginButton = document.getElementById ("loginButton") as HTMLElement;
+				// 	if (loginButton) loginButton.style.display = "none";
+				// 	const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
+				// 	if (logoutButton) logoutButton.style.display = "block";
 				}
+				else
+					restoreScreen();
 			})
 			.catch(err => console.error("Update failed", err));
 		navigate(game.availablePages[pageIndex.HOME]);
@@ -267,6 +269,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 			hideSettingsLogin();
 			document.addEventListener("keydown", handleKeydown);
 			document.addEventListener("keyup", handleKeyup);
+			navigate(game.availablePages[pageIndex.HOME]);
 			emptyLoginFields("loginSettings");
 			restoreScreen();
 		}
@@ -274,14 +277,15 @@ export function callSettingsEventlisteners(game:GameInfo)
 
 	document.getElementById("settingsButton")?.addEventListener("click", () => 
 	{
-		const registerButton = document.getElementById("registerButton");
-		const playSelect = document.getElementById("playSelect");
-		const loginButton = document.getElementById("loginButton");
-		const logoutButton = document.getElementById("logoutButton")
-		if (registerButton) registerButton.style.display = "none";
-		if (playSelect) playSelect.style.display = "none";
-		if (loginButton) loginButton.style.display = "none";
-		if (logoutButton) logoutButton.style.display = "none";
+		hideDefaultButtons();
+		// const registerButton = document.getElementById("registerButton");
+		// const playSelect = document.getElementById("playSelect");
+		// const loginButton = document.getElementById("loginButton");
+		// const logoutButton = document.getElementById("logoutButton")
+		// if (registerButton) registerButton.style.display = "none";
+		// if (playSelect) playSelect.style.display = "none";
+		// if (loginButton) loginButton.style.display = "none";
+		// if (logoutButton) logoutButton.style.display = "none";
 		showSettings();
 		hideSettingsForm();
 		if (game.currentlyLoggedIn.name === "default")
@@ -324,12 +328,13 @@ export function callSettingsEventlisteners(game:GameInfo)
 		restoreScreen();
 		if (settingsAlreadyLoggedIn === true)
 		{
-			const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
-			if (logoutButton) logoutButton.style.display = "block";
-			const loginButton = document.getElementById ("loginButton") as HTMLElement;
-			if (loginButton) loginButton.style.display = "none";
-			const playSelect = document.getElementById ("playSelect") as HTMLElement;
-			if (playSelect) playSelect.style.display = "block";
+			restoreScreenLoggedIn();
+			// const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
+			// if (logoutButton) logoutButton.style.display = "block";
+			// const loginButton = document.getElementById ("loginButton") as HTMLElement;
+			// if (loginButton) loginButton.style.display = "none";
+			// const playSelect = document.getElementById ("playSelect") as HTMLElement;
+			// if (playSelect) playSelect.style.display = "block";
 		}
 		else
 			game.currentlyLoggedIn.name = "default";

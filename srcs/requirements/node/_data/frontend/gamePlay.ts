@@ -1,7 +1,7 @@
 import { game, ctx, keysPressed, rounds, handleKeydown, handleKeyup, navigate } from './index.js';
-import { showWinnerScreen, tournamentLogic, tournamentFinished } from "./tournament.js";
-import { tournamentRegisterPlayers } from './tournamentRegistration.js';
+import { showWinnerScreen, tournamentLogic, tournamentFinished, tournamentStart } from "./tournament.js";
 import { GameInfo, pageIndex, TournamentStage } from './frontendStructures.js';
+import { twoPlayerMatchStart } from './twoPlayerMatch_local.js';
 
 export function callGameEventListeners (game: GameInfo)
 {
@@ -13,33 +13,16 @@ export function callGameEventListeners (game: GameInfo)
 			playSelect.selectedIndex = 0;
 		if (selectedOption) {
 			switch (selectedOption) {
-				// case "play":
-				// 	break ;
 				case "tournament":
 					navigate(game.availablePages[pageIndex.TOURNAMENT]);
-					document.removeEventListener('keydown', handleKeydown);
-					document.removeEventListener('keyup', handleKeyup);
-					const registerButton = document.getElementById("registerButton");
-					const select = document.getElementById("playSelect");
-					const loginButton = document.getElementById("loginButton");
-					const settingsButton = document.getElementById("settingsButton") as HTMLSelectElement;
-					const settings = document.getElementById("settings") as HTMLSelectElement;
-
-					if (settingsButton) settingsButton.style.display = "none";
-					if (settings) settings.style.display = "none";
-					if (registerButton) registerButton.style.display = "none";
-					if (select) select.style.display = "none";
-					if (loginButton) loginButton.style.display = "none";
-
-					const resetButton = document.getElementById("tournamentResetButton");
-					if (resetButton) resetButton.style.display = "block";
-					tournamentRegisterPlayers(game);
+					tournamentStart(game);
 					break;
 				case "multiplayer":
 
 					break
 				case "1v1":
-
+					navigate(game.availablePages[pageIndex.MATCH]);
+					twoPlayerMatchStart(game);
 					break
 				default:
 					break;

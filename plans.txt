@@ -23,3 +23,12 @@ TOURNAMENT:
     visible: resetButton    canvas  friendlist(cause of chat)
 
     invisible: loginButton    registerButton   settingsButton  playSelect
+
+
+for the 1v1 game:
+
+if you click:  be asked if remote or local: be asked if guest or player (maybe one form with selects?)
+
+then players get added to the game currently playing thing or whatever and game can start
+
+

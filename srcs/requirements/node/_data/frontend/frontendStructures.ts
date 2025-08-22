@@ -85,6 +85,7 @@ export type Match = {
 };
 
 export enum TournamentStage {
+	Not_Running,
 	Registration,
 	Playing,
 	Regular1,	//	first round -> player1 vs player3
@@ -110,7 +111,7 @@ export class Tournament {
 		this.players = [];
 		this.matches = [];
 		this.currentRound = 0;
-		this.stage = TournamentStage.Registration;
+		this.stage = TournamentStage.Not_Running;
 		this.winners = [];
 		this.losers = [];
 		this.finishScreenRunning = false;
@@ -122,6 +123,7 @@ export class Tournament {
 }
 
 // from each of those, going back = HOME
+// needs to match "available pages" array
 export enum pageIndex {
 	HOME,
 	SETTINGS,
@@ -131,7 +133,9 @@ export enum pageIndex {
 	CHECKING_PROFILE,
 	REGISTER,
 	LOGIN,
-	SETTINGS_LOGIN
+	SETTINGS_LOGIN,
+	REMOTE_MATCH,
+	LOCAL_MATCH
 }	//match = 1v1
 
 // export type pages = {
@@ -211,7 +215,7 @@ export class GameInfo {
 
 		this.currentlyLoggedIn = { name:"default", gamesLost:0, gamesWon: 0, playerscore: 0	};
 	
-		this.availablePages = ["home", "settings", "tournament", "multiplayer", "match", "profile", "register", "login", "settings-login"];
+		this.availablePages = ["home", "settings", "tournament", "multiplayer", "match", "profile", "register", "login", "settings-login", "remote-match", "local-match"];
 
 		this.gamefinished =false;
 

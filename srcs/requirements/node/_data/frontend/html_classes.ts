@@ -6,6 +6,7 @@ export function callHTMLclassDefines()
 	customElements.define('login-components', htmlLogin);
 	customElements.define('tournament-components', htmlTournament);
 	customElements.define('friend-components', htmlFriends);
+	customElements.define('two-player-match', htmlTwoPlayerMatch);
 }
 
 class htmlTournament extends HTMLElement {
@@ -172,6 +173,31 @@ export class htmlFriends extends HTMLElement {
 					</ul>
 				</div>
 			</div>
+		</div>
+		`;
+	}
+}
+
+
+export class htmlTwoPlayerMatch extends HTMLElement {
+	connectedCallback() {
+		this.innerHTML = `
+		<div id="twoPlayerMatchContainer" style="display: none; position:absolute; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+			<h1 id="twoPlayerMatchHeader">Please chose a Game-Mode.</h1>
+			<select id="twoPlayerMatchSelect" style="position:absolute; display: block; z-index: 2; left: 75%; top: 70px; transform: translateX(-50%);">
+				<option value="" disabled selected>GameMode</option>
+				<option value="local">Local</option>
+				<option value="remote">Remote</option>
+			</select>
+			<button id="twoPlayerMatchGuestGame" style="flex-grow:1; gap: 10px; display: none;" type="button" class="bg-blue-500 text-white px-4 py-2 rounded">Guest vs. Player Match</button>
+			<button id="twoPlayerMatchPlayerGame" style="flex-grow:1; gap: 10px; display: none;" type="button" class="bg-blue-500 text-white px-4 py-2 rounded">Player vs. Player Match</button>
+			<form id="twoPlayerMatchLogin" method="post" style="flex-grow:1; display:none; flex-direction:column; margin-bottom:10px; justify-content:space-between;">
+				<h2 id="twoPlayerMatchLoginHeader">Login</h1>
+				<input type="text" id="twoPlayerMatchUsername" name="username" placeholder="Username" required="true" />
+				<input type="password" id="twoPlayerMatchPassword" name="password" placeholder="Password" required="true" />
+				<button type="submit" id="twoPlayerMatchLoginSubmit" class="bg-blue-500 text-white px-4 py-2 rounded">Log In</button>
+			</form>
+			<button style="flex-grow:1; gap: 10px;" type="button" id="twoPlayerMatchCancel" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>			
 		</div>
 		`;
 	}

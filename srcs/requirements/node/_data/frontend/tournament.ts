@@ -1,7 +1,8 @@
-import { ctx } from "./index.js";
-import { GameInfo, TournamentPlayer, TournamentStage } from "./frontendStructures.js";
+import { ctx, navigate } from "./index.js";
+import { GameInfo, pageIndex, TournamentPlayer, TournamentStage } from "./frontendStructures.js";
 // import { rounds } from "./server.js";
 import { handleKeydown, handleKeyup } from "./index.js";
+import { tournamentRegisterPlayers } from "./tournamentRegistration.js";
 
 type tournamentPlacements = {
 	username: string;
@@ -198,6 +199,28 @@ function setMatchOrder(game: GameInfo): void
 		if (game.t.matchOrder.length === 4)	//if all players have been sorted
 				allSorted = true;
 	}
+}
+
+export function tournamentStart(game: GameInfo)
+{
+	document.removeEventListener('keydown', handleKeydown);
+	document.removeEventListener('keyup', handleKeyup);
+	const registerButton = document.getElementById("registerButton");
+	const select = document.getElementById("playSelect");
+	const loginButton = document.getElementById("loginButton");
+	const settingsButton = document.getElementById("settingsButton") as HTMLSelectElement;
+	const settings = document.getElementById("settings") as HTMLSelectElement;
+
+	if (settingsButton) settingsButton.style.display = "none";
+	if (settings) settings.style.display = "none";
+	if (registerButton) registerButton.style.display = "none";
+	if (select) select.style.display = "none";
+	if (loginButton) loginButton.style.display = "none";
+
+	const resetButton = document.getElementById("tournamentResetButton");
+	if (resetButton) resetButton.style.display = "block";
+	game.t.stage = TournamentStage.Registration;
+	tournamentRegisterPlayers(game);
 }
 
 export function tournamentLogic(game: GameInfo): number

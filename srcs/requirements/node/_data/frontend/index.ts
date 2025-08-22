@@ -72,6 +72,8 @@ callLogoutEventListeners(game);
 
 callTournamentEventListeners(game);
 
+callTwoPlayerMatchEventListeners(game);
+
 const render = (view: string) => {
 	console.log("loading" + view + "...");
 };
@@ -98,5 +100,6 @@ window.addEventListener('load', () => {
 });
 
 import { callGameEventListeners, clickWinnerScreenContinue, updateGame } from "./gamePlay.js";
+import { callTwoPlayerMatchEventListeners } from "./twoPlayerMatch_local.js";
 clickWinnerScreenContinue();
 updateGame();

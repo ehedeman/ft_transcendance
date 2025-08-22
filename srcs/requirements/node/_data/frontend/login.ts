@@ -3,7 +3,7 @@ import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "
 import { createWebSocketConnection } from "./websocketConnection.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
 import { SendMessageHandler, getChatHistoryFunction, addFriendFunction, friendRequestListFunction } from "./friendSystemActions.js";
-import { restoreScreen } from "./screenDisplay.js";
+import { restoreScreen, restoreScreenLoggedIn } from "./screenDisplay.js";
 import { navigate } from "./index.js";
 
 function showGeneralLoginModal(game: GameInfo) {
@@ -40,6 +40,8 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 		game.username = loginPlayer.username; // this is just for the note who is login now.
 		emptyLoginFields("loginGeneral");
 
+		// needs to get data from database (stats and whatnot)
+		
 		game.currentlyLoggedIn.name = loginPlayer.username;
 		game.currentlyLoggedIn.gamesLost = 0;
 		game.currentlyLoggedIn.gamesWon = 0;
@@ -57,16 +59,17 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 		const addFriend = document.getElementById("addFriend") as HTMLElement;
 		if (addFriend) addFriend.style.display = "block";
 		getRejectedFriendRequests(loginPlayer.username);
-		const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
-		const registerButton = document.getElementById ("registerButton") as HTMLElement;
-		const playSelect = document.getElementById("playSelect");
-		const friendStuff = document.getElementById("friendStuff");
-		const messages = document.getElementById("messages");
-		if (logoutButton) logoutButton.style.display = "block";
-		if (registerButton) registerButton.style.display = "block";
-		if (playSelect) playSelect.style.display = "block";
-		if (friendStuff) friendStuff.style.display = "block";
-		if (messages) messages.style.display = "block";
+		restoreScreenLoggedIn();
+		// const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
+		// const registerButton = document.getElementById ("registerButton") as HTMLElement;
+		// const playSelect = document.getElementById("playSelect");
+		// const friendStuff = document.getElementById("friendStuff");
+		// const messages = document.getElementById("messages");
+		// if (logoutButton) logoutButton.style.display = "block";
+		// if (registerButton) registerButton.style.display = "block";
+		// if (playSelect) playSelect.style.display = "block";
+		// if (friendStuff) friendStuff.style.display = "block";
+		// if (messages) messages.style.display = "block";
 		navigate(game.availablePages[pageIndex.HOME]);
 		return response.json();
 	})
