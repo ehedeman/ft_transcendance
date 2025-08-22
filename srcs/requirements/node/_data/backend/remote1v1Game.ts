@@ -176,16 +176,20 @@ export function interactWithRemote1v1Game(app: FastifyInstance, db: any, game: G
 	});
 }
 
-export function updateRemote1v1Game(): void {
+export function updateRemote1v1Game(db: any): void {
 	if (!gameFinished) {
 		if (game.player1.playerscore === rounds) {
-			game.player1.gamesWon++;
-			game.player2.gamesLost++;
+			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
+			stmt.run(game.player1.name);
+			stmt = db.prepare("UPDATE users SET losses = losses + 1 WHERE full_name = ?");
+			stmt.run(game.player2.name);
 			gameFinished = true;
 		}
 		if (game.player2.playerscore === rounds) {
-			game.player2.gamesWon++;
-			game.player1.gamesLost++;
+			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
+			stmt.run(game.player2.name);
+			stmt = db.prepare("UPDATE users SET losses = losses + 1 WHERE full_name = ?");
+			stmt.run(game.player1.name);
 			gameFinished = true;
 		}
 		calculateBallCoordsRemote1v1();

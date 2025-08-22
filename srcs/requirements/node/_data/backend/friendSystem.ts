@@ -73,9 +73,13 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		}
 
 		try {
-			const stmt = db.prepare(`SELECT friendname FROM newFriend WHERE username = ? AND status = 'accepted'`);
-			const rows = stmt.all(username) as { friendname: string }[];
-			const friends = rows.map(row => row.friendname);
+			let stmt = db.prepare(`SELECT friendname FROM newFriend WHERE username = ? AND status = 'accepted'`);
+			let rows = stmt.all(username) as { friendname: string }[];
+			stmt = db.prepare(`SELECT username FROM newFriend WHERE friendname = ? AND status = 'accepted'`);
+			let rows2 = stmt.all(username) as { username: string }[];
+			let friends = rows.map(row => row.friendname);
+			friends = friends.concat(rows2.map(row => row.username));
+
 			reply.send({ friendList: friends });
 		} catch (err) {
 			reply.status(500).send({ error: 'Database error' });
@@ -199,7 +203,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			return;
 		}
 
-		const stmt = db.prepare(`SELECT status, avatar_url FROM users WHERE full_name = ?`);
+		const stmt = db.prepare(`SELECT status, avatar_url, wins, losses FROM users WHERE full_name = ?`);
 		const user = stmt.get(username);
 
 		if (!user) {
@@ -208,9 +212,11 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		}
 
 		const status = user.status;
+		const wins = user.wins;
+		const losses = user.losses;
 
 		const picPath = user.avatar_url;
-		reply.send({ onlineStatus: status, avatarUrl: picPath, this: "is just a test", that: "is also a test", these: "are also tests", those: "are also tests" });
+		reply.send({ onlineStatus: status, avatarUrl: picPath, win: wins, lose: losses, this: "is just a test", that: "is also a test", these: "are also tests", those: "are also tests" });
 	});
 
 	app.get("/blockUser", async (request, reply) => {

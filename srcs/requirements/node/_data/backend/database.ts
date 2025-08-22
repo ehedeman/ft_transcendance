@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS users (
 	password_hash TEXT NOT NULL,
 	avatar_url TEXT DEFAULT './avatars/default-avatar.png',
 	status TEXT DEFAULT 'offline',
+	wins INTEGER DEFAULT 0,
+	losses INTEGER DEFAULT 0,
 	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

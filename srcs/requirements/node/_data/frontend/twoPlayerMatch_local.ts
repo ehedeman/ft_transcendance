@@ -3,35 +3,30 @@ import { GameInfo, pageIndex, Player, PlayerLogin } from "./frontendStructures.j
 import { emptyLoginFields } from "./inputFieldHandling.js";
 import { hideDefaultButtons, restoreScreen, restoreScreenLoggedIn } from "./screenDisplay.js";
 
-export function twoPlayerMatchStart(game:GameInfo)
-{
+export function twoPlayerMatchStart(game: GameInfo) {
 	hideDefaultButtons();
 	const twoPlayerMatch = document.getElementById("twoPlayerMatchContainer") as HTMLDivElement;
 	if (twoPlayerMatch) twoPlayerMatch.style.display = "block";
 }
 
-function showTwoPlayerMatchSelect()
-{
+function showTwoPlayerMatchSelect() {
 	const select = document.getElementById("twoPlayerMatchSelect");
 	if (select) select.style.display = "block";
 }
 
-function hideTwoPlayerMatchSelect()
-{
+function hideTwoPlayerMatchSelect() {
 	const select = document.getElementById("twoPlayerMatchSelect");
 	if (select) select.style.display = "none";
 }
 
-function showGuestPlayerButtons()
-{
+function showGuestPlayerButtons() {
 	const guestButton = document.getElementById("twoPlayerMatchGuestGame") as HTMLButtonElement;
 	const playerButton = document.getElementById("twoPlayerMatchPlayerGame") as HTMLButtonElement;
 	if (guestButton) guestButton.style.display = "block";
 	if (playerButton) playerButton.style.display = "block";
 }
 
-function hideGuestPlayerButtons()
-{
+function hideGuestPlayerButtons() {
 	const guestButton = document.getElementById("twoPlayerMatchGuestGame") as HTMLButtonElement;
 	const playerButton = document.getElementById("twoPlayerMatchPlayerGame") as HTMLButtonElement;
 	const header = document.getElementById("twoPlayerMatchHeader");
@@ -40,38 +35,48 @@ function hideGuestPlayerButtons()
 	if (playerButton) playerButton.style.display = "none";
 }
 
-function hideLogin()
-{
+function hideLogin() {
 	const login = document.getElementById("twoPlayerMatchLogin") as HTMLButtonElement;
 	if (login) login.style.display = "none";
 }
 
-function showLogin()
-{
+function showLogin() {
 	const login = document.getElementById("twoPlayerMatchLogin") as HTMLButtonElement;
 	if (login) login.style.display = "block";
 }
 
-function localMatch(game: GameInfo): void
-{
+function localMatch(game: GameInfo): void {
 	hideTwoPlayerMatchSelect();
 	showGuestPlayerButtons();
 }
 
-function remoteMatch(game: GameInfo): void
-{
-
+function showTwoPlayerMatchInviteForm() {
+	const inviteForm = document.getElementById("twoPlayerMatchInviteForm") as HTMLFormElement;
+	if (inviteForm) inviteForm.style.display = "block";
 }
 
-export function restoreMatchState()
-{
+function hideTwoPlayerMatchInviteForm() {
+	const inviteForm = document.getElementById("twoPlayerMatchInviteForm") as HTMLFormElement;
+	if (inviteForm) inviteForm.style.display = "none";
+	const input  = document.getElementById("twoPlayerMatchInviteInput") as HTMLInputElement;
+	if (input) input.value = "";
+}
+
+function remoteMatch(game: GameInfo): void {
+	hideTwoPlayerMatchSelect();
+	hideGuestPlayerButtons();
+	showTwoPlayerMatchInviteForm();
+}
+
+export function restoreMatchState() {
 	hideLogin();
 	hideGuestPlayerButtons();
+	hideTwoPlayerMatchInviteForm();
 	showTwoPlayerMatchSelect();
 	const header = document.getElementById("twoPlayerMatchHeader");
-		if (header) header.style.display = "block"
+	if (header) header.style.display = "block"
 	const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
-		if (container) container.style.display = "none";
+	if (container) container.style.display = "none";
 }
 
 async function loginTotwoPlayerMatch(game: GameInfo): Promise<boolean> {
@@ -102,8 +107,7 @@ async function loginTotwoPlayerMatch(game: GameInfo): Promise<boolean> {
 			emptyLoginFields("twoPlayerMatch");
 			return false;
 		}
-		else if (loginPlayer.username === game.currentlyLoggedIn.name)
-		{
+		else if (loginPlayer.username === game.currentlyLoggedIn.name) {
 			const message = "Playing against yourself is forbidden.";
 			alert(message);
 			emptyLoginFields("twoPlayerMatch");
@@ -131,8 +135,24 @@ async function loginTotwoPlayerMatch(game: GameInfo): Promise<boolean> {
 	}
 }
 
-export function callTwoPlayerMatchEventListeners(game:GameInfo)
-{
+import { startRemote1v1Game } from "./remote1v1GameInterface.js";
+function sendTwoPlayerMatchInvite(inviteUsername: string, game: GameInfo): void {
+	fetch(`/inviteUserTo1v1Game?invitedUser=${encodeURIComponent(inviteUsername)}&username=${game.currentlyLoggedIn.name}`)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error(response.statusText);
+			} else if (response.status === 200) {
+				alert("The game will start soon.");
+				startRemote1v1Game(game.currentlyLoggedIn.name, inviteUsername);
+			}
+		})
+		.catch(error => {
+			alert("Failed to invite user.");
+			console.error("Error inviting user:", error);
+		});
+}
+
+export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 	document.getElementById("twoPlayerMatchSelect")?.addEventListener("change", (event: Event) => {
 		const twoPlayerMatchSelect = document.getElementById("twoPlayerMatchSelect") as HTMLSelectElement;
 		const target = event.target as HTMLSelectElement;
@@ -157,13 +177,11 @@ export function callTwoPlayerMatchEventListeners(game:GameInfo)
 	document.getElementById("twoPlayerMatchGuestGame")?.addEventListener("click", (event: Event) => {
 		hideGuestPlayerButtons();
 	});
-	document.getElementById("twoPlayerMatchPlayerGame")?.addEventListener("click", (event: Event) => 
-	{
+	document.getElementById("twoPlayerMatchPlayerGame")?.addEventListener("click", (event: Event) => {
 		hideGuestPlayerButtons();
 		showLogin();
 	});
-	document.getElementById("twoPlayerMatchLogin")?.addEventListener("submit", async (e) => 
-	{
+	document.getElementById("twoPlayerMatchLogin")?.addEventListener("submit", async (e) => {
 		e.preventDefault();
 
 		const success = await loginTotwoPlayerMatch(game);
@@ -183,5 +201,15 @@ export function callTwoPlayerMatchEventListeners(game:GameInfo)
 	document.getElementById("twoPlayerMatchCancel")?.addEventListener("click", (event: Event) => {
 		restoreMatchState();
 		restoreScreenLoggedIn();
+	});
+	document.getElementById("twoPlayerMatchInviteSubmit")?.addEventListener("click", (event: Event) => {
+		event.preventDefault();
+		const usernameInput = document.getElementById("twoPlayerMatchInviteUsername") as HTMLInputElement;
+		const inviteUsername = usernameInput.value.trim();
+		if (!inviteUsername) {
+			alert("Please enter a friend's username.");
+			return;
+		}
+		sendTwoPlayerMatchInvite(inviteUsername, game);
 	});
 }

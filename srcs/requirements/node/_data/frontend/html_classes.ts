@@ -197,6 +197,11 @@ export class htmlTwoPlayerMatch extends HTMLElement {
 				<input type="password" id="twoPlayerMatchPassword" name="password" placeholder="Password" required="true" />
 				<button type="submit" id="twoPlayerMatchLoginSubmit" class="bg-blue-500 text-white px-4 py-2 rounded">Log In</button>
 			</form>
+			<form id="twoPlayerMatchInviteForm" method="post" style="flex-grow:1; display:none; flex-direction:column; margin-bottom:10px; justify-content:space-between; display: none;">
+				<h2 id="twoPlayerMatchInviteHeader">Invite a Friend</h2>
+				<input type="text" id="twoPlayerMatchInviteUsername" name="username" placeholder="Friend's Username" required="true" />
+				<button type="submit" id="twoPlayerMatchInviteSubmit" class="bg-blue-500 text-white px-4 py-2 rounded">Send Invite</button>
+			</form>
 			<button style="flex-grow:1; gap: 10px;" type="button" id="twoPlayerMatchCancel" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>			
 		</div>
 		`;
