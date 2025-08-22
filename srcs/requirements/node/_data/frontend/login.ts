@@ -39,12 +39,11 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 		hideGeneralLoginModal();
 		game.username = loginPlayer.username; // this is just for the note who is login now.
 		emptyLoginFields("loginGeneral");
-		game.currentlyLoggedIn = {
-			name: loginPlayer.username,
-			gamesLost: 0,
-			gamesWon: 0,
-			playerscore: 0,
-		}
+
+		game.currentlyLoggedIn.name = loginPlayer.username;
+		game.currentlyLoggedIn.gamesLost = 0;
+		game.currentlyLoggedIn.gamesWon = 0;
+		game.currentlyLoggedIn.playerscore = 0;
 		// game.players.push({
 		// 	name: loginPlayer.username,
 		// 	gamesLost: 0,

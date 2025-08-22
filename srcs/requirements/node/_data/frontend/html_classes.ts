@@ -90,13 +90,13 @@ export class htmlRegistration extends HTMLElement {
 								required="true" />
 							<div>
 								<label for="registerAvatar" style="cursor:pointer;">
-									<img id="registerAvatarImg" src="avatars/default-avatar.png"
+									<img id="registerAvatarImg" src="./avatars/default-avatar.png"
 										style="width:64px; height:64px; border-radius:8px; border:2px solid #aaa;"
 										alt="Select your avatar" />
 								</label>
 								<input type=" file" id="registerAvatar" name="avatar" accept="image/*"
 									style="display:none;" />
-								<img id="avatarPreview" src="default-avatar.png"
+								<img id="avatarPreview" src="./avatars/default-avatar.png"
 									style="width:64px; height:64px; display:none;" />
 							</div>
 						</div>
@@ -128,7 +128,7 @@ export class htmlSettings extends HTMLElement {
 					<input type="text" id="settingsCountry" name="country" required="false" />
 
 					<div id="avatarContainer" style="text-align:center; margin-bottom:10px; margin-top:10px;">
-						<img id="avatarPreviewSettings" src="avatars/default-avatar.png" alt="Avatar" style="width:100px; height:100px; border-radius:50%; cursor:pointer;" />
+						<img id="avatarPreviewSettings" src="./avatars/default-avatar.png" alt="Avatar" style="width:100px; height:100px; border-radius:50%; cursor:pointer;" />
 						<input type="file" id="avatarUpload" name="avatar" accept="image/*" style="display:none;" />
 					</div>
 					<div style="display: flex; gap: 10px;">

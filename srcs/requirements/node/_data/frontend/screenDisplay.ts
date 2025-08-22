@@ -10,7 +10,7 @@ export function restoreScreen(): void {
 	const loginModal = document.getElementById("generalLoginModal") as HTMLDivElement;
 	const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
 
-	if (preview) preview.src = "avatars/default-avatar.png";
+	if (preview) preview.src = "./avatars/default-avatar.png";
 	if (registerButton) registerButton.style.display = "block";
 	if (playSelect) playSelect.style.display = "none";
 	if (loginButton) loginButton.style.display = "block";

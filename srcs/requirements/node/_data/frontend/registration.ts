@@ -68,7 +68,7 @@ export function callRegistrationEventListeners(game:GameInfo)
 				preview.src = URL.createObjectURL(file);
 				preview.style.display = "block";
 			} else {
-				preview.src = "default-avatar.png";
+				preview.src = "./avatars/default-avatar.png";
 				preview.style.display = "none";
 			}
 		});

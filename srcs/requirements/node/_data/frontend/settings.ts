@@ -45,17 +45,17 @@ export async function setSettingFields(_username: string, userInfoTemp: userInfo
 	settingsPassword.value = "";
 	settingsCountry.value = playerInfo.country;
 	console.log("ID: " + playerInfo.id);
-	userInfoTemp = {
-		id: playerInfo.id,
-		Full_Name: playerInfo.name,
-		avatar_url: playerInfo.avatar, // very <- important
-		password_hash: playerInfo.password,
-		Alias: playerInfo.username,
-		Country: playerInfo.country,
-		status: "",
-		updated_at: "",
-		created_at: "",
-	};
+
+	userInfoTemp.id = playerInfo.id;
+	userInfoTemp.Full_Name = playerInfo.name;
+	userInfoTemp.avatar_url = playerInfo.avatar; // very <- important
+	userInfoTemp.password_hash = playerInfo.password;
+	userInfoTemp.Alias = playerInfo.username;
+	userInfoTemp.Country = playerInfo.country;
+	userInfoTemp.status = "";
+	userInfoTemp.updated_at = "";
+	userInfoTemp.created_at = "";	
+		
 	console.log("ID after: " + userInfoTemp.id);
 	// here set fields to what database has currently stored to display in settings
 	return true;
@@ -198,7 +198,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 				}
 			}
 			else {
-				preview.src = "default-avatar.png";
+				preview.src = "./avatars/default-avatar.png";
 				preview.style.display = "none";
 			}
 		}
@@ -241,6 +241,10 @@ export function callSettingsEventlisteners(game:GameInfo)
 				{
 					const playSelect = document.getElementById ("playSelect") as HTMLElement;
 					if (playSelect) playSelect.style.display = "block";
+					const loginButton = document.getElementById ("loginButton") as HTMLElement;
+					if (loginButton) loginButton.style.display = "none";
+					const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
+					if (logoutButton) logoutButton.style.display = "block";
 				}
 			})
 			.catch(err => console.error("Update failed", err));
@@ -295,6 +299,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 			document.removeEventListener("keydown", handleKeydown);
 			document.removeEventListener("keyup", handleKeyup);
 			setSettingFields(game.currentlyLoggedIn.name, game.userInfoTemp);
+			hideSettingsLogin();
 			showSettingsForm();
 		}
 	});
