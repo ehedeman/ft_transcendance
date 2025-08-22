@@ -1,5 +1,6 @@
 import { game } from "./index.js";
 import { createConfirmModal } from "./friendSystemActions.js";
+
 async function handleFriendRequest(data: any) {
 	const friendName = data.from;
 	const result = await createConfirmModal(`Do you want to accept the friend request from ${friendName}?`);
@@ -36,6 +37,16 @@ function handlePrivateMessage(data: any) {
 	}
 }
 
+async function handleGameInvitation(data: any) {
+	const { from, module } = data;
+	const result = await createConfirmModal(`Do you want to accept the game invitation from ${from} for a ${module} game?`);
+	if (result) {
+		game.websocket?.send(JSON.stringify({ reply: "accept" }));
+	} else {
+		game.websocket?.send(JSON.stringify({ reply: "decline" }));
+	}
+}
+
 function handleWebSocketMessage(event: MessageEvent) {
 	const data = JSON.parse(event.data);
 	switch (data.type) {
@@ -44,6 +55,9 @@ function handleWebSocketMessage(event: MessageEvent) {
 			break;
 		case "privateMessage":
 			handlePrivateMessage(data);
+			break;
+		case "gameInvitation":
+			handleGameInvitation(data);
 			break;
 	}
 };

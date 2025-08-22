@@ -238,4 +238,46 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			reply.status(500).send({ status: 500, message: "Database error" });
 		}
 	});
+
+	app.get("/inviteUserTo1v1Game", async (request, reply) => {
+		const { invitedUser, username } = request.query as { invitedUser: string; username: string };
+
+		if (!invitedUser || !username) {
+			return reply.status(400).send({ error: 'Invited user and username are required' });
+		}
+
+		const inviteUserSocket = game.sockets.get(invitedUser);
+		if (!inviteUserSocket) {
+			return reply.status(404).send({ error: 'User not online' });
+		}
+
+		// Send invitation
+		inviteUserSocket.send(JSON.stringify({
+			type: 'gameInvitation',
+			from: username,
+			module: '1v1'
+		}));
+
+		try {
+			const response = await new Promise<{ reply: string }>((resolve, reject) => {
+				const timer = setTimeout(() => reject(new Error('No response from invited user')), 30000); // 30s timeout
+
+				const handler = (data: any) => {
+					clearTimeout(timer);
+					inviteUserSocket.off('message', handler); // remove listener after receiving
+					resolve(JSON.parse(data.toString()));
+				};
+
+				inviteUserSocket.on('message', handler);
+			});
+
+			if (response.reply === 'accept') {
+				return reply.status(200).send({ message: `Game invitation accepted by ${invitedUser}` });
+			} else {
+				return reply.status(403).send({ error: 'Game invitation declined' });
+			}
+		} catch (err: any) {
+			return reply.status(408).send({ error: err.message });
+		}
+	});
 }

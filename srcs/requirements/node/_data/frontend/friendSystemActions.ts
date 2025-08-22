@@ -290,6 +290,34 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 					}
 				});
 				content.appendChild(blockButton);
+				const inviteButton = document.createElement("button");
+				inviteButton.textContent = "Invite User";
+				content.appendChild(inviteButton);
+				inviteButton.addEventListener("click", async () => {
+					console.log(`-------------------------------------1-------------------------------------`);
+					fetch(`/inviteUserTo1v1Game?invitedUser=${encodeURIComponent(target.id)}&username=${game.username}`)
+						.then(response => {
+							console.log(`-------------------------------------2-------------------------------------`);
+							if (!response.ok) {
+								console.log(`-------------------------------------3-------------------------------------`);
+								console.log("this is the error: ", response);
+								throw new Error(response.statusText);
+							} else if (response.status === 200) {
+								console.log(`-------------------------------------4-------------------------------------`);
+								console.log("this is the response: ", response);
+								console.log(`-------------------------------------5-------------------------------------`);
+								alert(data);
+								document.body.removeChild(modal);
+								console.log(`-------------------------------------6-------------------------------------`);
+							}
+						})
+						.catch(error => {
+							console.log(`-------------------------------------7-------------------------------------`);
+							alert("Failed to invite user.");
+							console.error("Error inviting user:", error);
+							console.log(`-------------------------------------8-------------------------------------`);
+						});
+				});
 			});
 
 	});
