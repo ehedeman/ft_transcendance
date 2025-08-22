@@ -132,8 +132,6 @@ app.post("/register", async (request, reply) => {
 	console.log(`User ${username} registered successfully`);
 });
 
-
-
 app.post("/updateUser", async (request, reply) => {
 	const parts = request.parts();
 
@@ -216,6 +214,34 @@ app.post("/userInfo", async (request, reply) => {
 		password: user.password_hash
 	});
 })
+
+app.post("/deleteUser", async (request, reply) => {
+	const { username } = request.body as { username: string };
+
+	const user = db.prepare("SELECT * FROM users WHERE Alias = ?").get(username);
+	if (!user) {
+		reply.status(401).send({ status: 401, message: "Invalid username" });
+		return;
+	}
+	db.prepare("DELETE FROM users WHERE Alias = ?").run(username);
+
+	reply.status(200).send({ status: 200, message: "User successfully deleted" });
+});
+
+
+app.post("/logout", async (request, reply) => {
+	const { username } = request.body as { username: string };
+
+	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
+	const user = stmt.get(username) as any;
+	if (!user) {
+		reply.status(401).send({ status: 401, message: 'Invalid username' });
+		return;
+	}
+	const stmt2 = db.prepare(`UPDATE users SET status = 'offline' WHERE full_name = ?`);//TODO: I add the database changes here
+	stmt2.run(username);
+	reply.send({ status: 200, message: 'Logout successful', user });
+});
 
 app.post("/login", async (request, reply) => {
 	const { username, password } = request.body as { username: string; password: string };
