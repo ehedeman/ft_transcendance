@@ -1,4 +1,4 @@
-import { GameInfo, pageIndex } from "./frontendStructures.js";
+import { GameInfo, gameSnapShot, pageIndex, renderInfo } from "./frontendStructures.js";
 import { callSettingsEventlisteners } from "./settings.js";
 import { callRegistrationEventListeners } from "./registration.js";
 import { callLoginEventListeners } from "./login.js";
@@ -46,6 +46,48 @@ export function handleKeyup(e: KeyboardEvent): void {
 document.addEventListener("keydown", handleKeydown);
 document.addEventListener("keyup", handleKeyup);
 
+//location.hash.replace('#', '') ||
+const initialView = 'home';
+history.replaceState({ view: initialView }, '', `#${initialView}`);
+render(initialView, {
+		view: "home",
+		info: "",
+		snapShot: {players: game.players, currentlyLoggedIn: game.currentlyLoggedIn},
+	}, game);
+
+
+export const navigate = (view: string, infoString: string, game:GameInfo) => {
+	var gameSnapShot_: gameSnapShot = {players: game.players, currentlyLoggedIn: game.currentlyLoggedIn};
+
+	var renderInfo_: renderInfo = {
+		view: view,
+		info: infoString,
+		snapShot: gameSnapShot_,
+	}
+
+	history.pushState({
+		view: view, info: infoString, snapShot: gameSnapShot_}, '', `#${view}`);
+	render(view, renderInfo_, game);
+};
+
+// Handle browser back/forward
+
+window.addEventListener('popstate', (event) => {
+	const state = event.state as renderInfo;
+	if (state?.view) {
+		render(state.view, state, game);
+	} else {
+		render('home', state, game); // fallback
+	}
+});
+
+// Initial load
+window.onpopstate = (event: PopStateEvent) => {
+  const state = event.state as renderInfo;
+  const view = state?.view || 'home';
+  render(view, state, game);
+};
+
 callHTMLclassDefines();
 callGameEventListeners(game);
 
@@ -74,32 +116,8 @@ callTournamentEventListeners(game);
 
 callTwoPlayerMatchEventListeners(game);
 
-const render = (view: string) => {
-	console.log("loading" + view + "...");
-};
-
-export const navigate = (view: string) => {
-  history.pushState({ view }, '', `#${view}`);
-  render(view);
-};
-
-// document.getElementById('loginButton')!.addEventListener('click', () => navigate('login'));
-// document.getElementById('registerButton')!.addEventListener('click', () => navigate('register'));
-// document.getElementById('playSelect')!.addEventListener('change', () => navigate('play'));
-
-// Handle browser back/forward
-window.addEventListener('hashchange', () => {
-  const view = location.hash.replace('#', '') || game.availablePages[pageIndex.HOME];
-  render(view);
-});
-
-// Initial load
-window.addEventListener('load', () => {
-  const view = location.hash.replace('#', '') || game.availablePages[pageIndex.HOME];
-  render(view);
-});
-
 import { callGameEventListeners, clickWinnerScreenContinue, updateGame } from "./gamePlay.js";
 import { callTwoPlayerMatchEventListeners } from "./twoPlayerMatch_local.js";
+import { render } from "./page_render.js";
 clickWinnerScreenContinue();
 updateGame();

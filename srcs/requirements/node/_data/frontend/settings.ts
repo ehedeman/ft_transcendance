@@ -9,7 +9,31 @@ var settingsAlreadyLoggedIn: boolean = false;
 //to determine whether user was logged in before accessing settings
 //or if the user had first logged in in the settings
 
-export async function setSettingFields(_username: string, userInfoTemp: userInfo): Promise<boolean> {
+export function settingsStart(game: GameInfo)
+{
+	hideDefaultButtons();
+
+	showSettings();
+	hideSettingsForm();
+	if (game.currentlyLoggedIn.name === "default")
+	{
+		settingsAlreadyLoggedIn = false;
+		showSettingsLogin();
+		document.removeEventListener("keydown", handleKeydown);
+		document.removeEventListener("keyup", handleKeyup);
+	}
+	else
+	{
+		settingsAlreadyLoggedIn = true;
+		document.removeEventListener("keydown", handleKeydown);
+		document.removeEventListener("keyup", handleKeyup);
+		setSettingFields(game.currentlyLoggedIn.name, game.userInfoTemp);
+		hideSettingsLogin();
+		showSettingsForm();
+	}
+}
+
+async function setSettingFields(_username: string, userInfoTemp: userInfo): Promise<boolean> {
 	const settingsName = document.getElementById("settingsName") as HTMLInputElement;
 	const settingsUsername = document.getElementById("settingsUsername") as HTMLInputElement;
 	const settingsPassword = document.getElementById("settingsPassword") as HTMLInputElement;
@@ -61,7 +85,7 @@ export async function setSettingFields(_username: string, userInfoTemp: userInfo
 	return true;
 }
 
-function showSettings(): void {
+export function showSettings(): void {
 	const settings = document.getElementById("settings") as HTMLElement;
 	if (settings) settings.style.display = "flex";
 }
@@ -172,8 +196,8 @@ export function callSettingsEventlisteners(game:GameInfo)
 			game.currentlyLoggedIn.gamesWon = 0;
 			game.currentlyLoggedIn.playerscore = 0;
 
-			restoreScreen();
-			navigate(game.availablePages[pageIndex.HOME]);
+			// restoreScreen();
+			navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 			return response.json();
 		})
 		.catch(error => {
@@ -238,20 +262,17 @@ export function callSettingsEventlisteners(game:GameInfo)
 				alert(data.message);
 				if (settingsAlreadyLoggedIn === true)
 				{
-					restoreScreenLoggedIn();
-				// 	const playSelect = document.getElementById ("playSelect") as HTMLElement;
-				// 	if (playSelect) playSelect.style.display = "block";
-				// 	const loginButton = document.getElementById ("loginButton") as HTMLElement;
-				// 	if (loginButton) loginButton.style.display = "none";
-				// 	const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
-				// 	if (logoutButton) logoutButton.style.display = "block";
+					// restoreScreenLoggedIn();
+					navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 				}
 				else
-					restoreScreen();
+				{
+					navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
+					// restoreScreen();
+				}
 			})
 			.catch(err => console.error("Update failed", err));
-		navigate(game.availablePages[pageIndex.HOME]);
-		hideSettings();
+		// hideSettings();
 	});
 
 	document.getElementById("settingsLogin")?.addEventListener("submit", async (e) => 
@@ -262,50 +283,23 @@ export function callSettingsEventlisteners(game:GameInfo)
 		if (success) {
 			hideSettingsLogin();
 			showSettingsForm();
-			navigate(game.availablePages[pageIndex.SETTINGS]);
+			navigate(game.availablePages[pageIndex.SETTINGS], "", game);
 		} else {
 			hideSettings();
 			hideSettingsForm();
 			hideSettingsLogin();
 			document.addEventListener("keydown", handleKeydown);
 			document.addEventListener("keyup", handleKeyup);
-			navigate(game.availablePages[pageIndex.HOME]);
+			navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 			emptyLoginFields("loginSettings");
-			restoreScreen();
+			// restoreScreen();
 		}
 	});
 
 	document.getElementById("settingsButton")?.addEventListener("click", () => 
 	{
-		hideDefaultButtons();
-		// const registerButton = document.getElementById("registerButton");
-		// const playSelect = document.getElementById("playSelect");
-		// const loginButton = document.getElementById("loginButton");
-		// const logoutButton = document.getElementById("logoutButton")
-		// if (registerButton) registerButton.style.display = "none";
-		// if (playSelect) playSelect.style.display = "none";
-		// if (loginButton) loginButton.style.display = "none";
-		// if (logoutButton) logoutButton.style.display = "none";
-		showSettings();
-		hideSettingsForm();
-		if (game.currentlyLoggedIn.name === "default")
-		{
-			navigate(game.availablePages[pageIndex.SETTINGS_LOGIN]);
-			settingsAlreadyLoggedIn = false;
-			showSettingsLogin();
-			document.removeEventListener("keydown", handleKeydown);
-			document.removeEventListener("keyup", handleKeyup);
-		}
-		else
-		{
-			navigate(game.availablePages[pageIndex.SETTINGS]);
-			settingsAlreadyLoggedIn = true;
-			document.removeEventListener("keydown", handleKeydown);
-			document.removeEventListener("keyup", handleKeyup);
-			setSettingFields(game.currentlyLoggedIn.name, game.userInfoTemp);
-			hideSettingsLogin();
-			showSettingsForm();
-		}
+		navigate(game.availablePages[pageIndex.SETTINGS], "", game);
+		// settingsStart(game);
 	});
 
 	document.getElementById("showSettingsPassword")?.addEventListener("click", () =>
@@ -329,6 +323,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 		if (settingsAlreadyLoggedIn === true)
 		{
 			restoreScreenLoggedIn();
+			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 			// const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
 			// if (logoutButton) logoutButton.style.display = "block";
 			// const loginButton = document.getElementById ("loginButton") as HTMLElement;
@@ -337,8 +332,10 @@ export function callSettingsEventlisteners(game:GameInfo)
 			// if (playSelect) playSelect.style.display = "block";
 		}
 		else
+		{
 			game.currentlyLoggedIn.name = "default";
-		navigate(game.availablePages[pageIndex.HOME]);
+			navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
+		}
 	});
 }
 

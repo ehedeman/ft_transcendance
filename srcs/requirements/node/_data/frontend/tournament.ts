@@ -81,6 +81,7 @@ export function tournamentEnd(returnValue: number, game: GameInfo): number
 {
 	game.t.currentRound = 0;
 	game.tournamentLoopActive = false;
+	game.t.stage = TournamentStage.Not_Running;
 	if (game.t.players.length > 0)
 		game.t.players.splice(0, game.t.players.length);
 	return (returnValue);

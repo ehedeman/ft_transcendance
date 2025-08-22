@@ -6,7 +6,7 @@ import { SendMessageHandler, getChatHistoryFunction, addFriendFunction, friendRe
 import { restoreScreen, restoreScreenLoggedIn } from "./screenDisplay.js";
 import { navigate } from "./index.js";
 
-function showGeneralLoginModal(game: GameInfo) {
+export function showGeneralLoginModal(game: GameInfo) {
 	const modal = document.getElementById("generalLoginModal") as HTMLDivElement;
 	const usernameInput = document.getElementById("loginUsername") as HTMLInputElement;
 	const passwordInput = document.getElementById("loginPassword") as HTMLInputElement;
@@ -36,12 +36,12 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 			return;
 		}
 		alert("Login successful!");
-		hideGeneralLoginModal();
-		game.username = loginPlayer.username; // this is just for the note who is login now.
+		// hideGeneralLoginModal();
+		game.currentlyLoggedIn.name = loginPlayer.username; // this is just for the note who is login now.
 		emptyLoginFields("loginGeneral");
 
 		// needs to get data from database (stats and whatnot)
-		
+
 		game.currentlyLoggedIn.name = loginPlayer.username;
 		game.currentlyLoggedIn.gamesLost = 0;
 		game.currentlyLoggedIn.gamesWon = 0;
@@ -59,18 +59,8 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 		const addFriend = document.getElementById("addFriend") as HTMLElement;
 		if (addFriend) addFriend.style.display = "block";
 		getRejectedFriendRequests(loginPlayer.username);
-		restoreScreenLoggedIn();
-		// const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
-		// const registerButton = document.getElementById ("registerButton") as HTMLElement;
-		// const playSelect = document.getElementById("playSelect");
-		// const friendStuff = document.getElementById("friendStuff");
-		// const messages = document.getElementById("messages");
-		// if (logoutButton) logoutButton.style.display = "block";
-		// if (registerButton) registerButton.style.display = "block";
-		// if (playSelect) playSelect.style.display = "block";
-		// if (friendStuff) friendStuff.style.display = "block";
-		// if (messages) messages.style.display = "block";
-		navigate(game.availablePages[pageIndex.HOME]);
+		// restoreScreenLoggedIn();
+		navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 		return response.json();
 	})
 	.catch(error => {
@@ -82,15 +72,7 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 export function callLoginEventListeners(game: GameInfo)
 {
 	document.getElementById("loginButton")?.addEventListener("click", () => {
-		navigate(game.availablePages[pageIndex.LOGIN]);
-		const registerButton = document.getElementById("registerButton");
-		const playSelect = document.getElementById("playSelect");
-		const loginButton = document.getElementById("loginButton");
-		if (registerButton) registerButton.style.display = "none";
-		if (playSelect) playSelect.style.display = "none";
-		if (loginButton) loginButton.style.display = "none";
-
-		showGeneralLoginModal(game);
+		navigate(game.availablePages[pageIndex.LOGIN], "", game);
 	});
 
 	document.getElementById("generalLoginForm")?.addEventListener("submit", (e) => {
@@ -132,7 +114,7 @@ export function callLoginEventListeners(game: GameInfo)
 	document.getElementById("CancelGeneralLogin")?.addEventListener("click", () => {
 		hideGeneralLoginModal();
 		restoreScreen();
-		navigate(game.availablePages[pageIndex.HOME]);
+		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 	});
 
 	document.getElementById("showLoginPassword")?.addEventListener("click", () => {

@@ -1,4 +1,4 @@
-import { userInfo } from "./serverStructures";
+import { userInfo } from "./serverStructures.js";
 
 export class canvasInfo {
 	width: number;
@@ -133,9 +133,6 @@ export enum pageIndex {
 	CHECKING_PROFILE,
 	REGISTER,
 	LOGIN,
-	SETTINGS_LOGIN,
-	REMOTE_MATCH,
-	LOCAL_MATCH
 }	//match = 1v1
 
 // export type pages = {
@@ -146,6 +143,19 @@ export enum pageIndex {
 // 	page4: string;
 // 	page5: string;
 // }	//add more as needed
+
+export type gameSnapShot = {
+	players: Player[];
+	websocket?: WebSocket;
+	currentlyLoggedIn: Player;
+}
+
+export type renderInfo = {
+	view: string;
+	info: string;
+	snapShot: gameSnapShot;
+}
+
 
 export class GameInfo {
 	ball: BallInfo;
@@ -161,8 +171,6 @@ export class GameInfo {
 	tournamentLoopActive: boolean;
 
 	websocket?: WebSocket;// for the websocket connection
-
-	username: string;
 
 	sendMessageTo: string;
 
@@ -200,8 +208,6 @@ export class GameInfo {
 		this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
 
 		this.tournamentLoopActive = false;
-		
-		this.username = "";
 
 		this.sendMessageTo = "";
 

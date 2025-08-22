@@ -119,8 +119,8 @@ export function callTournamentEventListeners(game:GameInfo)
 		const resetButton = document.getElementById("tournamentResetButton") as HTMLElement;
 		if (resetButton) resetButton.style.display = "none";
 		tournamentEnd(1, game);
-		restoreScreen();
-		navigate(game.availablePages[pageIndex.HOME]);
+		// restoreScreen();
+		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 		const playSelect = document.getElementById("playSelect");
 		if (playSelect) playSelect.style.display = "block";
 

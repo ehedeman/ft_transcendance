@@ -2,7 +2,6 @@ import { navigate } from "./index.js";
 import { GameInfo, pageIndex, Player, PlayerLogin } from "./frontendStructures.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
 import { hideDefaultButtons, restoreScreen, restoreScreenLoggedIn } from "./screenDisplay.js";
-import { setSettingFields } from "./settings.js";
 
 export function twoPlayerMatchStart(game:GameInfo)
 {
@@ -35,6 +34,8 @@ function hideGuestPlayerButtons()
 {
 	const guestButton = document.getElementById("twoPlayerMatchGuestGame") as HTMLButtonElement;
 	const playerButton = document.getElementById("twoPlayerMatchPlayerGame") as HTMLButtonElement;
+	const header = document.getElementById("twoPlayerMatchHeader");
+	if (header) header.style.display = "none"
 	if (guestButton) guestButton.style.display = "none";
 	if (playerButton) playerButton.style.display = "none";
 }
@@ -67,6 +68,8 @@ function restoreState()
 	hideLogin();
 	hideGuestPlayerButtons();
 	showTwoPlayerMatchSelect();
+	const header = document.getElementById("twoPlayerMatchHeader");
+		if (header) header.style.display = "block"
 	const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
 		if (container) container.style.display = "none";
 }
@@ -95,6 +98,13 @@ async function loginTotwoPlayerMatch(game: GameInfo): Promise<boolean> {
 			const message = response.status === 401
 				? 'Username or password is incorrect'
 				: 'Login failed. Please try again.';
+			alert(message);
+			emptyLoginFields("twoPlayerMatch");
+			return false;
+		}
+		else if (loginPlayer.username === game.currentlyLoggedIn.name)
+		{
+			const message = "Playing against yourself is forbidden.";
 			alert(message);
 			emptyLoginFields("twoPlayerMatch");
 			return false;
@@ -132,11 +142,11 @@ export function callTwoPlayerMatchEventListeners(game:GameInfo)
 		if (selectedOption) {
 			switch (selectedOption) {
 				case "local":
-					navigate(game.availablePages[pageIndex.LOCAL_MATCH]);
+					// navigate(game.availablePages[pageIndex.MATCH]);
 					localMatch(game);
 					break;
 				case "remote":
-					navigate(game.availablePages[pageIndex.REMOTE_MATCH]);
+					// navigate(game.availablePages[pageIndex.REMOTE_MATCH]);
 					remoteMatch(game);
 					break
 				default:
@@ -162,12 +172,12 @@ export function callTwoPlayerMatchEventListeners(game:GameInfo)
 			restoreState();
 			const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
 			if (container) container.style.display = "none";
-			navigate(game.availablePages[pageIndex.HOME]);
+			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 		} else {
 			restoreState();
-			navigate(game.availablePages[pageIndex.HOME]);
+			navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 			emptyLoginFields("twoPlayerMatch");
-			restoreScreen();
+			// restoreScreen();
 		}
 	});
 	document.getElementById("twoPlayerMatchCancel")?.addEventListener("click", (event: Event) => {

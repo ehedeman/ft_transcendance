@@ -35,7 +35,9 @@ export function hideDefaultButtons(): void
 	const loginModal = document.getElementById("generalLoginModal") as HTMLDivElement;
 	const friendStuff = document.getElementById("friendStuff") as HTMLDivElement;
 	const logoutButton = document.getElementById("logoutButton");
+	const messages = document.getElementById("messages");
 
+	if (messages) messages.style.display = "none";
 	if (logoutButton) logoutButton.style.display = "none;"
 	if (registerButton) registerButton.style.display = "none";
 	if (playSelect) playSelect.style.display = "none";
@@ -61,7 +63,7 @@ export function restoreScreenLoggedIn(): void {
 	const messages = document.getElementById("messages");
 
 	if (messages) messages.style.display = "block";
-	if (logoutButton) logoutButton.style.display = "block;"
+	if (logoutButton) logoutButton.style.display = "block";
 	if (registerButton) registerButton.style.display = "block";
 	if (friendStuff) friendStuff.style.display = "block";
 	if (settingsButton) settingsButton.style.display = "block";

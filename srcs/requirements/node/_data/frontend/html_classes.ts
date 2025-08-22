@@ -183,8 +183,8 @@ export class htmlTwoPlayerMatch extends HTMLElement {
 	connectedCallback() {
 		this.innerHTML = `
 		<div id="twoPlayerMatchContainer" style="display: none; position:absolute; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
-			<h1 id="twoPlayerMatchHeader">Please chose a Game-Mode.</h1>
-			<select id="twoPlayerMatchSelect" style="position:absolute; display: block; z-index: 2; left: 75%; top: 70px; transform: translateX(-50%);">
+			<h1 id="twoPlayerMatchHeader" style="font-size: 24px;" >Please chose a Game-Mode.</h1>
+			<select id="twoPlayerMatchSelect" style="flex-grow:1; gap: 10px; display: block;">
 				<option value="" disabled selected>GameMode</option>
 				<option value="local">Local</option>
 				<option value="remote">Remote</option>

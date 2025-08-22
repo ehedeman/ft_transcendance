@@ -43,14 +43,14 @@ export function callRegistrationEventListeners(game:GameInfo)
 		}
 	});
 	document.getElementById("registerButton")?.addEventListener("click", () => {
-		navigate(game.availablePages[pageIndex.REGISTER]);
-		const registerButton = document.getElementById("registerButton");
-		const playSelect = document.getElementById("playSelect");
-		const loginButton = document.getElementById("loginButton");
-		if (registerButton) registerButton.style.display = "none";
-		if (playSelect) playSelect.style.display = "none";
-		if (loginButton) loginButton.style.display = "none";
-		showGeneralRegistrationModal();
+		navigate(game.availablePages[pageIndex.REGISTER], "" ,game);
+		// const registerButton = document.getElementById("registerButton");
+		// const playSelect = document.getElementById("playSelect");
+		// const loginButton = document.getElementById("loginButton");
+		// if (registerButton) registerButton.style.display = "none";
+		// if (playSelect) playSelect.style.display = "none";
+		// if (loginButton) loginButton.style.display = "none";
+		// showGeneralRegistrationModal();
 	});
 
 
@@ -112,15 +112,14 @@ export function callRegistrationEventListeners(game:GameInfo)
 			{
 				if (!response.ok) {
 					alert("Registration failed. Please try again_am _here.");
-					// navigate(game.availablePages[pageIndex.HOME]);
 					return;
 				}
 				console.log("Registration successful:", response);
 				alert("Registration successful! You can now log in.");
 				emptyLoginFields("registerSettings");
-				hideGeneralRegistrationModal();
-				restoreScreen();
-				navigate(game.availablePages[pageIndex.HOME]);
+				// hideGeneralRegistrationModal();
+				// restoreScreen();
+				navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 				return response.json();
 			})
 			.catch(error => 
@@ -133,8 +132,8 @@ export function callRegistrationEventListeners(game:GameInfo)
 
 	document.getElementById("generalCancelRegistration")?.addEventListener("click", () =>
 	{
-		hideGeneralRegistrationModal();
-		restoreScreen();
-		navigate(game.availablePages[pageIndex.HOME]);
+		// hideGeneralRegistrationModal();
+		// restoreScreen();
+		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 	});
 }

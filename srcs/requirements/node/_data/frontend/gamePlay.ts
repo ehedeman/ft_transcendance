@@ -14,15 +14,15 @@ export function callGameEventListeners (game: GameInfo)
 		if (selectedOption) {
 			switch (selectedOption) {
 				case "tournament":
-					navigate(game.availablePages[pageIndex.TOURNAMENT]);
-					tournamentStart(game);
+					navigate(game.availablePages[pageIndex.TOURNAMENT], "", game);
+					// tournamentStart(game);
 					break;
 				case "multiplayer":
 
 					break
 				case "1v1":
-					navigate(game.availablePages[pageIndex.MATCH]);
-					twoPlayerMatchStart(game);
+					navigate(game.availablePages[pageIndex.MATCH], "", game);
+					// twoPlayerMatchStart(game);
 					break
 				default:
 					break;
