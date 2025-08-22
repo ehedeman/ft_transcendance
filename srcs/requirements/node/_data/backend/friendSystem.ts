@@ -273,8 +273,9 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			});
 
 			if (response.reply === 'accept') {
-				// game.player1.name = username;
-				// game.player2.name = invitedUser;
+				game.player1.name = username;
+				game.player2.name = invitedUser;
+				console.log('game is playing between', game.player1.name, 'and', game.player2.name);
 				return reply.status(200).send({ message: `Game invitation accepted by ${invitedUser}` });
 			} else {
 				return reply.status(403).send({ error: 'Game invitation declined' });

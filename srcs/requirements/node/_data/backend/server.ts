@@ -56,7 +56,7 @@ app.get('/ping', async () => {
 	return { pong: 'it works!' };
 });
 
-export let rounds = 1;
+export let rounds = 3;
 
 export let accaleration = 0.1; // Speed increase factor
 
@@ -67,7 +67,11 @@ setInterval(() => {// TODO: not here
 }, 1000 / 60);
 interactWithGame(app, game);
 
-
+import { interactWithRemote1v1Game, updateRemote1v1Game } from './remote1v1Game.js'
+setInterval(() => {
+	updateRemote1v1Game();
+}, 1000 / 60);
+interactWithRemote1v1Game(app, db, game);
 
 app.post("/register", async (request, reply) => {
 	const parts = request.parts();

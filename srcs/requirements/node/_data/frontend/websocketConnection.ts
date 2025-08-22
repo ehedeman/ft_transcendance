@@ -36,12 +36,12 @@ function handlePrivateMessage(data: any) {
 		}
 	}
 }
-// import { startRemote1v1Game } from "./remote1v1GameInterface.js";
+import { startRemote1v1Game } from "./remote1v1GameInterface.js";
 async function handleGameInvitation(data: any) {
 	const { from, module } = data;
 	const result = await createConfirmModal(`Do you want to accept the game invitation from ${from} for a ${module} game?`);
 	if (result) {
-		// startRemote1v1Game(game.currentlyLoggedIn.name, from);
+		startRemote1v1Game(game.currentlyLoggedIn.name, from);
 		game.websocket?.send(JSON.stringify({ reply: "accept" }));
 	} else {
 		game.websocket?.send(JSON.stringify({ reply: "decline" }));
@@ -64,7 +64,7 @@ function handleWebSocketMessage(event: MessageEvent) {
 };
 
 export function createWebSocketConnection(username: string) {
-	game.websocket = new WebSocket(`ws://10.12.12.9:3000/ws?username=${username}`);//TODO: change this everytime when we move to a new computer
+	game.websocket = new WebSocket(`ws://10.12.3.6:3000/ws?username=${username}`);//TODO: change this everytime when we move to a new computer
 
 	game.websocket.onopen = () => {
 		console.log("✅ WebSocket connection established successfully!");
