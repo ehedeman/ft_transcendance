@@ -36,8 +36,7 @@ function getGameStatusRemote1v1(): void {
 					game.t.matches[length - 1].player2.score = data.player2_score;
 				}
 				else {
-					if (game.players.length >= 2)
-					{
+					if (game.players.length >= 2) {
 						game.players[0].playerscore = data.player1_score;
 						game.players[1].playerscore = data.player2_score;
 					}
@@ -88,11 +87,13 @@ function drawGameRemote1v1(): void {
 		game.players[0].gamesWon++;
 		game.players[1].gamesLost++;
 		showWinnerScreen(game, game.players[0].name);
+		game.remoteMode = false;
 	}
 	if (game.players[1].playerscore === rounds) {
 		game.players[1].gamesWon++;
 		game.players[0].gamesLost++;
 		showWinnerScreen(game, game.players[1].name);
+		game.remoteMode = false;
 	}
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	ctx.font = "20px Arial"; ctx.fillStyle = "white";
@@ -106,6 +107,7 @@ function drawGameRemote1v1(): void {
 	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
 	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
 	getGameStatusRemote1v1();
+	requestAnimationFrame(drawGameRemote1v1);
 }
 
 export function startRemote1v1Game(name1: string, name2: string): void {
@@ -114,5 +116,4 @@ export function startRemote1v1Game(name1: string, name2: string): void {
 
 	game.players = [player1, player2];
 	drawGameRemote1v1();
-	requestAnimationFrame(drawGameRemote1v1);
 }

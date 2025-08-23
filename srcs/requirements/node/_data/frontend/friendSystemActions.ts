@@ -301,6 +301,7 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 							} else if (response.status === 200) {
 								alert("The game will start soon.");
 								document.body.removeChild(modal);
+								game.remoteMode = true;
 								startRemote1v1Game(game.currentlyLoggedIn.name, target.id);
 							}
 						})

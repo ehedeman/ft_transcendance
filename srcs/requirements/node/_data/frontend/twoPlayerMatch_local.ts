@@ -156,6 +156,7 @@ function sendTwoPlayerMatchInvite(inviteUsername: string, game: GameInfo): void 
 				throw new Error(response.statusText);
 			} else if (response.status === 200) {
 				alert("The game will start soon.");
+				game.remoteMode = true;
 				startRemote1v1Game(game.currentlyLoggedIn.name, inviteUsername);
 			}
 		})

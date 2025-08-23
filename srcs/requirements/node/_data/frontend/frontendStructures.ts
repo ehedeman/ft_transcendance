@@ -190,6 +190,8 @@ export class GameInfo {
 
 	userInfoTemp: userInfo;
 
+	remoteMode: boolean;
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();
@@ -237,6 +239,8 @@ export class GameInfo {
 			updated_at : "default",
 			created_at : "default",
 		}
+
+		this.remoteMode = false;
 	}
 }
 

@@ -56,7 +56,7 @@ app.get('/ping', async () => {
 	return { pong: 'it works!' };
 });
 
-export let rounds = 1;
+export let rounds = 10;
 
 export let accaleration = 0.1; // Speed increase factor
 

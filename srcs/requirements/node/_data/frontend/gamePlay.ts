@@ -3,8 +3,7 @@ import { showWinnerScreen, tournamentLogic, tournamentFinished, tournamentStart 
 import { GameInfo, pageIndex, TournamentStage } from './frontendStructures.js';
 import { twoPlayerMatchStart } from './twoPlayerMatch_local.js';
 
-export function callGameEventListeners (game: GameInfo)
-{
+export function callGameEventListeners(game: GameInfo) {
 	document.getElementById("playSelect")?.addEventListener("change", (event: Event) => {
 		const playSelect = document.getElementById("playSelect") as HTMLSelectElement;
 		const target = event.target as HTMLSelectElement;
@@ -50,18 +49,20 @@ function drawCircle(x: number, y: number, radius: number): void {
 	ctx.closePath();
 }
 
-function calculatePaddleCoords(): void {
-	if (keysPressed["ArrowUp"]) {
-		fetch("/pressArrowUp");
-	}
-	if (keysPressed["ArrowDown"]) {
-		fetch("/pressArrowDown");
-	}
-	if (keysPressed["w"]) {
-		fetch("/pressW");
-	}
-	if (keysPressed["s"]) {
-		fetch("/pressS");
+function calculatePaddleCoords(game: GameInfo): void {
+	if (!game.remoteMode) {
+		if (keysPressed["ArrowUp"]) {
+			fetch("/pressArrowUp");
+		}
+		if (keysPressed["ArrowDown"]) {
+			fetch("/pressArrowDown");
+		}
+		if (keysPressed["w"]) {
+			fetch("/pressW");
+		}
+		if (keysPressed["s"]) {
+			fetch("/pressS");
+		}
 	}
 }
 
@@ -80,8 +81,7 @@ function getGameStatus(): void {
 					game.t.matches[length - 1].player2.score = data.player2_score;
 				}
 				else {
-					if (game.players.length >= 2)
-					{
+					if (game.players.length >= 2) {
 						game.players[0].playerscore = data.player1_score;
 						game.players[1].playerscore = data.player2_score;
 					}
@@ -125,7 +125,7 @@ function singlePlayerGame(): void {
 	ctx.fillText(game.players[0].name + ": " + game.players[0].playerscore, 10, 25);
 	ctx.fillText(game.players[1].name + ": " + game.players[1].playerscore, 10, 50);
 	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
-	calculatePaddleCoords();
+	calculatePaddleCoords(game);
 	drawMiddlePath();
 	drawCircle(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
 	ctx.fillStyle = "white";
@@ -146,7 +146,7 @@ function tournamentGame(): number {
 	ctx.fillText(game.t.matches[length - 1].player1.name + ": " + game.t.matches[length - 1].player1.score, 10, 25);
 	ctx.fillText(game.t.matches[length - 1].player2.name + ": " + game.t.matches[length - 1].player2.score, 10, 50);
 	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
-	calculatePaddleCoords();
+	calculatePaddleCoords(game);
 	drawMiddlePath();
 	drawCircle(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
 	ctx.fillStyle = "white";
@@ -157,7 +157,7 @@ function tournamentGame(): number {
 }
 
 export function updateGame(): void {
-	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration) {
+	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration && !game.remoteMode) {
 		if (game.players.length >= 2 && !game.tournamentLoopActive) {
 			console.log("Single Player Game");
 			singlePlayerGame();
@@ -174,8 +174,7 @@ export function clickWinnerScreenContinue() {
 		// fetch("/gameContinue");
 		if (game.tournamentLoopActive && game.t.stage === TournamentStage.Complete)
 			tournamentFinished(game);
-		else if (!game.tournamentLoopActive)
-		{
+		else if (!game.tournamentLoopActive) {
 			game.players.splice(0, game.players.length);
 			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 		}
