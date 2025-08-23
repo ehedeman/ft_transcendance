@@ -53,6 +53,9 @@ export function websocketAndSocketMessage(app: FastifyInstance, db: any, game: G
 		// Handle connection close
 		socket.on('close', () => {
 			console.log(`User ${username} disconnected`);
+			const stmt2 = db.prepare(`UPDATE users SET status = 'offline' WHERE full_name = ?`);//TODO: I add the database changes here
+			stmt2.run(username);
+			game.sockets.delete(username);
 		});
 
 		game.sockets.set(username, socket);
