@@ -182,4 +182,12 @@ export function debugFunctions(app: FastifyInstance, db: any) {
 		}
 	});
 
+	app.get('/debug/cleanTable/users', async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			db.prepare(`DELETE FROM users`).run();
+			reply.send({ message: `Table 'users' cleaned.` });
+		} catch (err) {
+			reply.status(500).send({ error: 'Database error' });
+		}
+	});
 }
