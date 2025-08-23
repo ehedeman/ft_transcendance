@@ -269,8 +269,6 @@ app.post("/login", async (request, reply) => {
 		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
 		return;
 	}
-	const stmt2 = db.prepare(`UPDATE users SET status = 'online' WHERE full_name = ?`);
-	stmt2.run(username);
 	reply.send({ status: 200, message: 'Login successful', user });
 });
 
