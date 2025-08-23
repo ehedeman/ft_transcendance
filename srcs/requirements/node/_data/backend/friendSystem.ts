@@ -291,4 +291,22 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			return reply.status(408).send({ error: err.message });
 		}
 	});
+
+	app.get("/getMatchHistory", async (request, reply) => {
+		const { username } = request.query as { username: string };
+
+		if (!username) {
+			reply.status(400).send({ status: 400, message: "Missing username" });
+			return;
+		}
+
+		let stmt = db.prepare(`SELECT * FROM matchHistory WHERE player1 = ? OR player2 = ?`);
+		const matchHistory = stmt.all(username, username);
+		if (!matchHistory) {
+			reply.status(404).send({ status: 404, message: "Match history not found" });
+			return;
+		}
+
+		reply.send(matchHistory);
+	});
 }

@@ -55,6 +55,48 @@ function getUserInfoAndCreateUserInterface(username: string) {
 		});
 }
 
+function renderMatchHistory(matchHistory: any[]) {
+	const matchHistoryList = document.getElementById("matchHistoryList");
+	if (matchHistoryList) {
+		matchHistoryList.innerHTML = "";
+		if (matchHistory.length === 0) {
+			const listItem = document.createElement("li");
+			listItem.textContent = "No match history found.";
+			matchHistoryList.appendChild(listItem);
+		}
+		matchHistory.forEach((match: any) => {
+			const listItem = document.createElement("li");
+			listItem.innerHTML = `Match ID: ${match.id}<br>
+									player1: ${match.player1}<br>
+									player2: ${match.player2}<br>
+									winner: ${match.winner}<br>
+									loser: ${match.loser}<br>
+									player1Score: ${match.score_player1}<br>
+									player2Score: ${match.score_player2}<br>
+									matchDate: ${match.match_date}
+									`;
+			matchHistoryList.appendChild(listItem);
+		});
+	}
+}
+
+function getUserMatchHistory(username: string) {
+	fetch(`/getMatchHistory?username=${username}`)
+		.then(response => {
+			if (!response.ok) {
+				console.error("Error fetching match history:", response);
+				return;
+			}
+			return response.json();
+		})
+		.then(matchHistory => {
+			renderMatchHistory(matchHistory);
+		})
+		.catch(error => {
+			console.error("Error fetching match history:", error);
+		});
+}
+
 function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 	fetch("/login", {
 		method: "POST",
@@ -94,6 +136,7 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 			if (addFriend) addFriend.style.display = "block";
 			getRejectedFriendRequests(loginPlayer.username);
 			getUserInfoAndCreateUserInterface(loginPlayer.username);
+			getUserMatchHistory(loginPlayer.username);
 			// restoreScreenLoggedIn();
 			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 			return response.json();

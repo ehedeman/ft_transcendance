@@ -14,6 +14,7 @@ export function restoreScreen(game:GameInfo): void {
 	const friendStuff = document.getElementById("friendStuff") as HTMLDivElement;
 	const messages = document.getElementById("messages");
 	const logoutButton = document.getElementById("logoutButton");
+	const matchHistory = document.getElementById("matchHistory");
 	restoreMatchState();
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 
@@ -28,6 +29,7 @@ export function restoreScreen(game:GameInfo): void {
 	if (loginModal) loginModal.style.display = "none";
 	if (settingsButton) settingsButton.style.display = "block";
 	if (friendStuff) friendStuff.style.display = "none";
+	if (matchHistory) matchHistory.style.display = "none";
 }
 
 export function hideDefaultButtons(): void
@@ -42,6 +44,7 @@ export function hideDefaultButtons(): void
 	const friendStuff = document.getElementById("friendStuff") as HTMLDivElement;
 	const logoutButton = document.getElementById("logoutButton");
 	const messages = document.getElementById("messages");
+	const matchHistory = document.getElementById("matchHistory");
 
 	if (messages) messages.style.display = "none";
 	if (logoutButton) logoutButton.style.display = "none";
@@ -53,6 +56,7 @@ export function hideDefaultButtons(): void
 	if (loginModal) loginModal.style.display = "none";
 	if (settingsButton) settingsButton.style.display = "none";
 	if (friendStuff) friendStuff.style.display = "none";
+	if (matchHistory) matchHistory.style.display = "none";
 }
 
 export function restoreScreenLoggedIn(): void {
@@ -67,6 +71,8 @@ export function restoreScreenLoggedIn(): void {
 	const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
 	const friendStuff = document.getElementById("friendStuff") as HTMLDivElement;
 	const messages = document.getElementById("messages");
+	const matchHistory = document.getElementById("matchHistory");
+
 	restoreMatchState();
 
 	if (messages) messages.style.display = "block";
@@ -80,4 +86,6 @@ export function restoreScreenLoggedIn(): void {
 	if (loginModal) loginModal.style.display = "none";
 	if (registerModal) registerModal.style.display = "none";
 	if (preview) preview.src = "./avatars/default-avatar.png";
+	if (matchHistory) matchHistory.style.display = "block";
+
 }
