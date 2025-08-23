@@ -3,16 +3,19 @@ import fs from 'fs';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
 import websocket from '@fastify/websocket';
+import fastifyJwt from '@fastify/jwt';
+import fastifyCookie from "@fastify/cookie";
 import Database from 'better-sqlite3';
 import bcrypt from 'bcrypt'; // for hashing password
 import fastifyMultipart from '@fastify/multipart';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 import { createWriteStream } from 'fs';
+import { FastifyRequest, FastifyReply } from "fastify";
 
 export const saltRounds = 10;
 
-export const app = fastify({ 
+export const app = fastify({
 	logger: true,
 	https: {
 		key: fs.readFileSync("./server.key"),
@@ -22,6 +25,14 @@ export const app = fastify({
 
 await app.register(websocket);
 await app.register(fastifyMultipart);
+await app.register(fastifyJwt, {
+	secret: process.env.JWT_SECRET || "Marlon, Patrick, Yao",
+	cookie: {
+		cookieName: "token",   // <-- Name of the cookie
+		signed: false          // We are not signing cookies separately
+	}
+});
+await app.register(fastifyCookie);
 
 const pump = promisify(pipeline);
 
@@ -83,6 +94,14 @@ interactWithRemote1v1Game(app, db, game);
 // setInterval(() => {
 // 	checkSocketConnections();
 // }, 10000);
+
+app.decorate("authenticate", async function (request: FastifyRequest, reply: FastifyReply) {
+	try {
+		await request.jwtVerify();
+	} catch (err) {
+		reply.code(401).send({ message: "Unauthorized" });
+	}
+});
 
 app.post("/register", async (request, reply) => {
 	const parts = request.parts();
@@ -257,10 +276,10 @@ app.post("/logout", async (request, reply) => {
 	stmt2.run(username);
 	game.sockets.get(username)?.close();//TODO: close the user's socket connection
 	game.sockets.delete(username);
-	reply.send({ status: 200, message: 'Logout successful', user });
+	reply.clearCookie("token").send({ status: 200, message: 'Logout successful', user });
 });
 
-app.post("/login", async (request, reply) => {
+app.post("/login", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const { username, password } = request.body as { username: string; password: string };
 
 	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
@@ -304,7 +323,20 @@ app.post("/firstlogin", async (request, reply) => {
 	}
 	stmt = db.prepare(`UPDATE users SET status = 'online' WHERE full_name = ?`);
 	stmt.run(username);
-	reply.send({ status: 200, message: 'Login successful', user });
+	const token = app.jwt.sign({ username });
+	reply
+		.setCookie("token", token, {
+			path: "/",             // Cookie is valid for all routes
+			httpOnly: true,        // JS can't read the cookie → safer
+			secure: true,          // Only sent over HTTPS ✅ (important in prod)
+			sameSite: "strict",    // Prevents CSRF attacks
+			maxAge: 60 * 60,       // Cookie expires after 1 hour
+		})
+		.send({
+			status: 200,
+			message: "Login successful",
+			user
+		});
 });
 
 import { websocketAndSocketMessage } from './websocketAndSocketMessage.js';

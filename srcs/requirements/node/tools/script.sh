@@ -23,6 +23,8 @@ npm install @fastify/websocket@latest
 npm install @fastify/multipart@latest
 npm install --save-dev @types/ws
 npm install --save-dev @types/node
+npm install @fastify/jwt@latest
+npm install @fastify/cookie@latest
 
 npm install -D tailwindcss postcss autoprefixer
 
