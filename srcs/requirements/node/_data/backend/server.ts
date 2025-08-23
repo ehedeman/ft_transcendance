@@ -1,4 +1,5 @@
 import fastify from 'fastify';
+import fs from 'fs';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
 import websocket from '@fastify/websocket';
@@ -11,7 +12,13 @@ import { createWriteStream } from 'fs';
 
 export const saltRounds = 10;
 
-export const app = fastify({ logger: true });
+export const app = fastify({ 
+	logger: true,
+	https: {
+		key: fs.readFileSync("./server.key"),
+		cert: fs.readFileSync("./server.cert")
+	}
+});
 
 await app.register(websocket);
 await app.register(fastifyMultipart);

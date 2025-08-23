@@ -31,6 +31,7 @@ COPY ./tools/script.sh ./
 COPY ./_data/frontend .
 COPY ./_data/backend .
 COPY ./_data/public .
+COPY ./_data/cert .
 
 # Make script executable
 RUN chmod +x ./script.sh
