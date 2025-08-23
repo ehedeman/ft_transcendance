@@ -84,6 +84,8 @@ export class GameInfo {
 
 	sockets: Map<string, WebSocket>;
 
+	remoteMode: boolean;
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();
@@ -101,6 +103,8 @@ export class GameInfo {
 		this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
 
 		this.sockets = new Map<string, WebSocket>();
+
+		this.remoteMode = false;
 	}
 }
 export type loginInfo = {

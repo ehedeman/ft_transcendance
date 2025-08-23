@@ -64,7 +64,7 @@ function handleWebSocketMessage(event: MessageEvent) {
 };
 
 export function createWebSocketConnection(username: string) {
-	game.websocket = new WebSocket(`ws://10.12.3.6:3000/ws?username=${username}`);//TODO: change this everytime when we move to a new computer
+	game.websocket = new WebSocket(`ws://10.12.13.9:3000/ws?username=${username}`);//TODO: change this everytime when we move to a new computer
 
 	game.websocket.onopen = () => {
 		console.log("✅ WebSocket connection established successfully!");

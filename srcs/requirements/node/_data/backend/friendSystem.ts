@@ -79,7 +79,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			let rows2 = stmt.all(username) as { username: string }[];
 			let friends = rows.map(row => row.friendname);
 			friends = friends.concat(rows2.map(row => row.username));
-
+			friends = [...new Set(friends)]; // Remove duplicates
 			reply.send({ friendList: friends });
 		} catch (err) {
 			reply.status(500).send({ error: 'Database error' });
@@ -282,6 +282,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 				game.player1.name = username;
 				game.player2.name = invitedUser;
 				console.log('game is playing between', game.player1.name, 'and', game.player2.name);
+				game.remoteMode = true;
 				return reply.status(200).send({ message: `Game invitation accepted by ${invitedUser}` });
 			} else {
 				return reply.status(403).send({ error: 'Game invitation declined' });

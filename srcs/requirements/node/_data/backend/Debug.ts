@@ -163,6 +163,16 @@ export function debugFunctions(app: FastifyInstance, db: any) {
 		}
 	});
 
+	app.get('/debug/matchHistory', async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			const stmt = db.prepare(`SELECT * FROM matchHistory`);
+			const matchHistory = stmt.all();
+			reply.send({ matchHistory });
+		} catch (err) {
+			reply.status(500).send({ error: 'Database error' });
+		}
+	});
+
 	app.get('/debug/cleanTable/newFriend', async (request: FastifyRequest, reply: FastifyReply) => {
 		try {
 			db.prepare(`DELETE FROM newFriend`).run();
@@ -171,4 +181,5 @@ export function debugFunctions(app: FastifyInstance, db: any) {
 			reply.status(500).send({ error: 'Database error' });
 		}
 	});
+
 }

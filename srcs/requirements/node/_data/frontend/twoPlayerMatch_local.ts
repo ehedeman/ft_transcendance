@@ -217,6 +217,7 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 	});
 	document.getElementById("twoPlayerMatchInviteSubmit")?.addEventListener("click", (event: Event) => {
 		event.preventDefault();
+
 		const usernameInput = document.getElementById("twoPlayerMatchInviteUsername") as HTMLInputElement;
 		const inviteUsername = usernameInput.value.trim();
 		if (!inviteUsername) {
@@ -224,5 +225,8 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 			return;
 		}
 		sendTwoPlayerMatchInvite(inviteUsername, game);
+		hideTwoPlayerMatchInviteForm();
+		const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
+		if (container) container.style.display = "none";
 	});
 }
