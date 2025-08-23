@@ -98,7 +98,7 @@ function getUserMatchHistory(username: string) {
 }
 
 function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
-	fetch("/login", {
+	fetch("/firstlogin", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"

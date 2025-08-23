@@ -73,6 +73,10 @@ setInterval(() => {
 }, 1000 / 60);
 interactWithRemote1v1Game(app, db, game);
 
+// setInterval(() => {
+// 	checkSocketConnections();
+// }, 10000);
+
 app.post("/register", async (request, reply) => {
 	const parts = request.parts();
 	let name = '', username = '', password = '', country = '';
@@ -267,6 +271,34 @@ app.post("/login", async (request, reply) => {
 	}
 	const stmt2 = db.prepare(`UPDATE users SET status = 'online' WHERE full_name = ?`);
 	stmt2.run(username);
+	reply.send({ status: 200, message: 'Login successful', user });
+});
+
+app.post("/firstlogin", async (request, reply) => {
+	const { username, password } = request.body as { username: string; password: string };
+
+	let stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
+	const user = stmt.get(username) as any;
+
+	stmt = db.prepare(`SELECT status FROM users WHERE Alias = ?`);
+	const userStatus = stmt.get(username) as any;
+	if (userStatus.status === 'online') {
+		reply.status(401).send({ status: 401, message: 'User is already logged in' });
+		return;
+	}
+
+	if (!user) {
+		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
+		return;
+	}
+
+	const match = await bcrypt.compare(password, user.password_hash);
+	if (!match) {
+		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
+		return;
+	}
+	stmt = db.prepare(`UPDATE users SET status = 'online' WHERE full_name = ?`);
+	stmt.run(username);
 	reply.send({ status: 200, message: 'Login successful', user });
 });
 

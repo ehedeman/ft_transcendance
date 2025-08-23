@@ -78,6 +78,7 @@ export function createWebSocketConnection(username: string) {
 
 	game.websocket.onclose = () => {
 		console.log("WebSocket connection closed.");
+		game.websocket?.send(JSON.stringify({ type: "disconnect", username }));
 	};
 
 	game.websocket.onerror = (error) => {
