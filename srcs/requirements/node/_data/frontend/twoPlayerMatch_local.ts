@@ -190,6 +190,32 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 	});
 	document.getElementById("twoPlayerMatchGuestGame")?.addEventListener("click", (event: Event) => {
 		hideGuestPlayerButtons();
+		const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
+		if (container) container.style.display = "none";
+		game.players.push(game.currentlyLoggedIn);
+
+		// need to get Player info from database here/ just temporary like this
+		const newPlayer: Player = ({
+			name: "Guest",
+			gamesWon: 0,
+			gamesLost: 0,
+			playerscore: 0
+		});
+		game.players.push(newPlayer);
+		fetch(`/makeTheBackendHaveThePlayer?username=${encodeURIComponent(game.currentlyLoggedIn.name)}&opponent=Guest`)
+			.then(response => {
+				if (!response.ok) {
+					throw new Error(response.statusText);
+				}
+				return response.json();
+			})
+			.then(data => {
+				console.log("Player added to game:", data);
+			})
+			.catch(error => {
+				console.error("Error adding player to game:", error);
+			});
+		return true;
 	});
 	document.getElementById("twoPlayerMatchPlayerGame")?.addEventListener("click", (event: Event) => {
 		hideGuestPlayerButtons();

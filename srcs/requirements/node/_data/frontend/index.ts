@@ -5,7 +5,7 @@ import { callLoginEventListeners } from "./login.js";
 import { callTournamentEventListeners } from "./tournamentRegistration.js";
 import { callLogoutEventListeners } from "./logout.js";
 import { callHTMLclassDefines } from "./html_classes.js";
-export let rounds = 10;
+export let rounds = 1;
 
 export let game = new GameInfo();
 
