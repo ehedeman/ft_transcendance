@@ -58,6 +58,7 @@ function calculateBallCoordsMultiplayer(): void {
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
+		game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
 	} else if (touchingPaddle2Multiplayer() && game.ball.ballSpeedX < 0) {
 		// ballSpeedX *= -1 - accaleration;
 		if (game.ball.ballSpeedX > -30) {
@@ -65,18 +66,21 @@ function calculateBallCoordsMultiplayer(): void {
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
+		game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
 	} else if (touchingPaddle3Multiplayer() && game.ball.ballSpeedX > 0) {
 		if (game.ball.ballSpeedX > -30) {
 			game.ball.ballSpeedX *= -1 - accaleration;
 		} else {
 			game.ball.ballSpeedX *= -1;
 		}
+		game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
 	} else if (touchingPaddle4Multiplayer() && game.ball.ballSpeedX < 0) {
 		if (game.ball.ballSpeedX > -30) {
 			game.ball.ballSpeedX *= -1 - accaleration;
 		} else {
 			game.ball.ballSpeedX *= -1;
 		}
+		game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
 	}
 
 	// Check if ball passed player1 (left side)
