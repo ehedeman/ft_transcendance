@@ -6,10 +6,9 @@ import { hideDefaultButtons, restoreScreen, restoreScreenLoggedIn } from "./scre
 import { settingsStart, showSettings } from "./settings.js";
 import { tournamentStart } from "./tournament.js";
 import { twoPlayerMatchStart } from "./twoPlayerMatch_local.js";
-import { multiplayerGameStart } from "./multiplayerGame.js";
+import { multiplayerGameStart } from "./multiplayerGameRequests.js";
 
-function mimicRegistration()
-{
+function mimicRegistration() {
 	const registerButton = document.getElementById("registerButton");
 	const playSelect = document.getElementById("playSelect");
 	const loginButton = document.getElementById("loginButton");
@@ -19,8 +18,7 @@ function mimicRegistration()
 	showGeneralRegistrationModal();
 }
 
-function mimicLogin(game: GameInfo)
-{
+function mimicLogin(game: GameInfo) {
 	const registerButton = document.getElementById("registerButton");
 	const playSelect = document.getElementById("playSelect");
 	const loginButton = document.getElementById("loginButton");
@@ -31,16 +29,14 @@ function mimicLogin(game: GameInfo)
 	showGeneralLoginModal(game);
 }
 
-export const render = (view: string, state: any, game:GameInfo) => {
+export const render = (view: string, state: any, game: GameInfo) => {
 	console.log("loading" + view + "...");
 	restoreScreen(game);
-	
+
 	var stateTest = state?.view || null;
-	if (stateTest)
-	{
+	if (stateTest) {
 		var data;
-		if (state && state.snapShot && state.snapShot.players)
-		{
+		if (state && state.snapShot && state.snapShot.players) {
 			data = {
 				view: state.view,
 				info: state.info,

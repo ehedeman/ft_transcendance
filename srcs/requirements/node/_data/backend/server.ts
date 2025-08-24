@@ -351,6 +351,10 @@ import { friendSystem } from './friendSystem.js';
 
 friendSystem(app, db, game);
 
+import { multiplayerGame } from './multiplayerGameInServer.js';
+
+multiplayerGame(app, db, game);
+
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
 	if (err) throw err;
 	console.log(`Server running at ${address}`);

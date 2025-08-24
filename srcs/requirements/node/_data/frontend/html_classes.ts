@@ -213,11 +213,23 @@ export class htmlMultiplayerMatch extends HTMLElement {
 	connectedCallback() {
 		this.innerHTML = `
 		<div id="multiplayerMatchInviteContainer" style="display: none; position:absolute; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
-			<form id="multiplayerMatchInviteForm" method="post" style="flex-grow:1; display:none; flex-direction:column; margin-bottom:10px; justify-content:space-between;">
-				<h1 id="inviteMultiPlayerHeader" style="font-size: 24px;" >Invite the first player.</h1>
-				<input type="text" id="inputMultiplayerUsername" name="username" placeholder="Enter first player's username" required="true" />
-				<button id="sendInvite" style="flex-grow:1; gap: 10px;" type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Send Invite</button>
-				<button id="cancelInvite" style="flex-grow:1; gap: 10px;" type="button" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+			<form id="multiplayerMatchInviteForm1" method="post" style="flex-grow:1; display:none; flex-direction:column; margin-bottom:10px; justify-content:space-between;">
+				<h1 id="inviteMultiPlayerHeader1" style="font-size: 24px;" >Invite the first player.</h1>
+				<input type="text" id="inputMultiplayerUsername1" name="username" placeholder="Enter first player's username" required="true" />
+				<button id="sendInvite1" style="flex-grow:1; gap: 10px;" type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Send Invite</button>
+				<button id="cancelInvite1" style="flex-grow:1; gap: 10px;" type="button" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+			</form>
+			<form id="multiplayerMatchInviteForm2" method="post" style="flex-grow:1; display:none; flex-direction:column; margin-bottom:10px; justify-content:space-between;">
+				<h1 id="inviteMultiPlayerHeader2" style="font-size: 24px;" >Invite the second player.</h1>
+				<input type="text" id="inputMultiplayerUsername2" name="username" placeholder="Enter second player's username" required="true" />
+				<button id="sendInvite2" style="flex-grow:1; gap: 10px;" type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Send Invite</button>
+				<button id="cancelInvite2" style="flex-grow:1; gap: 10px;" type="button" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+			</form>
+			<form id="multiplayerMatchInviteForm3" method="post" style="flex-grow:1; display:none; flex-direction:column; margin-bottom:10px; justify-content:space-between;">
+				<h1 id="inviteMultiPlayerHeader3" style="font-size: 24px;" >Invite the third player.</h1>
+				<input type="text" id="inputMultiplayerUsername3" name="username" placeholder="Enter third player's username" required="true" />
+				<button id="sendInvite3" style="flex-grow:1; gap: 10px;" type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Send Invite</button>
+				<button id="cancelInvite3" style="flex-grow:1; gap: 10px;" type="button" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
 			</form>
 		</div>
 		`;

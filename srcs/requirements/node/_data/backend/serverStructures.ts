@@ -86,6 +86,10 @@ export class GameInfo {
 
 	remoteMode: boolean;
 
+	multiplayerMode: boolean;
+
+	multiplayerName: string[];
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();
@@ -105,6 +109,10 @@ export class GameInfo {
 		this.sockets = new Map<string, WebSocket>();
 
 		this.remoteMode = false;
+
+		this.multiplayerMode = false;
+		
+		this.multiplayerName = [];
 	}
 }
 export type loginInfo = {
