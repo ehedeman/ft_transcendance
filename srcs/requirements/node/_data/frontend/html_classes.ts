@@ -7,6 +7,7 @@ export function callHTMLclassDefines()
 	customElements.define('tournament-components', htmlTournament);
 	customElements.define('friend-components', htmlFriends);
 	customElements.define('two-player-match', htmlTwoPlayerMatch);
+	customElements.define('multiplayer-match', htmlMultiplayerMatch);
 }
 
 class htmlTournament extends HTMLElement {
@@ -203,6 +204,21 @@ export class htmlTwoPlayerMatch extends HTMLElement {
 				<button type="submit" id="twoPlayerMatchInviteSubmit" class="bg-blue-500 text-white px-4 py-2 rounded">Send Invite</button>
 			</form>
 			<button style="flex-grow:1; gap: 10px;" type="button" id="twoPlayerMatchCancel" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>			
+		</div>
+		`;
+	}
+}
+
+export class htmlMultiplayerMatch extends HTMLElement {
+	connectedCallback() {
+		this.innerHTML = `
+		<div id="multiplayerMatchInviteContainer" style="display: none; position:absolute; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
+			<form id="multiplayerMatchInviteForm" method="post" style="flex-grow:1; display:none; flex-direction:column; margin-bottom:10px; justify-content:space-between;">
+				<h1 id="inviteMultiPlayerHeader" style="font-size: 24px;" >Invite the first player.</h1>
+				<input type="text" id="inputMultiplayerUsername" name="username" placeholder="Enter first player's username" required="true" />
+				<button id="sendInvite" style="flex-grow:1; gap: 10px;" type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Send Invite</button>
+				<button id="cancelInvite" style="flex-grow:1; gap: 10px;" type="button" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+			</form>
 		</div>
 		`;
 	}

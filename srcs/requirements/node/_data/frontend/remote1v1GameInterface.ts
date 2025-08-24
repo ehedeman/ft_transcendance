@@ -65,20 +65,22 @@ function getGameStatusRemote1v1(): void {
 }
 
 function calculatePaddleCoordsRemote1v1(): void {
-	if (keysPressed["space"]) {
-		fetch(`/pressSpaceRemote1v1?sender=${game.currentlyLoggedIn.name}`);
-	}
-	if (keysPressed["ArrowUp"]) {
-		fetch(`/pressArrowUpRemote1v1?sender=${game.currentlyLoggedIn.name}`);
-	}
-	if (keysPressed["ArrowDown"]) {
-		fetch(`/pressArrowDownRemote1v1?sender=${game.currentlyLoggedIn.name}`);
-	}
-	if (keysPressed["w"]) {
-		fetch(`/pressWRemote1v1?sender=${game.currentlyLoggedIn.name}`);
-	}
-	if (keysPressed["s"]) {
-		fetch(`/pressSRemote1v1?sender=${game.currentlyLoggedIn.name}`);
+	if (game.remoteMode && !game.multiplayerMode) {
+		if (keysPressed["space"]) {
+			fetch(`/pressSpaceRemote1v1?sender=${game.currentlyLoggedIn.name}`);
+		}
+		if (keysPressed["ArrowUp"]) {
+			fetch(`/pressArrowUpRemote1v1?sender=${game.currentlyLoggedIn.name}`);
+		}
+		if (keysPressed["ArrowDown"]) {
+			fetch(`/pressArrowDownRemote1v1?sender=${game.currentlyLoggedIn.name}`);
+		}
+		if (keysPressed["w"]) {
+			fetch(`/pressWRemote1v1?sender=${game.currentlyLoggedIn.name}`);
+		}
+		if (keysPressed["s"]) {
+			fetch(`/pressSRemote1v1?sender=${game.currentlyLoggedIn.name}`);
+		}
 	}
 }
 

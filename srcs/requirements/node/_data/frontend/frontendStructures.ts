@@ -192,6 +192,8 @@ export class GameInfo {
 
 	remoteMode: boolean;
 
+	multiplayerMode: boolean;
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();
@@ -241,6 +243,8 @@ export class GameInfo {
 		}
 
 		this.remoteMode = false;
+
+		this.multiplayerMode = false;
 	}
 }
 

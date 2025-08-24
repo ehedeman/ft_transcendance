@@ -17,7 +17,7 @@ export function callGameEventListeners(game: GameInfo) {
 					// tournamentStart(game);
 					break;
 				case "multiplayer":
-
+					navigate(game.availablePages[pageIndex.MULTIPLAYER], "", game);
 					break
 				case "1v1":
 					navigate(game.availablePages[pageIndex.MATCH], "", game);
@@ -50,7 +50,7 @@ function drawCircle(x: number, y: number, radius: number): void {
 }
 
 function calculatePaddleCoords(game: GameInfo): void {
-	if (!game.remoteMode) {
+	if (!game.remoteMode && !game.multiplayerMode) {
 		if (keysPressed["ArrowUp"]) {
 			fetch("/pressArrowUp");
 		}
@@ -157,7 +157,7 @@ function tournamentGame(): number {
 }
 
 export function updateGame(): void {
-	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration && !game.remoteMode) {
+	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration && !game.remoteMode && !game.multiplayerMode) {
 		if (game.players.length >= 2 && !game.tournamentLoopActive) {
 			console.log("Single Player Game");
 			singlePlayerGame();

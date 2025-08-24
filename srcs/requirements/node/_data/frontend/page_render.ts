@@ -6,6 +6,7 @@ import { hideDefaultButtons, restoreScreen, restoreScreenLoggedIn } from "./scre
 import { settingsStart, showSettings } from "./settings.js";
 import { tournamentStart } from "./tournament.js";
 import { twoPlayerMatchStart } from "./twoPlayerMatch_local.js";
+import { multiplayerGameStart } from "./multiplayerGame.js";
 
 function mimicRegistration()
 {
@@ -70,6 +71,9 @@ export const render = (view: string, state: any, game:GameInfo) => {
 				break;
 			case game.availablePages[pageIndex.MATCH]:
 				twoPlayerMatchStart(game);
+				break;
+			case game.availablePages[pageIndex.MULTIPLAYER]:
+				multiplayerGameStart(game);
 				break;
 			default:
 				break;
