@@ -28,6 +28,7 @@ function subscribeToFormEvents(game: GameInfo) {
 		const username = input.value;
 		if (username === game.currentlyLoggedIn.name) {
 			alert("You cannot invite yourself");
+			hideSubmitForm();
 			return;
 		}
 		fetch(`/multiplayer?invitedUser=${username}&username=${game.currentlyLoggedIn.name}`)
@@ -52,6 +53,11 @@ function subscribeToFormEvents(game: GameInfo) {
 			alert("You cannot invite yourself");
 			return;
 		}
+		if (game.multiplayerName.includes(username)) {
+			alert("User is already invited");
+			hideSubmitForm();
+			return;
+		}
 		fetch(`/multiplayer?invitedUser=${username}&username=${game.currentlyLoggedIn.name}`)
 			.then(response => {
 				if (!response.ok) {
@@ -72,6 +78,11 @@ function subscribeToFormEvents(game: GameInfo) {
 		const username = input.value;
 		if (username === game.currentlyLoggedIn.name) {
 			alert("You cannot invite yourself");
+			return;
+		}
+		if (game.multiplayerName.includes(username)) {
+			alert("User is already invited");
+			hideSubmitForm();
 			return;
 		}
 		fetch(`/multiplayer?invitedUser=${username}&username=${game.currentlyLoggedIn.name}`)
