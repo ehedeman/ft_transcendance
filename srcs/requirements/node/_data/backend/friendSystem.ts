@@ -3,7 +3,7 @@ import { GameInfo } from './serverStructures.js';
 
 export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 
-	app.get('/addFriend', (request: FastifyRequest, rep: FastifyReply) => {
+	app.get('/addFriend', { preValidation: [app.authenticate] }, (request: FastifyRequest, rep: FastifyReply) => {
 		const { nameToAdd, accountName } = request.query as {
 			nameToAdd: string;
 			accountName: string;
@@ -45,7 +45,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		}
 	});
 
-	app.put('/addFriendlist', async (request: FastifyRequest, reply: FastifyReply) => {
+	app.put('/addFriendlist', { preValidation: [app.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
 		const { username, friendname } = request.body as {
 			username: string;
 			friendname: string;
@@ -65,7 +65,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		}
 	});
 
-	app.get('/getFriendList', async (request: FastifyRequest, reply: FastifyReply) => {
+	app.get('/getFriendList', { preValidation: [app.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
 		const { username } = request.query as { username: string };
 		if (!username) {
 			reply.status(400).send({ error: 'Username is required' });
@@ -86,7 +86,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		}
 	});
 
-	app.get(`/getChatHistory`, async (request: FastifyRequest, reply: FastifyReply) => {
+	app.get(`/getChatHistory`, { preValidation: [app.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
 		const { username, friendname } = request.query as {
 			username: string;
 			friendname: string;
@@ -106,7 +106,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		}
 	});
 
-	app.get(`/getFriendRequestList`, async (request: FastifyRequest, reply: FastifyReply) => {
+	app.get(`/getFriendRequestList`, { preValidation: [app.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
 		const { username } = request.query as { username: string };
 		if (!username) {
 			reply.status(400).send({ error: 'Username is required' });
@@ -195,7 +195,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		stmt2.run(username);
 	});
 
-	app.get("/userStatus", async (request, reply) => {
+	app.get("/userStatus", { preValidation: [app.authenticate] }, async (request, reply) => {
 		const { username } = request.query as { username: string };
 
 		if (!username) {
@@ -219,7 +219,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		reply.send({ onlineStatus: status, avatarUrl: picPath, win: wins, lose: losses, this: "is just a test", that: "is also a test", these: "are also tests", those: "are also tests" });
 	});
 
-	app.get("/blockUser", async (request, reply) => {
+	app.get("/blockUser", { preValidation: [app.authenticate] }, async (request, reply) => {
 		const { blockUserName, UserName } = request.query as { blockUserName: string, UserName: string };
 
 		if (!blockUserName || !UserName) {
@@ -246,7 +246,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		}
 	});
 
-	app.get("/inviteUserTo1v1Game", async (request, reply) => {
+	app.get("/inviteUserTo1v1Game", { preValidation: [app.authenticate] }, async (request, reply) => {
 		const { invitedUser, username } = request.query as { invitedUser: string; username: string };
 
 		if (!invitedUser || !username) {
@@ -292,7 +292,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		}
 	});
 
-	app.get("/getMatchHistory", async (request, reply) => {
+	app.get("/getMatchHistory", { preValidation: [app.authenticate] }, async (request, reply) => {
 		const { username } = request.query as { username: string };
 
 		if (!username) {

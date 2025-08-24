@@ -166,7 +166,7 @@ app.post("/register", async (request, reply) => {
 	console.log(`User ${username} registered successfully`);
 });
 
-app.post("/updateUser", async (request, reply) => {
+app.post("/updateUser", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const parts = request.parts();
 
 	let id = "", name = "", username = "", password = "", country = "";
@@ -225,7 +225,7 @@ app.post("/updateUser", async (request, reply) => {
 	}
 });
 
-app.post("/userInfo", async (request, reply) => {
+app.post("/userInfo", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const _username = request.body as { username: string };
 
 	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
@@ -249,7 +249,7 @@ app.post("/userInfo", async (request, reply) => {
 	});
 })
 
-app.post("/deleteUser", async (request, reply) => {
+app.post("/deleteUser", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const { username } = request.body as { username: string };
 
 	const user = db.prepare("SELECT * FROM users WHERE Alias = ?").get(username);
@@ -263,7 +263,7 @@ app.post("/deleteUser", async (request, reply) => {
 });
 
 
-app.post("/logout", async (request, reply) => {
+app.post("/logout", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const { username } = request.body as { username: string };
 
 	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);

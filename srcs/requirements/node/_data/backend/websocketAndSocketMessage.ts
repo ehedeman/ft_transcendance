@@ -36,7 +36,7 @@ export function websocketAndSocketMessage(app: FastifyInstance, db: any, game: G
 		}
 	}
 
-	app.get('/ws', { websocket: true }, (socket, req: FastifyRequest) => { // login received
+	app.get('/ws', { websocket: true, preValidation: [app.authenticate] }, (socket, req: FastifyRequest) => { // login received
 		console.log('=== WebSocket Handler Called ===');
 
 		// Extract username from query parameters
