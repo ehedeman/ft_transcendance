@@ -67,7 +67,7 @@ function calculatePaddleCoords(game: GameInfo): void {
 }
 
 function getGameStatus(): void {
-	if (!game.gamefinished) {
+	if (!game.gamefinished && !game.remoteMode && !game.multiplayerMode && !game.multiplayerGameStart) {
 		var length = game.t.matches.length;
 		fetch("/getstatus")
 			.then(response => response.json())
@@ -157,8 +157,8 @@ function tournamentGame(): number {
 }
 
 export function updateGame(): void {
-	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration && !game.remoteMode && !game.multiplayerMode) {
-		if (game.players.length >= 2 && !game.tournamentLoopActive) {
+	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration && !game.remoteMode && !game.multiplayerMode && !game.multiplayerGameStart) {
+		if (game.players.length >= 2 && !game.tournamentLoopActive && !game.remoteMode && !game.multiplayerMode && !game.multiplayerGameStart) {
 			console.log("Single Player Game");
 			singlePlayerGame();
 		}

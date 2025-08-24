@@ -37,8 +37,6 @@ function handlePrivateMessage(data: any) {
 	}
 }
 import { startRemote1v1Game } from "./remote1v1GameInterface.js";
-import { multiplayerGame } from "../backend/multiplayerGameInServer.js";
-import { multiplayerGameStart } from "./multiplayerGameRequests.js";
 async function handleGameInvitation(data: any) {
 	const { from, module } = data;
 	const result = await createConfirmModal(`Do you want to accept the game invitation from ${from} for a ${module} game?`);
@@ -56,6 +54,7 @@ async function handleGameInvitation(data: any) {
 	}
 }
 
+import { startMultiplayerGame } from "./multiplayerGame.js";
 function handleMultiplayerGameStart(data: any) {
 	const { play1, play2, play3, play4 } = data as { play1: string, play2: string, play3: string, play4: string };
 	game.multiplayerGameStart = true;
@@ -81,7 +80,7 @@ function handleWebSocketMessage(event: MessageEvent) {
 };
 
 export function createWebSocketConnection(username: string) {
-	game.websocket = new WebSocket(`wss://10.12.13.9:3000/ws?username=${username}`); // Accept self-signed cert
+	game.websocket = new WebSocket(`wss://10.12.4.5:3000/ws?username=${username}`); // Accept self-signed cert
 
 	game.websocket.onopen = () => {
 		console.log("✅ WebSocket connection established successfully!");

@@ -13,7 +13,7 @@ import { promisify } from 'util';
 import { createWriteStream } from 'fs';
 import { FastifyRequest, FastifyReply } from "fastify";
 
-export const saltRounds = 1;
+export const saltRounds = 10;
 
 export const app = fastify({
 	logger: true,
@@ -74,7 +74,7 @@ app.get('/ping', async () => {
 	return { pong: 'it works!' };
 });
 
-export let rounds = 1;
+export let rounds = 10;
 
 export let accaleration = 0.1; // Speed increase factor
 
@@ -90,6 +90,12 @@ setInterval(() => {
 	updateRemote1v1Game(db);
 }, 1000 / 60);
 interactWithRemote1v1Game(app, db, game);
+
+import { interactWithMultiplayerGame, updateMultiplayerGame } from './multiplayerGamelogic.js';
+setInterval(() => {
+	updateMultiplayerGame(db);
+}, 1000 / 60);
+interactWithMultiplayerGame(app, db, game);
 
 // setInterval(() => {
 // 	checkSocketConnections();

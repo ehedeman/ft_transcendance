@@ -23,7 +23,6 @@ function drawCircleRemote1v1(x: number, y: number, radius: number): void {
 
 function getGameStatusRemote1v1(): void {
 	if (!game.gamefinished) {
-		var length = game.t.matches.length;
 		fetch("/getstatusRemote1v1")
 			.then(response => response.json())
 			.then(data => {
@@ -31,16 +30,8 @@ function getGameStatusRemote1v1(): void {
 				game.ball.ballY = data.ballY;
 				game.player1Paddle.y = data.player1_y;
 				game.player2Paddle.y = data.player2_y;
-				if (game.tournamentLoopActive && length) {
-					game.t.matches[length - 1].player1.score = data.player1_score;
-					game.t.matches[length - 1].player2.score = data.player2_score;
-				}
-				else {
-					if (game.players.length >= 2) {
-						game.players[0].playerscore = data.player1_score;
-						game.players[1].playerscore = data.player2_score;
-					}
-				}
+				game.players[0].playerscore = data.player1_score;
+				game.players[1].playerscore = data.player2_score;
 				game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
 				if (data.gamefinished) {
 					fetch("/resetgameRemote1v1")
@@ -50,14 +41,8 @@ function getGameStatusRemote1v1(): void {
 							game.ball.ballY = data.ballY;
 							game.player1Paddle.y = data.player1_y;
 							game.player2Paddle.y = data.player2_y;
-							if (game.tournamentLoopActive) {
-								game.t.matches[length - 1].player1.score = data.player1_score;
-								game.t.matches[length - 1].player2.score = data.player2_score;
-							}
-							else {
-								game.players[0].playerscore = data.player1_score;
-								game.players[1].playerscore = data.player2_score;
-							}
+							game.players[0].playerscore = data.player1_score;
+							game.players[1].playerscore = data.player2_score;
 						});
 				}
 			});

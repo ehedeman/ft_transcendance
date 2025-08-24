@@ -82,6 +82,7 @@ function subscribeToFormEvents(game: GameInfo) {
 					return;
 				}
 				hideSubmitForm();
+				game.multiplayerMode = true;
 				game.multiplayerName.push(username);
 				fetch(`multiplayerGameStart?username=${game.currentlyLoggedIn.name}
 											&opponent1=${game.multiplayerName[0]}

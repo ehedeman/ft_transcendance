@@ -161,6 +161,8 @@ export class GameInfo {
 	ball: BallInfo;
 	player1Paddle: playerPaddle;
 	player2Paddle: playerPaddle;
+	player3Paddle: playerPaddle;
+	player4Paddle: playerPaddle;
 
 	t: Tournament;
 
@@ -204,13 +206,17 @@ export class GameInfo {
 		this.ball = new BallInfo();
 		this.player1Paddle = new playerPaddle();
 		this.player2Paddle = new playerPaddle();
-		
+		this.player3Paddle = new playerPaddle();
+		this.player4Paddle = new playerPaddle();
+
 		this.t = new Tournament();
 
 		this.players = [];
 	
 		this.player1Paddle.x = canvas.width - 100; // Right side
 		this.player2Paddle.x = 100; // Left side
+		this.player3Paddle.x = canvas.width * 3 / 4 - 50; // Middle right
+		this.player4Paddle.x = canvas.width / 4 + 50; // Middle left
 
 		this.ball.ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
 		this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
