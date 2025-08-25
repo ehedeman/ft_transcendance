@@ -119,5 +119,5 @@ callTwoPlayerMatchEventListeners(game);
 import { callGameEventListeners, clickWinnerScreenContinue, updateGame } from "./gamePlay.js";
 import { callTwoPlayerMatchEventListeners } from "./twoPlayerMatch_local.js";
 import { render } from "./page_render.js";
-clickWinnerScreenContinue();
+clickWinnerScreenContinue(game);
 updateGame();

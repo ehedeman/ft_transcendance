@@ -16,12 +16,12 @@ export function showGeneralLoginModal(game: GameInfo) {
 	modal.style.display = "flex";
 }
 
-function hideGeneralLoginModal() {
+export function hideGeneralLoginModal() {
 	const modal = document.getElementById("generalLoginModal") as HTMLDivElement;
 	modal.style.display = "none";
 }
 
-function getUserInfoAndCreateUserInterface(username: string) {
+export function getUserInfoAndCreateUserInterface(username: string) {
 	fetch(`userStatus?username=${username}`)
 		.then(response => {
 			if (!response.ok) {
@@ -85,7 +85,7 @@ function renderMatchHistory(matchHistory: any[]) {
 	}
 }
 
-function getUserMatchHistory(username: string) {
+export function getUserMatchHistory(username: string) {
 	fetch(`/getMatchHistory?username=${username}`)
 		.then(response => {
 			if (!response.ok) {

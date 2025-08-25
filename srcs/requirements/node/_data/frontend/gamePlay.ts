@@ -172,7 +172,10 @@ export function updateGame(): void {
 	requestAnimationFrame(updateGame);
 }
 
-export function clickWinnerScreenContinue() {
+import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
+import { getUserInfoAndCreateUserInterface, getUserMatchHistory, hideGeneralLoginModal } from "./login.js";
+
+export function clickWinnerScreenContinue(game: GameInfo) {
 	document.getElementById("WinnerScreenContinue")?.addEventListener("click", () => {
 		// fetch("/gameContinue");
 		if (game.tournamentLoopActive && game.t.stage === TournamentStage.Complete)
@@ -186,5 +189,13 @@ export function clickWinnerScreenContinue() {
 		document.addEventListener("keydown", handleKeydown);
 		document.addEventListener("keyup", handleKeyup);
 		getGameStatus();
+		getFriendList(game.currentlyLoggedIn.name);
+		getFriendRequestList(game.currentlyLoggedIn.name);
+		const addFriend = document.getElementById("addFriend") as HTMLElement;
+		if (addFriend) addFriend.style.display = "block";
+		getRejectedFriendRequests(game.currentlyLoggedIn.name);
+		getUserInfoAndCreateUserInterface(game.currentlyLoggedIn.name);
+		getUserMatchHistory(game.currentlyLoggedIn.name);
+		hideGeneralLoginModal();
 	});
 }
