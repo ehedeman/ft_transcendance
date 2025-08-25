@@ -103,6 +103,7 @@ function getGameStatus(): void {
 								game.players[0].playerscore = data.player1_score;
 								game.players[1].playerscore = data.player2_score;
 							}
+							game.gamefinished = data.gamefinished;
 						});
 				}
 			});
@@ -114,11 +115,13 @@ function singlePlayerGame(): void {
 		game.players[0].gamesWon++;
 		game.players[1].gamesLost++;
 		showWinnerScreen(game, game.players[0].name);
+		game.gamefinished = false;
 	}
 	if (game.players[1].playerscore === rounds) {
 		game.players[1].gamesWon++;
 		game.players[0].gamesLost++;
 		showWinnerScreen(game, game.players[1].name);
+		game.gamefinished = false;
 	}
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	ctx.font = "20px Arial"; ctx.fillStyle = "white";

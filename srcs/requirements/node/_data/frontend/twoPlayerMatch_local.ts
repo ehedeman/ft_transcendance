@@ -46,6 +46,13 @@ function showLogin() {
 }
 
 function localMatch(game: GameInfo): void {
+	fetch("/localMode")
+		.then(response => {
+			if (!response.ok) {
+				alert("Failed to start local match. Please try again.");
+				return;
+			}
+		});
 	hideTwoPlayerMatchSelect();
 	showGuestPlayerButtons();
 }
@@ -235,12 +242,14 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 			restoreMatchState();
 			navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 			emptyLoginFields("twoPlayerMatch");
+			fetch("/endLocalMode");
 			// restoreScreen(game);
 		}
 	});
 	document.getElementById("twoPlayerMatchCancel")?.addEventListener("click", (event: Event) => {
 		restoreMatchState();
 		restoreScreenLoggedIn();
+		fetch("/endLocalMode");
 	});
 	document.getElementById("twoPlayerMatchInviteSubmit")?.addEventListener("click", (event: Event) => {
 		event.preventDefault();

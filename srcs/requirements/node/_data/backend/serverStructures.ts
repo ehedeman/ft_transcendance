@@ -88,6 +88,8 @@ export class GameInfo {
 
 	sockets: Map<string, WebSocket>;
 
+	localMode: boolean;
+
 	remoteMode: boolean;
 
 	multiplayerMode: boolean;
@@ -117,6 +119,8 @@ export class GameInfo {
 		this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
 
 		this.sockets = new Map<string, WebSocket>();
+
+		this.localMode = false;
 
 		this.remoteMode = false;
 

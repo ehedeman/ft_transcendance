@@ -180,14 +180,13 @@ export function interactWithRemote1v1Game(app: FastifyInstance, db: any, game: G
 
 export function updateRemote1v1Game(db: any): void {
 	if (!gameFinished && game.remoteMode) {
-		console.log('////////////////////////////////////////////////////////////////////////////');
 		if (game.player1.playerscore === rounds) {
 			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
 			stmt.run(game.player1.name);
 			stmt = db.prepare("UPDATE users SET losses = losses + 1 WHERE full_name = ?");
 			stmt.run(game.player2.name);
-			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, winner, loser, score_player1, score_player2) VALUES (?, ?, ?, ?, ?, ?)");
-			stmt.run(game.player1.name, game.player2.name, game.player1.name, game.player2.name, game.player1.playerscore, game.player2.playerscore);
+			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, player3, player4, winner, loser, score_player1, score_player2, score_player3, score_player4, matchType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			stmt.run(game.player1.name, game.player2.name, 'null', 'null', game.player1.name, game.player2.name, game.player1.playerscore, game.player2.playerscore, 0, 0, 'local');
 			gameFinished = true;
 			game.remoteMode = false;
 		}
@@ -196,8 +195,8 @@ export function updateRemote1v1Game(db: any): void {
 			stmt.run(game.player2.name);
 			stmt = db.prepare("UPDATE users SET losses = losses + 1 WHERE full_name = ?");
 			stmt.run(game.player1.name);
-			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, winner, loser, score_player1, score_player2) VALUES (?, ?, ?, ?, ?, ?)");
-			stmt.run(game.player1.name, game.player2.name, game.player2.name, game.player1.name, game.player1.playerscore, game.player2.playerscore);
+			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, player3, player4, winner, loser, score_player1, score_player2, score_player3, score_player4, matchType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			stmt.run(game.player1.name, game.player2.name, 'null', 'null', game.player2.name, game.player1.name, game.player2.playerscore, game.player1.playerscore, 0, 0, 'local');
 			gameFinished = true;
 			game.remoteMode = false;
 		}

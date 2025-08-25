@@ -62,6 +62,7 @@ export async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 				if (!response.ok) {
 					tournamentEnd(0, game);
 					restoreScreen(game);
+					fetch("/endLocalMode");
 					return;
 				}
 			})
@@ -123,6 +124,7 @@ export function callTournamentEventListeners(game:GameInfo)
 		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 		const playSelect = document.getElementById("playSelect");
 		if (playSelect) playSelect.style.display = "block";
+		fetch("/endLocalMode");
 
 	});
 
