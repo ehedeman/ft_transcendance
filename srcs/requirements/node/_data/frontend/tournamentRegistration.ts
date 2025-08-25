@@ -99,7 +99,7 @@ function hidetournamentRegistrationModal() {
 	modal.style.display = "none";
 }
 
-
+import { restoreScreenLoggedIn } from "./screenDisplay.js";
 export function callTournamentEventListeners(game:GameInfo)
 {
 	document.getElementById("tournamentFinishContinue")?.addEventListener("click", () => {
@@ -124,6 +124,7 @@ export function callTournamentEventListeners(game:GameInfo)
 		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 		const playSelect = document.getElementById("playSelect");
 		if (playSelect) playSelect.style.display = "block";
+		restoreScreenLoggedIn();
 		fetch("/endLocalMode");
 
 	});
