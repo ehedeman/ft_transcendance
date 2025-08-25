@@ -69,11 +69,16 @@ function renderMatchHistory(matchHistory: any[]) {
 			listItem.innerHTML = `Match ID: ${match.id}<br>
 									player1: ${match.player1}<br>
 									player2: ${match.player2}<br>
+									player3: ${match.player3}<br>
+									player4: ${match.player4}<br>
 									winner: ${match.winner}<br>
 									loser: ${match.loser}<br>
 									player1Score: ${match.score_player1}<br>
 									player2Score: ${match.score_player2}<br>
-									matchDate: ${match.match_date}
+									player3Score: ${match.score_player3}<br>
+									player4Score: ${match.score_player4}<br>
+									matchDate: ${match.match_date}<br>
+									matchType: ${match.matchType}
 									`;
 			matchHistoryList.appendChild(listItem);
 		});

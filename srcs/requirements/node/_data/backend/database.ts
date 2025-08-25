@@ -37,10 +37,15 @@ CREATE TABLE IF NOT EXISTS matchHistory (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	player1 TEXT NOT NULL,
 	player2 TEXT NOT NULL,
+	player3 TEXT default 'null',
+	player4 TEXT default 'null',
 	winner TEXT,
 	loser TEXT,
 	score_player1 INTEGER DEFAULT 0,
 	score_player2 INTEGER DEFAULT 0,
+	score_player3 INTEGER DEFAULT 0,
+	score_player4 INTEGER DEFAULT 0,
+	matchType TEXT NOT NULL,
 	match_date DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

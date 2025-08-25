@@ -173,6 +173,15 @@ export function debugFunctions(app: FastifyInstance, db: any) {
 		}
 	});
 
+	app.get('/debug/cleanTable/matchHistory', async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			db.prepare(`DELETE FROM matchHistory`).run();
+			reply.send({ message: `Table 'matchHistory' cleaned.` });
+		} catch (err) {
+			reply.status(500).send({ error: 'Database error' });
+		}
+	});
+
 	app.get('/debug/cleanTable/newFriend', async (request: FastifyRequest, reply: FastifyReply) => {
 		try {
 			db.prepare(`DELETE FROM newFriend`).run();

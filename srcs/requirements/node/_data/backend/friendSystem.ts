@@ -300,8 +300,8 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			return;
 		}
 
-		let stmt = db.prepare(`SELECT * FROM matchHistory WHERE player1 = ? OR player2 = ?`);
-		const matchHistory = stmt.all(username, username);
+		let stmt = db.prepare(`SELECT * FROM matchHistory WHERE player1 = ? OR player2 = ? OR player3 = ? OR player4 = ?`);
+		const matchHistory = stmt.all(username, username, username, username);
 		if (!matchHistory) {
 			reply.status(404).send({ status: 404, message: "Match history not found" });
 			return;
