@@ -13,7 +13,7 @@ import { promisify } from 'util';
 import { createWriteStream } from 'fs';
 import { FastifyRequest, FastifyReply } from "fastify";
 
-export const saltRounds = 1;
+export const saltRounds = 3;
 
 export const app = fastify({
 	logger: true,
@@ -74,7 +74,7 @@ app.get('/ping', async () => {
 	return { pong: 'it works!' };
 });
 
-export let rounds = 1;
+export let rounds = 3;
 
 export let accaleration = 0.1; // Speed increase factor
 
@@ -272,13 +272,13 @@ app.post("/deleteUser", { preValidation: [app.authenticate] }, async (request, r
 app.post("/logout", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const { username } = request.body as { username: string };
 
-	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
+	const stmt = db.prepare(`SELECT * FROM users WHERE Full_Name = ?`);
 	const user = stmt.get(username) as any;
 	if (!user) {
 		reply.status(401).send({ status: 401, message: 'Invalid username' });
 		return;
 	}
-	const stmt2 = db.prepare(`UPDATE users SET status = 'offline' WHERE full_name = ?`);
+	const stmt2 = db.prepare(`UPDATE users SET status = 'offline' WHERE Full_Name = ?`);
 	stmt2.run(username);
 	game.sockets.get(username)?.close();
 	game.sockets.delete(username);
@@ -360,6 +360,35 @@ friendSystem(app, db, game);
 import { multiplayerGame } from './multiplayerGameInServer.js';
 
 multiplayerGame(app, db, game);
+
+function makeEveryoneOffline(): void {
+	try {
+		const stmt = db.prepare("UPDATE users SET status = 'offline' WHERE status = 'online'");
+		stmt.run();
+	} catch (error) {
+		console.error("Error setting users to offline:", error);
+	}
+}
+
+makeEveryoneOffline();
+
+app.get('/keepLogin', { preValidation: [app.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+	const token = request.cookies.token;
+	if (!token) {
+		reply.status(401).send({ status: 401, message: 'No token provided' });
+		return;
+	}
+	try {
+		const decoded = app.jwt.verify(token) as { username: string };
+		const username = decoded.username;
+		const stmt = db.prepare(`UPDATE users SET status = 'online' WHERE Full_Name = ?`);
+		stmt.run(username);
+		return { username: username };
+	} catch (err) {
+		reply.status(401).send({ status: 401, message: 'Invalid token' });
+		return;
+	}
+});
 
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
 	if (err) throw err;

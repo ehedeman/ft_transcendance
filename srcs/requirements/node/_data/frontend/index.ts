@@ -1,11 +1,11 @@
 import { GameInfo, gameSnapShot, pageIndex, renderInfo } from "./frontendStructures.js";
 import { callSettingsEventlisteners } from "./settings.js";
 import { callRegistrationEventListeners } from "./registration.js";
-import { callLoginEventListeners } from "./login.js";
+import { callLoginEventListeners, getUserInfoAndCreateUserInterface, getUserMatchHistory } from "./login.js";
 import { callTournamentEventListeners } from "./tournamentRegistration.js";
 import { callLogoutEventListeners } from "./logout.js";
 import { callHTMLclassDefines } from "./html_classes.js";
-export let rounds = 1;
+export let rounds = 3;
 
 export let game = new GameInfo();
 
@@ -50,14 +50,14 @@ document.addEventListener("keyup", handleKeyup);
 const initialView = 'home';
 history.replaceState({ view: initialView }, '', `#${initialView}`);
 render(initialView, {
-		view: "home",
-		info: "",
-		snapShot: {players: game.players, currentlyLoggedIn: game.currentlyLoggedIn},
-	}, game);
+	view: "home",
+	info: "",
+	snapShot: { players: game.players, currentlyLoggedIn: game.currentlyLoggedIn },
+}, game);
 
 
-export const navigate = (view: string, infoString: string, game:GameInfo) => {
-	var gameSnapShot_: gameSnapShot = {players: game.players, currentlyLoggedIn: game.currentlyLoggedIn};
+export const navigate = (view: string, infoString: string, game: GameInfo) => {
+	var gameSnapShot_: gameSnapShot = { players: game.players, currentlyLoggedIn: game.currentlyLoggedIn };
 
 	var renderInfo_: renderInfo = {
 		view: view,
@@ -66,7 +66,8 @@ export const navigate = (view: string, infoString: string, game:GameInfo) => {
 	}
 
 	history.pushState({
-		view: view, info: infoString, snapShot: gameSnapShot_}, '', `#${view}`);
+		view: view, info: infoString, snapShot: gameSnapShot_
+	}, '', `#${view}`);
 	render(view, renderInfo_, game);
 };
 
@@ -83,9 +84,9 @@ window.addEventListener('popstate', (event) => {
 
 // Initial load
 window.onpopstate = (event: PopStateEvent) => {
-  const state = event.state as renderInfo;
-  const view = state?.view || 'home';
-  render(view, state, game);
+	const state = event.state as renderInfo;
+	const view = state?.view || 'home';
+	render(view, state, game);
 };
 
 callHTMLclassDefines();
@@ -120,4 +121,34 @@ import { callGameEventListeners, clickWinnerScreenContinue, updateGame } from ".
 import { callTwoPlayerMatchEventListeners } from "./twoPlayerMatch_local.js";
 import { render } from "./page_render.js";
 clickWinnerScreenContinue(game);
+import { createWebSocketConnection } from "./websocketConnection.js";
+import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
+
+window.onload = function () {
+	fetch("/keepLogin")
+		.then(response => {
+			if (!response.ok) {
+				navigate(game.availablePages[pageIndex.HOME], "", game);
+				return;
+			}
+			return response.json();
+		})
+		.then(data => {
+			createWebSocketConnection(data.username);
+			// get the friend list
+			getFriendList(data.username);
+			getFriendRequestList(data.username);
+			const addFriend = document.getElementById("addFriend") as HTMLElement;
+			if (addFriend) addFriend.style.display = "block";
+			getRejectedFriendRequests(data.username);
+			getUserInfoAndCreateUserInterface(data.username);
+			getUserMatchHistory(data.username);
+			game.currentlyLoggedIn.name = data.username;
+			game.currentlyLoggedIn.gamesLost = 0;
+			game.currentlyLoggedIn.gamesWon = 0;
+			game.currentlyLoggedIn.playerscore = 0;
+			// restoreScreenLoggedIn();
+			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
+		});
+}
 updateGame();
