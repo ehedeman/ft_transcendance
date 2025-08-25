@@ -173,7 +173,7 @@ export function updateGame(): void {
 }
 
 import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
-import { getUserInfoAndCreateUserInterface, getUserMatchHistory, hideGeneralLoginModal } from "./login.js";
+import { getUserMatchHistory, hideGeneralLoginModal } from "./login.js";
 
 export function clickWinnerScreenContinue(game: GameInfo) {
 	document.getElementById("WinnerScreenContinue")?.addEventListener("click", () => {
@@ -194,7 +194,6 @@ export function clickWinnerScreenContinue(game: GameInfo) {
 		const addFriend = document.getElementById("addFriend") as HTMLElement;
 		if (addFriend) addFriend.style.display = "block";
 		getRejectedFriendRequests(game.currentlyLoggedIn.name);
-		getUserInfoAndCreateUserInterface(game.currentlyLoggedIn.name);
 		getUserMatchHistory(game.currentlyLoggedIn.name);
 		hideGeneralLoginModal();
 	});
