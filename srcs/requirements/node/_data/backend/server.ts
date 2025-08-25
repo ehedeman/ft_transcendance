@@ -278,9 +278,9 @@ app.post("/logout", { preValidation: [app.authenticate] }, async (request, reply
 		reply.status(401).send({ status: 401, message: 'Invalid username' });
 		return;
 	}
-	const stmt2 = db.prepare(`UPDATE users SET status = 'offline' WHERE full_name = ?`);//TODO: I add the database changes here
+	const stmt2 = db.prepare(`UPDATE users SET status = 'offline' WHERE full_name = ?`);
 	stmt2.run(username);
-	game.sockets.get(username)?.close();//TODO: close the user's socket connection
+	game.sockets.get(username)?.close();
 	game.sockets.delete(username);
 	reply.clearCookie("token").send({ status: 200, message: 'Logout successful', user });
 });

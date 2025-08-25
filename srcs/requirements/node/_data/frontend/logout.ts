@@ -23,7 +23,7 @@ function logout(game:GameInfo)
 		game.currentlyLoggedIn.gamesWon = 0;
 		game.currentlyLoggedIn.playerscore = 0;
 
-		document.getElementById("userStatusInterface")?.remove();//TODO: add this to remove the interface
+		document.getElementById("userStatusInterface")?.remove();
 
 		restoreScreen(game);
 		// const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
