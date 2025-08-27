@@ -10,7 +10,7 @@ type tournamentPlacements = {
 	place: number;
 }
 
-let rounds = 1;
+let rounds = 3;
 
 export function showWinnerScreen(game: GameInfo, winner: string)
 {
@@ -252,7 +252,7 @@ export function tournamentLogic(game: GameInfo): number
 			game.t.matches[length - 1].winner = game.t.matches[length - 1].player2;
 			game.t.matches[length - 1].loser = game.t.matches[length - 1].player1;
 		}
-
+		game.gamefinished = true;
 		showWinnerScreen(game, game.t.matches[length - 1].winner.name);
 
 		if (game.t.stage < TournamentStage.Consolation)  // if tournament is complete, we set the winners and losers

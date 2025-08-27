@@ -184,4 +184,9 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 		game.localMode = false;
 		reply.send({ status: 'Local mode deactivated' });
 	});
+
+	app.get('/tournamentContinue', async (request: FastifyRequest, reply: FastifyReply) => {
+		game.localMode = true;
+		reply.send({ status: 'Tournament continued' });
+	});
 }

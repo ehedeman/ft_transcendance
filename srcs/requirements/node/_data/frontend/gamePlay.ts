@@ -103,7 +103,7 @@ function getGameStatus(): void {
 								game.players[0].playerscore = data.player1_score;
 								game.players[1].playerscore = data.player2_score;
 							}
-							game.gamefinished = data.gamefinished;
+							// game.gamefinished = data.gamefinished;
 						});
 				}
 			});
@@ -180,6 +180,10 @@ export function clickWinnerScreenContinue(game: GameInfo) {
 		// fetch("/gameContinue");
 		if (game.tournamentLoopActive && game.t.stage === TournamentStage.Complete)
 			tournamentFinished(game);
+		else if (game.tournamentLoopActive && game.t.stage !== TournamentStage.Complete) {
+			fetch("/tournamentContinue");
+			game.gamefinished = false;
+		}
 		else if (!game.tournamentLoopActive) {
 			game.players.splice(0, game.players.length);
 			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
