@@ -60,6 +60,7 @@ export function hideDefaultButtons(): void
 }
 
 export function restoreScreenLoggedIn(): void {
+	hideEverything();
 	const registerButton = document.getElementById("registerButton");
 	const settingsButton = document.getElementById("settingsButton");
 	const playSelect = document.getElementById("playSelect");
