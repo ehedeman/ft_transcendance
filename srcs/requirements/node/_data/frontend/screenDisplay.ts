@@ -73,6 +73,7 @@ export function restoreScreenLoggedIn(): void {
 	const friendStuff = document.getElementById("friendStuff") as HTMLDivElement;
 	const messages = document.getElementById("messages");
 	const matchHistory = document.getElementById("matchHistory");
+	const addFriend = document.getElementById("addFriend");
 
 	restoreMatchState();
 
@@ -88,6 +89,7 @@ export function restoreScreenLoggedIn(): void {
 	if (registerModal) registerModal.style.display = "none";
 	if (preview) preview.src = "./avatars/default-avatar.png";
 	if (matchHistory) matchHistory.style.display = "block";
+	if (addFriend) addFriend.style.display = "block";
 
 }
 
