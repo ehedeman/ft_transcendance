@@ -288,7 +288,7 @@ app.post("/logout", { preValidation: [app.authenticate] }, async (request, reply
 app.post("/login", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const { username, password } = request.body as { username: string; password: string };
 
-	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
+	const stmt = db.prepare(`SELECT * FROM users WHERE Full_Name = ?`);
 	const user = stmt.get(username) as any;
 
 	if (!user) {
@@ -307,10 +307,10 @@ app.post("/login", { preValidation: [app.authenticate] }, async (request, reply)
 app.post("/firstlogin", async (request, reply) => {
 	const { username, password } = request.body as { username: string; password: string };
 
-	let stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
+	let stmt = db.prepare(`SELECT * FROM users WHERE Full_Name = ?`);
 	const user = stmt.get(username) as any;
 
-	stmt = db.prepare(`SELECT status FROM users WHERE Alias = ?`);
+	stmt = db.prepare(`SELECT status FROM users WHERE Full_Name = ?`);
 	const userStatus = stmt.get(username) as any;
 	if (userStatus.status === 'online') {
 		reply.status(401).send({ status: 401, message: 'User is already logged in' });
@@ -327,9 +327,9 @@ app.post("/firstlogin", async (request, reply) => {
 		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
 		return;
 	}
-	stmt = db.prepare(`UPDATE users SET status = 'online' WHERE full_name = ?`);
+	stmt = db.prepare(`UPDATE users SET status = 'online' WHERE Full_Name = ?`);
 	stmt.run(username);
-	const token = app.jwt.sign({ username });
+	const token = app.jwt.sign({ username }, { expiresIn: '1h' });
 	reply
 		.setCookie("token", token, {
 			path: "/",             // Cookie is valid for all routes
