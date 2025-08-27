@@ -4,6 +4,7 @@ import { handleKeydown, handleKeyup, navigate } from "./index.js";
 import { GameInfo, pageIndex, PlayerLogin } from "./frontendStructures.js";
 
 import { userInfo } from "./serverStructures.js"
+import { hideEverything } from "./screenDisplay.js"
 
 var settingsAlreadyLoggedIn: boolean = false;
 //to determine whether user was logged in before accessing settings
@@ -11,7 +12,7 @@ var settingsAlreadyLoggedIn: boolean = false;
 
 export function settingsStart(game: GameInfo)
 {
-	hideDefaultButtons();
+	hideEverything();
 
 	showSettings();
 	hideSettingsForm();

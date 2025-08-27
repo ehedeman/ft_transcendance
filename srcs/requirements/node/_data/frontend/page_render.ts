@@ -7,25 +7,18 @@ import { settingsStart, showSettings } from "./settings.js";
 import { tournamentStart } from "./tournament.js";
 import { twoPlayerMatchStart } from "./twoPlayerMatch_local.js";
 import { multiplayerGameStart } from "./multiplayerGameRequests.js";
+import { hideEverything } from "./screenDisplay.js"
+
 
 function mimicRegistration() {
-	const registerButton = document.getElementById("registerButton");
-	const playSelect = document.getElementById("playSelect");
-	const loginButton = document.getElementById("loginButton");
-	if (registerButton) registerButton.style.display = "none";
-	if (playSelect) playSelect.style.display = "none";
-	if (loginButton) loginButton.style.display = "none";
+	// Hide all elements
+	hideEverything();
 	showGeneralRegistrationModal();
 }
 
 function mimicLogin(game: GameInfo) {
-	const registerButton = document.getElementById("registerButton");
-	const playSelect = document.getElementById("playSelect");
-	const loginButton = document.getElementById("loginButton");
-	if (registerButton) registerButton.style.display = "none";
-	if (playSelect) playSelect.style.display = "none";
-	if (loginButton) loginButton.style.display = "none";
-
+	// Hide all elements
+	hideEverything();
 	showGeneralLoginModal(game);
 }
 

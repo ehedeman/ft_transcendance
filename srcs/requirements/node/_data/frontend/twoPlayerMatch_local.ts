@@ -1,10 +1,10 @@
 import { navigate } from "./index.js";
 import { GameInfo, pageIndex, Player, PlayerLogin } from "./frontendStructures.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
-import { hideDefaultButtons, restoreScreen, restoreScreenLoggedIn } from "./screenDisplay.js";
+import { hideEverything, restoreScreen, restoreScreenLoggedIn } from "./screenDisplay.js";
 
 export function twoPlayerMatchStart(game: GameInfo) {
-	hideDefaultButtons();
+	hideEverything();
 	const twoPlayerMatch = document.getElementById("twoPlayerMatchContainer") as HTMLDivElement;
 	if (twoPlayerMatch) twoPlayerMatch.style.display = "block";
 }

@@ -3,6 +3,7 @@ import { GameInfo, pageIndex, TournamentPlayer, TournamentStage } from "./fronte
 // import { rounds } from "./server.js";
 import { handleKeydown, handleKeyup } from "./index.js";
 import { tournamentRegisterPlayers } from "./tournamentRegistration.js";
+import { hideEverything } from "./screenDisplay.js";
 
 type tournamentPlacements = {
 	username: string;
@@ -206,17 +207,7 @@ export function tournamentStart(game: GameInfo)
 {
 	document.removeEventListener('keydown', handleKeydown);
 	document.removeEventListener('keyup', handleKeyup);
-	const registerButton = document.getElementById("registerButton");
-	const select = document.getElementById("playSelect");
-	const loginButton = document.getElementById("loginButton");
-	const settingsButton = document.getElementById("settingsButton") as HTMLSelectElement;
-	const settings = document.getElementById("settings") as HTMLSelectElement;
-
-	if (settingsButton) settingsButton.style.display = "none";
-	if (settings) settings.style.display = "none";
-	if (registerButton) registerButton.style.display = "none";
-	if (select) select.style.display = "none";
-	if (loginButton) loginButton.style.display = "none";
+	hideEverything();
 
 	const resetButton = document.getElementById("tournamentResetButton");
 	if (resetButton) resetButton.style.display = "block";

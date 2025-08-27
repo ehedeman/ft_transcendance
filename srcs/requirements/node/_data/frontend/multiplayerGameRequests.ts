@@ -1,5 +1,5 @@
 import { GameInfo } from "./frontendStructures.js";
-import { hideDefaultButtons, restoreScreen, restoreScreenLoggedIn } from "./screenDisplay.js";
+import { hideDefaultButtons, hideEverything, restoreScreen, restoreScreenLoggedIn } from "./screenDisplay.js";
 
 function showSubmitForm() {
 	hideDefaultButtons();
@@ -122,6 +122,7 @@ function subscribeToFormEvents(game: GameInfo) {
 }
 
 export function multiplayerGameStart(game: GameInfo) {
+	hideEverything();
 	showSubmitForm();
 	subscribeToFormEvents(game);
 }
