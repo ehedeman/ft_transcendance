@@ -31,6 +31,8 @@ export function hideGeneralRegistrationModal() {
 	modal.style.display = "none";
 }
 
+import { restoreScreenLoggedIn } from "./screenDisplay.js";
+
 export function callRegistrationEventListeners(game:GameInfo)
 {
 	document.getElementById("showRegisterPassword")?.addEventListener("click", () => 
@@ -135,5 +137,6 @@ export function callRegistrationEventListeners(game:GameInfo)
 		// hideGeneralRegistrationModal();
 		// restoreScreen(game);
 		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
+		restoreScreenLoggedIn();
 	});
 }
