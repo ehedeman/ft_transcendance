@@ -27,7 +27,7 @@ export function restoreScreen(game:GameInfo): void {
 	if (registerModal) registerModal.style.display = "none";
 	if (settings) settings.style.display = "none";
 	if (loginModal) loginModal.style.display = "none";
-	if (settingsButton) settingsButton.style.display = "block";
+	if (settingsButton) settingsButton.style.display = "none";
 	if (friendStuff) friendStuff.style.display = "none";
 	if (matchHistory) matchHistory.style.display = "none";
 }

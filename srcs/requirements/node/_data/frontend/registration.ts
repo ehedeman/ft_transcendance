@@ -1,7 +1,6 @@
 import { GameInfo, pageIndex } from "./frontendStructures.js";
 import { navigate } from "./index.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
-import { restoreScreen } from "./screenDisplay.js";
 
 export function showGeneralRegistrationModal() {
 	const modal = document.getElementById("generalRegistrationModal") as HTMLDivElement;
@@ -31,7 +30,7 @@ export function hideGeneralRegistrationModal() {
 	modal.style.display = "none";
 }
 
-import { restoreScreenLoggedIn } from "./screenDisplay.js";
+import { restoreScreenLoggedIn, restoreScreen } from "./screenDisplay.js";
 
 export function callRegistrationEventListeners(game:GameInfo)
 {
@@ -137,6 +136,10 @@ export function callRegistrationEventListeners(game:GameInfo)
 		// hideGeneralRegistrationModal();
 		// restoreScreen(game);
 		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
-		restoreScreenLoggedIn();
+		if (game.currentlyLoggedIn.name !== 'default') {
+			restoreScreenLoggedIn();
+		} else {
+			restoreScreen(game);
+		}
 	});
 }
