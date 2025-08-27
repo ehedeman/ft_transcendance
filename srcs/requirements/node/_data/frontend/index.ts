@@ -134,6 +134,10 @@ window.onload = function () {
 			return response.json();
 		})
 		.then(data => {
+			if (!data || !data.username) {
+				navigate(game.availablePages[pageIndex.HOME], "", game);
+				return;
+			}
 			createWebSocketConnection(data.username);
 			// get the friend list
 			getFriendList(data.username);
