@@ -7,4 +7,3 @@ what if someone forgets their password? And they are logged out? How can they re
 
 Bug: while registering players for the tornament and a player doesn't exist, it says login failed but  it still moves to the next number. And then it shows the game even though it cannot be started... pat
 
-Bug: the tournament is seriuosly bugged. It just chooses a winner right away?
