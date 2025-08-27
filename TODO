@@ -2,3 +2,5 @@
 2.when we go back the display is incorrect.
 
 You must implement validation mechanisms for forms and any user input, either on the base page if no backend is used, or on the server side if a backend is employed. // must be done at thhe end... :)
+
+what if someone forgets their password? And they are logged out? How can they recover their password? do we want to implement this?
