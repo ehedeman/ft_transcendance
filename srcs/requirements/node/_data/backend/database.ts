@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	Full_Name TEXT UNIQUE NOT NULL,
 	Alias TEXT UNIQUE NOT NULL,
-	Country TEXT UNIQUE NOT NULL,
+	Country TEXT NOT NULL,
 	password_hash TEXT NOT NULL,
 	avatar_url TEXT DEFAULT './avatars/default-avatar.png',
 	status TEXT DEFAULT 'offline',

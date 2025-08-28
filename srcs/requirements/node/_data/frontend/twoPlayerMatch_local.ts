@@ -169,6 +169,7 @@ function sendTwoPlayerMatchInvite(inviteUsername: string, game: GameInfo): void 
 		})
 		.catch(error => {
 			alert("Failed to invite user.");
+			restoreScreenLoggedIn();
 			console.error("Error inviting user:", error);
 		});
 }

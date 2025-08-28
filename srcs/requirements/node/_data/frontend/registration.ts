@@ -104,6 +104,18 @@ export function callRegistrationEventListeners(game:GameInfo)
 				formData.append("avatar", avatarFile);
 			}
 
+			// TODO: remember to uncomment this
+			// if (name.length < 7 || name.length > 50) {
+			// 	alert("Name must be between 7 and 50 characters long.");
+			// 	navigate(game.availablePages[pageIndex.HOME], "", game);
+			// 	return;
+			// }
+			if (username.length > 6) {
+				alert("Alias must be less than 6 characters long.");
+				navigate(game.availablePages[pageIndex.HOME], "", game);
+				return;
+			}
+
 			fetch("/register", 
 			{
 				method: "POST",
