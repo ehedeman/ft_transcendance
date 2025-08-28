@@ -62,6 +62,8 @@ function handleMultiplayerGameStart(data: any) {
 	startMultiplayerGame(play1, play2, play3, play4);
 }
 
+
+import { handleGameInfo } from "./remote1v1GameInterface.js"
 function handleWebSocketMessage(event: MessageEvent) {
 	const data = JSON.parse(event.data);
 	switch (data.type) {
@@ -76,6 +78,10 @@ function handleWebSocketMessage(event: MessageEvent) {
 			break;
 		case "multiplayerGameStart":
 			handleMultiplayerGameStart(data);
+			break;
+		case "gameInfo":
+			handleGameInfo(data);
+			break;
 	}
 };
 

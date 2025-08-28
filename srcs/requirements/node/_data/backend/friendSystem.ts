@@ -283,6 +283,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 				game.player2.name = invitedUser;
 				console.log('game is playing between', game.player1.name, 'and', game.player2.name);
 				game.remoteMode = true;
+				game.gameFinished = false;
 				return reply.status(200).send({ message: `Game invitation accepted by ${invitedUser}` });
 			} else {
 				return reply.status(403).send({ error: 'Game invitation declined' });

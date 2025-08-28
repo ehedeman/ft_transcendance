@@ -1,100 +1,38 @@
 import { Player } from "./frontendStructures.js"
-import { game, rounds, ctx, keysPressed } from "./index.js"
-import { showWinnerScreen } from "./tournament.js";
+import { game } from "./index.js"
 
-function drawMiddlePathRemote1v1(): void {
-	ctx.strokeStyle = "white";
-	ctx.lineWidth = 2;
-	for (let y = 0; y < game.canvas.height; y += 20) {
-		ctx.beginPath();
-		ctx.moveTo(game.canvas.width / 2, y);
-		ctx.lineTo(game.canvas.width / 2, y + 10);
-		ctx.stroke();
+import { drawGame } from "./drawGame.js"
+export function handleGameInfo(data: any) {
+	const { player1_name, player2_name, ballX, ballY, player1_y, player2_y, player1_score, player2_score, gamefinished, ballSpeedX } = data as {
+		player1_name: string;
+		player2_name: string;
+		ballX: number;
+		ballY: number;
+		player1_y: number;
+		player2_y: number;
+		player1_score: number;
+		player2_score: number;
+		gamefinished: boolean;
+		ballSpeedX: number;
+	};
+	game.ball.ballX = ballX;
+	game.ball.ballY = ballY;
+	game.player1Paddle.y = player1_y;
+	game.player2Paddle.y = player2_y;
+	if (game.players.length === 2) {
+		game.players[0].playerscore = player1_score;
+		game.players[1].playerscore = player2_score;
+	} else {
+		let player1 = new Player(player1_name);
+		player1.playerscore = player1_score;
+		let player2 = new Player(player2_name);
+		player2.playerscore = player2_score;
+		game.players.push(player1, player2);
+		game.remoteMode = true;
 	}
-}
-
-function drawCircleRemote1v1(x: number, y: number, radius: number): void {
-	ctx.beginPath();
-	ctx.arc(x, y, radius, 0, Math.PI * 2);
-	ctx.fillStyle = "white";
-	ctx.fill();
-	ctx.closePath();
-}
-
-function getGameStatusRemote1v1(): void {
-	if (!game.gamefinished) {
-		fetch("/getstatusRemote1v1")
-			.then(response => response.json())
-			.then(data => {
-				game.ball.ballX = data.ballX;
-				game.ball.ballY = data.ballY;
-				game.player1Paddle.y = data.player1_y;
-				game.player2Paddle.y = data.player2_y;
-				game.players[0].playerscore = data.player1_score;
-				game.players[1].playerscore = data.player2_score;
-				game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
-				if (data.gamefinished) {
-					fetch("/resetgameRemote1v1")
-						.then(response => response.json())
-						.then(data => {
-							game.ball.ballX = data.ballX;
-							game.ball.ballY = data.ballY;
-							game.player1Paddle.y = data.player1_y;
-							game.player2Paddle.y = data.player2_y;
-							game.players[0].playerscore = data.player1_score;
-							game.players[1].playerscore = data.player2_score;
-						});
-				}
-			});
-	}
-}
-
-function calculatePaddleCoordsRemote1v1(): void {
-	if (game.remoteMode && !game.multiplayerMode) {
-		if (keysPressed["space"]) {
-			fetch(`/pressSpaceRemote1v1?sender=${game.currentlyLoggedIn.name}`);
-		}
-		if (keysPressed["ArrowUp"]) {
-			fetch(`/pressArrowUpRemote1v1?sender=${game.currentlyLoggedIn.name}`);
-		}
-		if (keysPressed["ArrowDown"]) {
-			fetch(`/pressArrowDownRemote1v1?sender=${game.currentlyLoggedIn.name}`);
-		}
-		if (keysPressed["w"]) {
-			fetch(`/pressWRemote1v1?sender=${game.currentlyLoggedIn.name}`);
-		}
-		if (keysPressed["s"]) {
-			fetch(`/pressSRemote1v1?sender=${game.currentlyLoggedIn.name}`);
-		}
-	}
-}
-
-function drawGameRemote1v1(): void {
-	if (game.players[0].playerscore === rounds) {
-		game.players[0].gamesWon++;
-		game.players[1].gamesLost++;
-		showWinnerScreen(game, game.players[0].name);
-		game.remoteMode = false;
-	}
-	if (game.players[1].playerscore === rounds) {
-		game.players[1].gamesWon++;
-		game.players[0].gamesLost++;
-		showWinnerScreen(game, game.players[1].name);
-		game.remoteMode = false;
-	}
-	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
-	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(game.players[0].name + ": " + game.players[0].playerscore, 10, 25);
-	ctx.fillText(game.players[1].name + ": " + game.players[1].playerscore, 10, 50);
-	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
-	calculatePaddleCoordsRemote1v1();
-	drawMiddlePathRemote1v1();
-	drawCircleRemote1v1(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
-	ctx.fillStyle = "white";
-	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
-	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
-	getGameStatusRemote1v1();
-	requestAnimationFrame(drawGameRemote1v1);
+	game.gamefinished = gamefinished;
+	game.ball.ballSpeedX = ballSpeedX;
+	drawGame();
 }
 
 export function startRemote1v1Game(name1: string, name2: string): void {
@@ -102,5 +40,4 @@ export function startRemote1v1Game(name1: string, name2: string): void {
 	const player2 = new Player(name2);
 
 	game.players = [player1, player2];
-	drawGameRemote1v1();
 }

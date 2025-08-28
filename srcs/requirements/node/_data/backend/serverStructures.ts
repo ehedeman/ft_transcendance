@@ -96,6 +96,8 @@ export class GameInfo {
 
 	multiplayerName: string[];
 
+	gameFinished: boolean;
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();
@@ -127,6 +129,8 @@ export class GameInfo {
 		this.multiplayerMode = false;
 
 		this.multiplayerName = [];
+
+		this.gameFinished = true;
 	}
 }
 export type loginInfo = {
