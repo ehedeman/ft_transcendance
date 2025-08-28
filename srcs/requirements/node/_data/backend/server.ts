@@ -109,6 +109,16 @@ app.decorate("authenticate", async function (request: FastifyRequest, reply: Fas
 	}
 });
 
+function checkPasswordStrength(password: string): boolean {
+	const minLength = 8;
+	const hasUppercase = /[A-Z]/.test(password);
+	const hasLowercase = /[a-z]/.test(password);
+	const hasNumber = /\d/.test(password);
+	const hasSpecialChar = /[!@#$%^&*]/.test(password);
+
+	return password.length >= minLength && hasUppercase && hasLowercase && hasNumber && hasSpecialChar;
+}
+
 app.post("/register", async (request, reply) => {
 	const parts = request.parts();
 	let name = '', username = '', password = '', country = '';

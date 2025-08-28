@@ -84,7 +84,7 @@ export class htmlRegistration extends HTMLElement {
 						style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
 						<div>
 							<input type="text" id="registerName" name="name" placeholder="Name" required="true" />
-							<input type="text" id="registerUsername" name="username" placeholder="Username"
+							<input type="text" id="registerUsername" name="Alias" placeholder="Alias"
 								required="true" />
 							<input type="password" id="registerPassword" name="password" placeholder="Password"
 								required="true" />
@@ -125,7 +125,7 @@ export class htmlSettings extends HTMLElement {
 				<h2 id="settingsHeader"></h2>
 				<form id="settingsForm" method="post" style="flex-grow:1; display:flex; flex-direction:column; margin-bottom:10px; justify-content:space-between; align-items:center;">
 					<input type="text" id="settingsName" name="name" required="false" />
-					<input type="text" id="settingsUsername" name="username" required="false" />
+					<input type="text" id="settingsUsername" name="Alias" required="false" />
 					<input type="password" id="settingsPassword" name="password" />
 					<input type="text" id="settingsCountry" name="country" required="false" />
 
