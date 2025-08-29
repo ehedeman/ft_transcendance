@@ -95,7 +95,7 @@ function subscribeToFormEvents(game: GameInfo) {
 				hideSubmitForm();
 				game.multiplayerMode = true;
 				game.multiplayerName.push(username);
-				fetch(`multiplayerGameStart?username=${game.currentlyLoggedIn.name}
+				fetch(`/multiplayerGameStart?username=${game.currentlyLoggedIn.name}
 											&opponent1=${game.multiplayerName[0]}
 											&opponent2=${game.multiplayerName[1]}
 											&opponent3=${game.multiplayerName[2]}`)

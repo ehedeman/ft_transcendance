@@ -49,6 +49,7 @@ export function multiplayerGame(app: FastifyInstance, db: any, game: GameInfo) {
 		if (username && opponent1 && opponent2 && opponent3) {
 			game.multiplayerName.push(username, opponent1, opponent2, opponent3);
 			game.multiplayerMode = true;
+			game.gameFinished = false;
 			for (const playerName of game.multiplayerName) {
 				if (game.sockets.has(playerName)) {
 					const userSocket = game.sockets.get(playerName);

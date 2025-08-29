@@ -1,7 +1,7 @@
 import { Player } from "./frontendStructures.js"
 import { game } from "./index.js"
-
 import { drawGame } from "./drawGame.js"
+
 export function handleGameInfo(data: any) {
 	const { player1_name, player2_name, ballX, ballY, player1_y, player2_y, player1_score, player2_score, gamefinished, ballSpeedX } = data as {
 		player1_name: string;

@@ -57,13 +57,13 @@ async function handleGameInvitation(data: any) {
 import { startMultiplayerGame } from "./multiplayerGame.js";
 function handleMultiplayerGameStart(data: any) {
 	const { play1, play2, play3, play4 } = data as { play1: string, play2: string, play3: string, play4: string };
-	game.multiplayerGameStart = true;
 	console.log("Starting multiplayer game with players:", play1, play2, play3, play4);
 	startMultiplayerGame(play1, play2, play3, play4);
 }
 
 
 import { handleGameInfo } from "./remote1v1GameInterface.js"
+import { handleMultiplayerGameInfo } from "./multiplayerGame.js"
 function handleWebSocketMessage(event: MessageEvent) {
 	const data = JSON.parse(event.data);
 	switch (data.type) {
@@ -81,6 +81,9 @@ function handleWebSocketMessage(event: MessageEvent) {
 			break;
 		case "gameInfo":
 			handleGameInfo(data);
+			break;
+		case "multiplayerGameInfo":
+			handleMultiplayerGameInfo(data);
 			break;
 	}
 };

@@ -1,135 +1,60 @@
-import { game, rounds, ctx, keysPressed } from "./index.js";
+import { game } from "./index.js";
 import { Player } from "./frontendStructures.js";
-import { showWinnerScreen } from "./tournament.js";
+import { drawMultiplayerGame } from "./drawGameMultiplayer.js";
 
-function judgeGame() {
-	if (game.players[0].playerscore === rounds) {
-		game.players[0].gamesWon++;
-		game.players[1].gamesLost++;
-		game.players[2].gamesWon++;
-		game.players[3].gamesLost++;
-		showWinnerScreen(game, game.players[0].name);
-		showWinnerScreen(game, game.players[2].name);
-		game.multiplayerGameStart = false;
-		game.multiplayerMode = false;
+
+export function handleMultiplayerGameInfo(data: any) {
+	const { player1_name, player2_name, player3_name, player4_name, ballX, ballY, player1_y, player2_y, player3_y, player4_y, player1_score, player2_score, player3_score, player4_score, gamefinished, ballSpeedX } = data as {
+		player1_name: string;
+		player2_name: string;
+		player3_name: string;
+		player4_name: string;
+		ballX: number;
+		ballY: number;
+		player1_y: number;
+		player2_y: number;
+		player3_y: number;
+		player4_y: number;
+		player1_score: number;
+		player2_score: number;
+		player3_score: number;
+		player4_score: number;
+		gamefinished: boolean;
+		ballSpeedX: number;
+	};
+	game.ball.ballX = ballX;
+	game.ball.ballY = ballY;
+	game.player1Paddle.y = player1_y;
+	game.player2Paddle.y = player2_y;
+	game.player3Paddle.y = player3_y;
+	game.player4Paddle.y = player4_y;
+	if (game.players.length === 4) {
+		game.players[0].playerscore = player1_score;
+		game.players[1].playerscore = player2_score;
+		game.players[2].playerscore = player3_score;
+		game.players[3].playerscore = player4_score;
+	} else {
+		let player1 = new Player(player1_name);
+		player1.playerscore = player1_score;
+		let player2 = new Player(player2_name);
+		player2.playerscore = player2_score;
+		let player3 = new Player(player3_name);
+		player3.playerscore = player3_score;
+		let player4 = new Player(player4_name);
+		player4.playerscore = player4_score;
+		game.players.push(player1, player2, player3, player4);
+		game.multiplayerMode = true;
 	}
-	if (game.players[1].playerscore === rounds) {
-		game.players[1].gamesWon++;
-		game.players[0].gamesLost++;
-		game.players[2].gamesWon++;
-		game.players[3].gamesLost++;
-		showWinnerScreen(game, game.players[1].name);
-		showWinnerScreen(game, game.players[3].name);
-		game.multiplayerGameStart = false;
-		game.multiplayerMode = false;
-	}
-}
-
-function calculatePaddleCoordsMultiplayer(): void {
-	if (game.multiplayerMode) {
-		if (keysPressed["space"]) {
-			fetch(`/pressSpaceMultiplayer?sender=${game.currentlyLoggedIn.name}`);
-		}
-		if (keysPressed["ArrowUp"]) {
-			fetch(`/pressArrowUpMultiplayer?sender=${game.currentlyLoggedIn.name}`);
-		}
-		if (keysPressed["ArrowDown"]) {
-			fetch(`/pressArrowDownMultiplayer?sender=${game.currentlyLoggedIn.name}`);
-		}
-		if (keysPressed["w"]) {
-			fetch(`/pressWMultiplayer?sender=${game.currentlyLoggedIn.name}`);
-		}
-		if (keysPressed["s"]) {
-			fetch(`/pressSMultiplayer?sender=${game.currentlyLoggedIn.name}`);
-		}
-	}
-}
-
-function drawMiddlePathMultiplayer(): void {
-	ctx.strokeStyle = "white";
-	ctx.lineWidth = 2;
-	for (let y = 0; y < game.canvas.height; y += 20) {
-		ctx.beginPath();
-		ctx.moveTo(game.canvas.width / 2, y);
-		ctx.lineTo(game.canvas.width / 2, y + 10);
-		ctx.stroke();
-	}
-}
-
-function drawCircleMultiplayer(x: number, y: number, radius: number): void {
-	ctx.beginPath();
-	ctx.arc(x, y, radius, 0, Math.PI * 2);
-	ctx.fillStyle = "white";
-	ctx.fill();
-	ctx.closePath();
-}
-
-function getGameStatusMultiplayer(): void {
-	if (!game.gamefinished) {
-		var length = game.t.matches.length;
-		fetch("/getstatusMultiplayer")
-			.then(response => response.json())
-			.then(data => {
-				game.ball.ballX = data.ballX;
-				game.ball.ballY = data.ballY;
-				game.player1Paddle.y = data.player1_y;
-				game.player2Paddle.y = data.player2_y;
-				game.player3Paddle.y = data.player3_y;
-				game.player4Paddle.y = data.player4_y;
-				game.players[0].playerscore = data.player1_score;
-				game.players[1].playerscore = data.player2_score;
-				game.players[2].playerscore = data.player3_score;
-				game.players[3].playerscore = data.player4_score;
-				game.ball.ballSpeedX = data.ballSpeedX;// Update ball speed
-				if (data.gamefinished) {
-					fetch("/resetgameMultiplayer")
-						.then(response => response.json())
-						.then(data => {
-							game.ball.ballX = data.ballX;
-							game.ball.ballY = data.ballY;
-							game.player1Paddle.y = data.player1_y;
-							game.player2Paddle.y = data.player2_y;
-							game.player3Paddle.y = data.player3_y;
-							game.player4Paddle.y = data.player4_y;
-							game.players[0].playerscore = data.player1_score;
-							game.players[1].playerscore = data.player2_score;
-							game.players[2].playerscore = data.player3_score;
-							game.players[3].playerscore = data.player4_score;
-						});
-				}
-			});
-	}
-}
-
-function drawMultiplayerGame(): void {
-	judgeGame();
-	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
-	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(game.players[0].name + ": " + game.players[0].playerscore, 10, 25);
-	ctx.fillText(game.players[1].name + ": " + game.players[1].playerscore, 10, 50);
-	ctx.fillText(game.players[2].name + ": " + game.players[2].playerscore, 10, 75);
-	ctx.fillText(game.players[3].name + ": " + game.players[3].playerscore, 10, 100);
-	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 125); // Display ball speed
-	calculatePaddleCoordsMultiplayer();
-	drawMiddlePathMultiplayer();
-	drawCircleMultiplayer(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
-	ctx.fillStyle = "white";
-	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
-	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
-	ctx.fillRect(game.player3Paddle.x, game.player3Paddle.y, game.player3Paddle.width, game.player3Paddle.height);
-	ctx.fillRect(game.player4Paddle.x, game.player4Paddle.y, game.player4Paddle.width, game.player4Paddle.height);
-	getGameStatusMultiplayer();
-	requestAnimationFrame(drawMultiplayerGame);
+	game.gamefinished = gamefinished;
+	game.ball.ballSpeedX = ballSpeedX;
+	drawMultiplayerGame();
 }
 
 export function startMultiplayerGame(play1: string, play2: string, play3: string, play4: string) {
-	if (game.multiplayerGameStart) {
-		const player1 = new Player(play1);
-		const player2 = new Player(play2);
-		const player3 = new Player(play3);
-		const player4 = new Player(play4);
+	const player1 = new Player(play1);
+	const player2 = new Player(play2);
+	const player3 = new Player(play3);
+	const player4 = new Player(play4);
 
-		game.players = [player1, player2, player3, player4];
-		drawMultiplayerGame();
-	}
+	game.players = [player1, player2, player3, player4];
 }

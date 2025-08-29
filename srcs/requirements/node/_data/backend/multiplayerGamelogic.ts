@@ -2,7 +2,6 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { game, rounds, accaleration } from "./server.js";
 import { GameInfo } from './serverStructures.js';
 
-let gameFinished = false;
 
 function touchingPaddle1Multiplayer(): boolean {
 	return (
@@ -116,7 +115,6 @@ function resetGameMultiplayer(): void {
 	game.player3.playerscore = 0;
 	game.player4.playerscore = 0;
 	resetBallMultiplayer();
-	gameFinished = false;
 }
 
 export function interactWithMultiplayerGame(app: FastifyInstance, db: any, game: GameInfo) {
@@ -237,43 +235,109 @@ export function interactWithMultiplayerGame(app: FastifyInstance, db: any, game:
 			reply.send({ status: 'Paddle 4 moved down' });
 		}
 	});
-	app.get('/resetgameMultiplayer', async (request: FastifyRequest, reply: FastifyReply) => {
-		resetGameMultiplayer();
-		reply.type('application/json').send({
-			ballX: game.ball.ballX,
-			ballY: game.ball.ballY,
-			player1_y: game.player1Paddle.y,
-			player2_y: game.player2Paddle.y,
-			player3_y: game.player3Paddle.y,
-			player4_y: game.player4Paddle.y,
-			player1_score: game.player1.playerscore,
-			player2_score: game.player2.playerscore,
-			player3_score: game.player3.playerscore,
-			player4_score: game.player4.playerscore,
-			gamefinished: gameFinished,
-		});
-	});
+}
 
-	app.get('/getstatusMultiplayer', async (request: FastifyRequest, reply: FastifyReply) => {
-		reply.type('application/json').send({
-			ballX: game.ball.ballX,
-			ballY: game.ball.ballY,
-			player1_y: game.player1Paddle.y,
-			player2_y: game.player2Paddle.y,
-			player3_y: game.player3Paddle.y,
-			player4_y: game.player4Paddle.y,
-			player1_score: game.player1.playerscore,
-			player2_score: game.player2.playerscore,
-			player3_score: game.player3.playerscore,
-			player4_score: game.player4.playerscore,
-			gamefinished: gameFinished,
-			ballSpeedX: game.ball.ballSpeedX,
-		});
-	});
+export function sendGameinfo() {
+	if (game.sockets.has(game.player1.name)) {
+		const firstSocket = game.sockets.get(game.player1.name);
+		if (firstSocket) {
+			firstSocket.send(JSON.stringify({
+				type: 'multiplayerGameInfo',
+				player1_name: game.player1.name,
+				player2_name: game.player2.name,
+				player3_name: game.player3.name,
+				player4_name: game.player4.name,
+				ballX: game.ball.ballX,
+				ballY: game.ball.ballY,
+				player1_y: game.player1Paddle.y,
+				player2_y: game.player2Paddle.y,
+				player3_y: game.player3Paddle.y,
+				player4_y: game.player4Paddle.y,
+				player1_score: game.player1.playerscore,
+				player2_score: game.player2.playerscore,
+				player3_score: game.player3.playerscore,
+				player4_score: game.player4.playerscore,
+				gamefinished: game.gameFinished,
+				ballSpeedX: game.ball.ballSpeedX,
+			}));
+		}
+	}
+	if (game.sockets.has(game.player2.name)) {
+		const secondSocket = game.sockets.get(game.player2.name);
+		if (secondSocket) {
+			secondSocket.send(JSON.stringify({
+				type: 'multiplayerGameInfo',
+				player1_name: game.player1.name,
+				player2_name: game.player2.name,
+				player3_name: game.player3.name,
+				player4_name: game.player4.name,
+				ballX: game.ball.ballX,
+				ballY: game.ball.ballY,
+				player1_y: game.player1Paddle.y,
+				player2_y: game.player2Paddle.y,
+				player3_y: game.player3Paddle.y,
+				player4_y: game.player4Paddle.y,
+				player1_score: game.player1.playerscore,
+				player2_score: game.player2.playerscore,
+				player3_score: game.player3.playerscore,
+				player4_score: game.player4.playerscore,
+				gamefinished: game.gameFinished,
+				ballSpeedX: game.ball.ballSpeedX,
+			}));
+		}
+	}
+	if (game.sockets.has(game.player3.name)) {
+		const thirdSocket = game.sockets.get(game.player3.name);
+		if (thirdSocket) {
+			thirdSocket.send(JSON.stringify({
+				type: 'multiplayerGameInfo',
+				player1_name: game.player1.name,
+				player2_name: game.player2.name,
+				player3_name: game.player3.name,
+				player4_name: game.player4.name,
+				ballX: game.ball.ballX,
+				ballY: game.ball.ballY,
+				player1_y: game.player1Paddle.y,
+				player2_y: game.player2Paddle.y,
+				player3_y: game.player3Paddle.y,
+				player4_y: game.player4Paddle.y,
+				player1_score: game.player1.playerscore,
+				player2_score: game.player2.playerscore,
+				player3_score: game.player3.playerscore,
+				player4_score: game.player4.playerscore,
+				gamefinished: game.gameFinished,
+				ballSpeedX: game.ball.ballSpeedX,
+			}));
+		}
+	}
+	if (game.sockets.has(game.player4.name)) {
+		const fourthSocket = game.sockets.get(game.player4.name);
+		if (fourthSocket) {
+			fourthSocket.send(JSON.stringify({
+				type: 'multiplayerGameInfo',
+				player1_name: game.player1.name,
+				player2_name: game.player2.name,
+				player3_name: game.player3.name,
+				player4_name: game.player4.name,
+				ballX: game.ball.ballX,
+				ballY: game.ball.ballY,
+				player1_y: game.player1Paddle.y,
+				player2_y: game.player2Paddle.y,
+				player3_y: game.player3Paddle.y,
+				player4_y: game.player4Paddle.y,
+				player1_score: game.player1.playerscore,
+				player2_score: game.player2.playerscore,
+				player3_score: game.player3.playerscore,
+				player4_score: game.player4.playerscore,
+				gamefinished: game.gameFinished,
+				ballSpeedX: game.ball.ballSpeedX,
+			}));
+		}
+	}
 }
 
 export function updateMultiplayerGame(db: any): void {
-	if (!gameFinished && game.multiplayerMode) {
+	if (!game.gameFinished && game.multiplayerMode) {
 		if (game.player1.playerscore === rounds) {
 			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
 			stmt.run(game.player1.name);
@@ -285,7 +349,7 @@ export function updateMultiplayerGame(db: any): void {
 			stmt.run(game.player4.name);
 			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, player3, player4, winner, loser, score_player1, score_player2, score_player3, score_player4, matchType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			stmt.run(game.player1.name, game.player2.name, game.player3.name, game.player4.name, game.player1.name + ' & ' + game.player3.name, game.player2.name + ' & ' + game.player4.name, game.player1.playerscore, game.player2.playerscore, game.player3.playerscore, game.player4.playerscore, 'multiplayer');
-			gameFinished = true;
+			game.gameFinished = true;
 			game.multiplayerMode = false;
 		}
 		if (game.player2.playerscore === rounds) {
@@ -299,9 +363,13 @@ export function updateMultiplayerGame(db: any): void {
 			stmt.run(game.player3.name);
 			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, player3, player4, winner, loser, score_player1, score_player2, score_player3, score_player4, matchType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			stmt.run(game.player1.name, game.player2.name, game.player3.name, game.player4.name, game.player2.name + ' & ' + game.player4.name, game.player1.name + ' & ' + game.player3.name, game.player2.playerscore, game.player1.playerscore, game.player4.playerscore, game.player3.playerscore, 'multiplayer');
-			gameFinished = true;
+			game.gameFinished = true;
 			game.multiplayerMode = false;
 		}
 		calculateBallCoordsMultiplayer();
+		sendGameinfo();
+		if (game.gameFinished) {
+			resetGameMultiplayer();
+		}
 	}
 }

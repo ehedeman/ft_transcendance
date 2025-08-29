@@ -175,6 +175,8 @@ export function sendGameinfo() {
 		if (secondSocket) {
 			secondSocket.send(JSON.stringify({
 				type: 'gameInfo',
+				player1_name: game.player1.name,
+				player2_name: game.player2.name,
 				ballX: game.ball.ballX,
 				ballY: game.ball.ballY,
 				player1_y: game.player1Paddle.y,
@@ -189,7 +191,7 @@ export function sendGameinfo() {
 }
 
 export function updateRemote1v1Game(db: any): void {
-	if (!game.gameFinished && game.remoteMode) {
+	if (!game.gameFinished && game.remoteMode && !game.multiplayerMode) {
 		if (game.player1.playerscore === rounds) {
 			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
 			stmt.run(game.player1.name);
