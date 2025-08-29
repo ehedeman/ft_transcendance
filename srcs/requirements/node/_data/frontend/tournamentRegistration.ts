@@ -102,8 +102,7 @@ export function callTournamentEventListeners(game: GameInfo) {
 
 	document.getElementById("tournamentResetButton")?.addEventListener("click", () => {
 		tournamentEnd(0, game);
-		restoreScreen(game);
-
+		restoreScreenLoggedIn();
 	});
 
 	document.getElementById("CancelGeneralTournament")?.addEventListener("click", () => {
