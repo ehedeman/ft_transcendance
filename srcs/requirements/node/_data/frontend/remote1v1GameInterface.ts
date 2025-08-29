@@ -83,16 +83,35 @@ function drawGameRemote1v1(): void {
 		game.remoteMode = false;
 	}
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
-	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(game.players[0].name + ": " + game.players[0].playerscore, 10, 25);
-	ctx.fillText(game.players[1].name + ": " + game.players[1].playerscore, 10, 50);
-	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
+	const playerColors = ["#ff4c4c", "#4c4cff"]; // Player1 = red, Player2 = blue
+	ctx.font = "20px Arial";
+	for (let i = 0; i < 2; i++) {
+		ctx.fillStyle = playerColors[i];
+		ctx.fillText(
+			`${game.players[i].name}: ${game.players[i].playerscore}`,
+			10,
+			25 + i * 25
+		);
+	}
+	ctx.fillStyle = "white";
+	ctx.fillText(
+		"ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0),
+		10,
+		75
+	);
 	calculatePaddleCoordsRemote1v1();
 	drawMiddlePathRemote1v1();
 	drawCircleRemote1v1(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
-	ctx.fillStyle = "white";
-	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
-	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
+	const paddles = [game.player1Paddle, game.player2Paddle];
+	for (let i = 0; i < paddles.length; i++) {
+		ctx.fillStyle = playerColors[i];
+		ctx.fillRect(
+			paddles[i].x,
+			paddles[i].y,
+			paddles[i].width,
+			paddles[i].height
+		);
+	}
 	getGameStatusRemote1v1();
 	requestAnimationFrame(drawGameRemote1v1);
 }

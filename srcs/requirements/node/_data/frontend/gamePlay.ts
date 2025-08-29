@@ -124,38 +124,79 @@ function singlePlayerGame(): void {
 		game.gamefinished = false;
 	}
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
-	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(game.players[0].name + ": " + game.players[0].playerscore, 10, 25);
-	ctx.fillText(game.players[1].name + ": " + game.players[1].playerscore, 10, 50);
-	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
+	const playerColors = ["#00ccff", "#ffcc00"];
+	ctx.font = "20px Arial";
+	for (let i = 0; i < 2; i++) {
+		ctx.fillStyle = playerColors[i];
+		ctx.fillText(
+			`${game.players[i].name}: ${game.players[i].playerscore}`,
+			10,
+			25 + i * 25
+		);
+	}
+	ctx.fillStyle = "white";
+	ctx.fillText(
+		"ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0),
+		10,
+		75
+	);
 	calculatePaddleCoords(game);
 	drawMiddlePath();
 	drawCircle(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
-	ctx.fillStyle = "white";
-	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
-	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
+	const paddles = [game.player1Paddle, game.player2Paddle];
+	for (let i = 0; i < paddles.length; i++) {
+		ctx.fillStyle = playerColors[i];
+		ctx.fillRect(
+			paddles[i].x,
+			paddles[i].y,
+			paddles[i].width,
+			paddles[i].height
+		);
+	}
 	getGameStatus();
 }
 
 function tournamentGame(): number {
 	getGameStatus();
 	if (tournamentLogic(game) === 1)
-		return (0);
-	var length = game.t.matches.length;
+		return 0;
+	const length = game.t.matches.length;
 	if (game.t.stage === TournamentStage.Complete)
 		return 1;
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
-	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(game.t.matches[length - 1].player1.name + ": " + game.t.matches[length - 1].player1.score, 10, 25);
-	ctx.fillText(game.t.matches[length - 1].player2.name + ": " + game.t.matches[length - 1].player2.score, 10, 50);
-	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
+	const playerColors = ["#00ccff", "#ffcc00"];
+	ctx.font = "20px Arial";
+	ctx.fillStyle = playerColors[0];
+	ctx.fillText(
+		`${game.t.matches[length - 1].player1.name}: ${game.t.matches[length - 1].player1.score}`,
+		10,
+		25
+	);
+	ctx.fillStyle = playerColors[1];
+	ctx.fillText(
+		`${game.t.matches[length - 1].player2.name}: ${game.t.matches[length - 1].player2.score}`,
+		10,
+		50
+	);
+	ctx.fillStyle = "white";
+	ctx.fillText(
+		"ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0),
+		10,
+		75
+	);
 	calculatePaddleCoords(game);
 	drawMiddlePath();
 	drawCircle(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
-	ctx.fillStyle = "white";
-	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
-	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
-
+	const paddles = [game.player1Paddle, game.player2Paddle];
+	for (let i = 0; i < paddles.length; i++) {
+		ctx.fillStyle = playerColors[i];
+		ctx.fillRect(
+			paddles[i].x,
+			paddles[i].y,
+			paddles[i].width,
+			paddles[i].height
+		);
+	}
 	return 0;
 }
 
