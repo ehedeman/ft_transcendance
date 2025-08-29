@@ -5,6 +5,6 @@ You must implement validation mechanisms for forms and any user input, either on
 
 what if someone forgets their password? And they are logged out? How can they recover their password? do we want to implement this?  pat
 
-Bug: while registering players for the tornament and a player doesn't exist, it says login failed but  it still moves to the next number. And then it shows the game even though it cannot be started... pat
-
 ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: "The tournament system should be able to notify users about the next game"
+
+the tournament will not have the history match

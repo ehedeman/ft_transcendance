@@ -161,7 +161,7 @@ function tournamentGame(): number {
 
 export function updateGame(): void {
 	if (!game.t.finishScreenRunning && game.t.stage !== TournamentStage.Registration && !game.remoteMode && !game.multiplayerMode && !game.multiplayerGameStart) {
-		if (game.players.length >= 2 && !game.tournamentLoopActive && !game.remoteMode && !game.multiplayerMode && !game.multiplayerGameStart) {
+		if (game.players.length === 2 && !game.tournamentLoopActive && !game.remoteMode && !game.multiplayerMode && !game.multiplayerGameStart) {
 			console.log("Single Player Game");
 			singlePlayerGame();
 		}
