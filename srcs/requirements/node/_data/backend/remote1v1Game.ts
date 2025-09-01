@@ -184,6 +184,7 @@ export function interactWithRemote1v1Game(app: FastifyInstance, db: any, game: G
 
 export function updateRemote1v1Game(db: any): void {
 	if (!gameFinished && game.remoteMode) {
+		game.gameRunning = true;
 		if (game.player1.playerscore === rounds) {
 			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
 			stmt.run(game.player1.name);

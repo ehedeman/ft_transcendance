@@ -95,6 +95,7 @@ export function updateGame(db: any): void {
 			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, player3, player4, winner, loser, score_player1, score_player2, score_player3, score_player4, matchType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			stmt.run(game.player1.name, game.player2.name, 'null', 'null', game.player1.name, game.player2.name, game.player1.playerscore, game.player2.playerscore, 0, 0, 'local');
 			gameFinished = true;
+			game.gameRunning = false;
 			game.localMode = false;
 		}
 		if (game.player2.playerscore === rounds) {
@@ -106,6 +107,7 @@ export function updateGame(db: any): void {
 			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, player3, player4, winner, loser, score_player1, score_player2, score_player3, score_player4, matchType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			stmt.run(game.player1.name, game.player2.name, 'null', 'null', game.player2.name, game.player1.name, game.player2.playerscore, game.player1.playerscore, 0, 0, 'local');
 			gameFinished = true;
+			game.gameRunning = false;
 			game.localMode = false;
 		}
 		calculateBallCoords();
@@ -181,6 +183,7 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 
 	app.get('/localMode', async (request: FastifyRequest, reply: FastifyReply) => {
 		game.localMode = true;
+		game.gameRunning = true;
 		reply.send({ status: 'Local mode activated' });
 	});
 
@@ -192,5 +195,12 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 	app.get('/tournamentContinue', async (request: FastifyRequest, reply: FastifyReply) => {
 		game.localMode = true;
 		reply.send({ status: 'Tournament continued' });
+	});
+
+	app.get('/safeToStartGame', async (request: FastifyRequest, reply: FastifyReply) => {
+		if (game.gameRunning)
+			reply.send({ status: 'Game Running'});
+		else if (!game.gameRunning)
+			reply.send({ status: 'Game Not Running'});
 	});
 }

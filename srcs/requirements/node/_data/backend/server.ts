@@ -393,6 +393,7 @@ app.get('/keepLogin', { preValidation: [app.authenticate] }, async (request: Fas
 		const username = decoded.username;
 		const stmt = db.prepare(`UPDATE users SET status = 'online' WHERE Full_Name = ?`);
 		stmt.run(username);
+		game.gameRunning = false;
 		return { username: username };
 	} catch (err) {
 		reply.status(401).send({ status: 401, message: 'Invalid token' });
@@ -404,3 +405,4 @@ app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
 	if (err) throw err;
 	console.log(`Server running at ${address}`);
 });
+

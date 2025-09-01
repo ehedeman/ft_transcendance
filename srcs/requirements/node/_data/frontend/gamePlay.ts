@@ -11,21 +11,41 @@ export function callGameEventListeners(game: GameInfo) {
 		if (playSelect)
 			playSelect.selectedIndex = 0;
 		if (selectedOption) {
-			switch (selectedOption) {
-				case "tournament":
-					navigate(game.availablePages[pageIndex.TOURNAMENT], "", game);
-					// tournamentStart(game);
-					break;
-				case "multiplayer":
-					navigate(game.availablePages[pageIndex.MULTIPLAYER], "", game);
-					break
-				case "1v1":
-					navigate(game.availablePages[pageIndex.MATCH], "", game);
-					// twoPlayerMatchStart(game);
-					break
-				default:
-					break;
-			}
+			fetch("/safeToStartGame")
+			.then(response => response.json())
+			.then(data =>
+			{
+				if (data.status === "Game Running")
+				{
+					alert("Game already running. Please wait and try again later.");
+					navigate(game.availablePages[pageIndex.HOME], "", game);
+					restoreScreenLoggedIn();
+					return;
+				}
+				else
+				{
+					console.log("that shit's broken");
+					switch (selectedOption) {
+						case "tournament":
+							navigate(game.availablePages[pageIndex.TOURNAMENT], "", game);
+							// tournamentStart(game);
+							break;
+						case "multiplayer":
+							navigate(game.availablePages[pageIndex.MULTIPLAYER], "", game);
+							break
+						case "1v1":
+							navigate(game.availablePages[pageIndex.MATCH], "", game);
+							// twoPlayerMatchStart(game);
+							break
+						default:
+							break;
+					}
+				}
+			})
+			.catch(error => {
+				console.error("Error checking game status:", error);
+				return ;
+			});
 		}
 	});
 }
@@ -215,6 +235,7 @@ export function updateGame(): void {
 
 import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
 import { getUserInfoAndCreateUserInterface, getUserMatchHistory, hideGeneralLoginModal } from "./login.js";
+import { restoreScreen, restoreScreenLoggedIn } from './screenDisplay.js';
 
 export function clickWinnerScreenContinue(game: GameInfo) {
 	document.getElementById("WinnerScreenContinue")?.addEventListener("click", () => {

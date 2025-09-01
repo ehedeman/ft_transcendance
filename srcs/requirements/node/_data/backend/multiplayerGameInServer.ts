@@ -70,6 +70,7 @@ export function multiplayerGame(app: FastifyInstance, db: any, game: GameInfo) {
 			game.player2.name = opponent1;
 			game.player3.name = opponent2;
 			game.player4.name = opponent3;
+			game.gameRunning = true;
 			return reply.status(200).send({ message: "Multiplayer game started" });
 		} else {
 			return reply.status(400).send({ error: "Missing parameters" });
