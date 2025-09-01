@@ -4,7 +4,7 @@ import { restoreScreen } from "./screenDisplay.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
 import { handleKeydown, handleKeyup, navigate } from "./index.js";
 
-function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin | null> {
+function registerPlayer(i: number, game: GameInfo, players: PlayerLogin[]): Promise<PlayerLogin | null> {
 	return new Promise((resolve) => {
 		const tournamentForm = document.getElementById("tournamentRegistrationForm") as HTMLFormElement;
 		showtournamentRegistrationModal(i);
@@ -33,9 +33,16 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin | null> 
 						resolve(null);
 						return;
 					}
-					alert("Login successful!");
+					if (checkDoubleLogin(players, loginPlayer))
+					{
+						alert("Player alreayd logged in!");
+					}
+					else
+					{
+						alert("Login successful!");
+						game.t.players.push({ name: username, score: 0 });
+					}
 					emptyLoginFields("loginTournament");
-					game.t.players.push({ name: username, score: 0 });
 					hidetournamentRegistrationModal();
 					resolve(loginPlayer);
 				})
@@ -43,13 +50,32 @@ function registerPlayer(i: number, game: GameInfo): Promise<PlayerLogin | null> 
 	});
 }
 
+function	checkDoubleLogin(players: PlayerLogin[], newPlayer: PlayerLogin): boolean
+{
+	for (let index = 0; index < players.length; index++) {
+		if( newPlayer.username === players[index].username)
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
 export async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 	const players: PlayerLogin[] = [];
 	for (let i = 1; i <= 4; i++) {
-		const player = await registerPlayer(i, game);
-		console.log("Registered player:", player);
+		console.log("current iteration: " + i);
+		const player = await registerPlayer(i, game, players);
+		if (player)
+		{
+			if (checkDoubleLogin(players, player))
+			{
+				i = i - 1;
+				continue ;
+			}
+		}
 		if (!player || !player.username || !player.password) break;
+		console.log("Registered player:", player);
 		players.push(player);
 		game.players.push({ name: players[players.length - 1].username, gamesLost: 0, gamesWon: 0, playerscore: 0 });
 	}
