@@ -4,6 +4,9 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 export function multiplayerGame(app: FastifyInstance, db: any, game: GameInfo) {
 	app.get("/multiplayer", async (req: FastifyRequest, reply: FastifyReply) => {
 		const { invitedUser, username } = req.query as { invitedUser: string, username: string };
+		if (game.localMode || game.remoteMode || game.multiplayerMode || game.tournamentLoopActive) {
+			return reply.status(403).send({ error: 'Game is already in progress' });
+		}
 		if (game.sockets.has(invitedUser)) {
 			const inviteUserSocket = game.sockets.get(invitedUser);
 			if (!inviteUserSocket) {

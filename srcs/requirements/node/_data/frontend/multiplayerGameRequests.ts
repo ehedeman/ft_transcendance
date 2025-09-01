@@ -102,6 +102,7 @@ function subscribeToFormEvents(game: GameInfo) {
 											.then(response => {
 												if (!response.ok) {
 													alert("Failed to start multiplayer game");
+													restoreScreenLoggedIn();
 													return;
 												}
 											});
