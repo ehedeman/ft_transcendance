@@ -97,8 +97,9 @@ export function hideEverything(){
 	const registerButton = document.getElementById("registerButton");
 	const playSelect = document.getElementById("playSelect");
 	const loginButton = document.getElementById("loginButton");
+	const logoutButton = document.getElementById("logoutButton");
 	const WinnerScreen = document.getElementById("WinnerScreen");
-	const message = document.getElementById("message");
+	const message = document.getElementById("messages");
 	const matchHistory = document.getElementById("matchHistory");
 	const tournamentRegistrationModal = document.getElementById("tournamentRegistrationModal");
 	const tournamentResults = document.getElementById("tournamentResults");
@@ -106,7 +107,7 @@ export function hideEverything(){
 	const tournamentResetButton = document.getElementById("tournamentResetButton");
 	const generalLoginModal = document.getElementById("generalLoginModal");
 	const generalRegistrationModal = document.getElementById("generalRegistrationModal");
-	const settings = document.getElementById("settings");
+	const settings = document.getElementById("settingsButton");
 	const friendStuff = document.getElementById("friendStuff");
 	const addFriend = document.getElementById("addFriend");
 	const twoPlayerMatchContainer = document.getElementById("twoPlayerMatchContainer");
@@ -117,6 +118,7 @@ export function hideEverything(){
 	const multiplayerMatchInviteForm2 = document.getElementById("multiplayerMatchInviteForm2");
 	const multiplayerMatchInviteForm3 = document.getElementById("multiplayerMatchInviteForm3");
 	if (registerButton) registerButton.style.display = "none";
+	if (logoutButton) logoutButton.style.display = "none";
 	if (playSelect) playSelect.style.display = "none";
 	if (loginButton) loginButton.style.display = "none";
 	if (WinnerScreen) WinnerScreen.style.display = "none";

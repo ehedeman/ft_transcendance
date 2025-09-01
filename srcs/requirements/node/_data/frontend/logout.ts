@@ -1,4 +1,5 @@
 import { GameInfo } from "./frontendStructures.js";
+import { ctx } from "./index.js";
 import { restoreScreen } from "./screenDisplay.js";
 
 function logout(game:GameInfo)
@@ -49,5 +50,6 @@ export function callLogoutEventListeners(game: GameInfo)
 {
 	document.getElementById("logoutButton")?.addEventListener("click", () => {	
 		logout(game);
+		ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	});
 }
