@@ -1,6 +1,7 @@
 import { game } from "./index.js";
 import { Player } from "./frontendStructures.js";
 import { drawMultiplayerGame } from "./drawGameMultiplayer.js";
+import { hideEverything } from "./screenDisplay.js";
 
 
 export function handleMultiplayerGameInfo(data: any) {
@@ -44,6 +45,7 @@ export function handleMultiplayerGameInfo(data: any) {
 		player4.playerscore = player4_score;
 		game.players.push(player1, player2, player3, player4);
 		game.multiplayerMode = true;
+		hideEverything();
 	}
 	game.gamefinished = gamefinished;
 	game.ball.ballSpeedX = ballSpeedX;

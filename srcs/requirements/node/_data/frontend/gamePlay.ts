@@ -72,6 +72,7 @@ export function clickWinnerScreenContinue(game: GameInfo) {
 }
 
 import { Player } from "./frontendStructures.js"
+import { hideEverything } from './screenDisplay.js';
 export function handleLocalGameInfo(data: any) {
 	const { player1_name, player1_score, player2_name, player2_score, ballSpeedX, ballX, ballY, player1_y, player2_y, gamefinished } = data as {
 		player1_name: string;
@@ -99,6 +100,7 @@ export function handleLocalGameInfo(data: any) {
 		player2.playerscore = player2_score;
 		game.players.push(player1, player2);
 		game.localMode = true;
+		hideEverything();
 	}
 	game.gamefinished = gamefinished;
 	game.ball.ballSpeedX = ballSpeedX;

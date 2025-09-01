@@ -1,6 +1,7 @@
 import { Player } from "./frontendStructures.js"
 import { game } from "./index.js"
 import { drawGame } from "./drawGame.js"
+import { hideEverything } from "./screenDisplay.js";
 
 export function handleGameInfo(data: any) {
 	const { player1_name, player2_name, ballX, ballY, player1_y, player2_y, player1_score, player2_score, gamefinished, ballSpeedX } = data as {
@@ -29,6 +30,7 @@ export function handleGameInfo(data: any) {
 		player2.playerscore = player2_score;
 		game.players.push(player1, player2);
 		game.remoteMode = true;
+		hideEverything();
 	}
 	game.gamefinished = gamefinished;
 	game.ball.ballSpeedX = ballSpeedX;

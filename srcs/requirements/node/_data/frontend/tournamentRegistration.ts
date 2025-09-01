@@ -43,6 +43,7 @@ function registerPlayer(i: number, game: GameInfo, players: PlayerLogin[]): Prom
 						game.t.players.push({ name: username, score: 0 });
 					}
 					emptyLoginFields("loginTournament");
+					game.t.players.push({ name: username, score: 0 });
 					hidetournamentRegistrationModal();
 					resolve(loginPlayer);
 				})
@@ -81,7 +82,20 @@ export async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 		game.tournamentLoopActive = true;
 		document.addEventListener("keydown", handleKeydown);
 		document.addEventListener("keyup", handleKeyup);
-		tournamentPlayGame(game);
+		fetch("/startTournament")
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("Failed to start tournament");
+			}
+			return response.json();
+		})
+		.then(data => {
+			console.log("Tournament started:", data);
+			tournamentPlayGame(game);
+		})
+		.catch(error => {
+			console.error("Error starting tournament:", error);
+		});
 	} else {
 		game.players.splice(0, game.players.length);
 		tournamentEnd(0, game);
@@ -117,6 +131,19 @@ import { restoreScreenLoggedIn } from "./screenDisplay.js";
 export function callTournamentEventListeners(game: GameInfo) {
 	document.getElementById("tournamentFinishContinue")?.addEventListener("click", () => {
 		game.t.finishScreenRunning = false;
+		fetch("/endTournament")
+			.then(response => {
+				if (!response.ok) {
+					throw new Error("Failed to end tournament");
+				}
+				return response.json();
+			})
+			.then(data => {
+				console.log("Tournament ended:", data);
+			})
+			.catch(error => {
+				console.error("Error ending tournament:", error);
+			});
 		tournamentEnd(0, game);
 		restoreScreenLoggedIn();
 	});
