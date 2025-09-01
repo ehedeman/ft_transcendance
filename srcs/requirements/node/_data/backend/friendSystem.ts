@@ -216,7 +216,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		const losses = user.losses;
 
 		const picPath = user.avatar_url;
-		reply.send({ onlineStatus: status, avatarUrl: picPath, win: wins, lose: losses, this: "is just a test", that: "is also a test", these: "are also tests", those: "are also tests" });
+		reply.send({ onlineStatus: status, avatarUrl: picPath, win: wins, lose: losses });
 	});
 
 	app.get("/blockUser", { preValidation: [app.authenticate] }, async (request, reply) => {
@@ -258,6 +258,9 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			return reply.status(404).send({ error: 'User not online' });
 		}
 
+		if (game.localMode || game.remoteMode || game.multiplayerMode || game.tournamentLoopActive) {
+			return reply.status(403).send({ error: 'Game is already in progress' });
+		}
 		// Send invitation
 		inviteUserSocket.send(JSON.stringify({
 			type: 'gameInvitation',
