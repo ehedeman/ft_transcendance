@@ -216,7 +216,7 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 		const losses = user.losses;
 
 		const picPath = user.avatar_url;
-		reply.send({ onlineStatus: status, avatarUrl: picPath, win: wins, lose: losses, this: "is just a test", that: "is also a test", these: "are also tests", those: "are also tests" });
+		reply.send({ onlineStatus: status, avatarUrl: picPath, win: wins, lose: losses });
 	});
 
 	app.get("/blockUser", { preValidation: [app.authenticate] }, async (request, reply) => {

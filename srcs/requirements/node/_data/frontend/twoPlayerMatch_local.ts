@@ -252,6 +252,7 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 		restoreScreenLoggedIn();
 		fetch("/endLocalMode");
 	});
+
 	document.getElementById("twoPlayerMatchInviteSubmit")?.addEventListener("click", (event: Event) => {
 		event.preventDefault();
 
@@ -259,6 +260,10 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 		const inviteUsername = usernameInput.value.trim();
 		if (!inviteUsername) {
 			alert("Please enter a friend's username.");
+			return;
+		}
+		if (inviteUsername === game.currentlyLoggedIn.name) {
+			alert("You cannot invite yourself.");
 			return;
 		}
 		sendTwoPlayerMatchInvite(inviteUsername, game);

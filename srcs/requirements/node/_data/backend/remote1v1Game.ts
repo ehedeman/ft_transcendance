@@ -40,7 +40,9 @@ function calculateBallCoordsRemote1v1(): void {
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
-		game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
+		if (game.ball.ballSpeedY < 20) {
+			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random(); // Add some randomness to vertical speed
+		}
 	} else if (touchingPaddle2Remote1v1() && game.ball.ballSpeedX < 0) {
 		// ballSpeedX *= -1 - accaleration;
 		if (game.ball.ballSpeedX > -30) {
@@ -48,7 +50,9 @@ function calculateBallCoordsRemote1v1(): void {
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
-		game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
+		if (game.ball.ballSpeedY < 20) {
+			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
+		}
 	}
 
 	// Check if ball passed player1 (left side)
