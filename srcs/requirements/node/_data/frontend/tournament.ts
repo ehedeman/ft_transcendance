@@ -3,7 +3,7 @@ import { GameInfo, pageIndex, TournamentPlayer, TournamentStage } from "./fronte
 // import { rounds } from "./server.js";
 import { handleKeydown, handleKeyup } from "./index.js";
 import { tournamentRegisterPlayers } from "./tournamentRegistration.js";
-import { hideEverything } from "./screenDisplay.js";
+import { hideEverything, restoreScreenLoggedIn } from "./screenDisplay.js";
 
 type tournamentPlacements = {
 	username: string;
@@ -225,10 +225,11 @@ export function tournamentStart(game: GameInfo) {
 		.then(response => {
 			if (!response.ok) {
 				alert("Failed to start tournament. Please try again.");
+				restoreScreenLoggedIn();
 				return;
 			}
+			tournamentRegisterPlayers(game);
 		});
-	tournamentRegisterPlayers(game);
 }
 
 export function tournamentLogic(game: GameInfo): number {

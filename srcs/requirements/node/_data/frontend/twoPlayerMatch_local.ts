@@ -50,11 +50,12 @@ function localMatch(game: GameInfo): void {
 		.then(response => {
 			if (!response.ok) {
 				alert("Failed to start local match. Please try again.");
+				restoreScreenLoggedIn();
 				return;
 			}
+			hideTwoPlayerMatchSelect();
+			showGuestPlayerButtons();
 		});
-	hideTwoPlayerMatchSelect();
-	showGuestPlayerButtons();
 }
 
 function showTwoPlayerMatchInviteForm() {

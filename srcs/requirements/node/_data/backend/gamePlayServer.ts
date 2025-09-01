@@ -196,6 +196,9 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 
 	app.get('/localMode', async (request: FastifyRequest, reply: FastifyReply) => {
 		const { sender } = request.query as { sender: string };
+		if (game.localMode || game.remoteMode || game.multiplayerMode || game.tournamentLoopActive) {
+			return reply.status(403).send({ error: 'Game is already in progress' });
+		}
 		game.localGameSender = sender;
 		game.localMode = true;
 		reply.send({ status: 'Local mode activated' });
