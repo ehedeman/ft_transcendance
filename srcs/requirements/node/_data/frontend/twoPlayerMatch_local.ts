@@ -46,7 +46,7 @@ function showLogin() {
 }
 
 function localMatch(game: GameInfo): void {
-	fetch("/localMode")
+	fetch(`/localMode?sender=${game.currentlyLoggedIn.name}`)
 		.then(response => {
 			if (!response.ok) {
 				alert("Failed to start local match. Please try again.");
@@ -142,6 +142,7 @@ async function loginTotwoPlayerMatch(game: GameInfo): Promise<boolean> {
 				return response.json();
 			})
 			.then(data => {
+				game.localMode = true;
 				console.log("Player added to game:", data);
 			})
 			.catch(error => {
@@ -217,6 +218,7 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 				return response.json();
 			})
 			.then(data => {
+				game.localMode = true;
 				console.log("Player added to game:", data);
 			})
 			.catch(error => {

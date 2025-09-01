@@ -2,7 +2,6 @@ import { game, rounds, accaleration } from "./server.js";
 import { GameInfo } from "./serverStructures.js";
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 
-let gameFinished = false;
 function touchingPaddle1(): boolean {
 	return (
 		game.ball.ballX - game.ball.ballRadius < game.player1Paddle.x + game.player1Paddle.width &&
@@ -77,11 +76,31 @@ function resetGame(): void {
 	game.player1.playerscore = 0;
 	game.player2.playerscore = 0;
 	resetBall();
-	gameFinished = false;
+}
+
+function sendGameinfo() {
+	if (game.sockets.has(game.localGameSender)) {
+		const socket = game.sockets.get(game.localGameSender);
+		if (socket) {
+			socket.send(JSON.stringify({
+				type: "localGameInfo",
+				player1_name: game.player1.name,
+				player2_name: game.player2.name,
+				ballX: game.ball.ballX,
+				ballY: game.ball.ballY,
+				player1_y: game.player1Paddle.y,
+				player2_y: game.player2Paddle.y,
+				player1_score: game.player1.playerscore,
+				player2_score: game.player2.playerscore,
+				gamefinished: game.gameFinished,
+				ballSpeedX: game.ball.ballSpeedX,
+			}));
+		}
+	}
 }
 
 export function updateGame(db: any): void {
-	if (game.localMode && !gameFinished && !game.remoteMode && !game.multiplayerMode) {
+	if (game.localMode && !game.gameFinished && !game.remoteMode && !game.multiplayerMode) {
 		if (game.player1.playerscore === rounds) {
 			console.log('player1 name:', game.player1.name);
 			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
@@ -90,7 +109,7 @@ export function updateGame(db: any): void {
 			stmt.run(game.player2.name);
 			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, player3, player4, winner, loser, score_player1, score_player2, score_player3, score_player4, matchType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			stmt.run(game.player1.name, game.player2.name, 'null', 'null', game.player1.name, game.player2.name, game.player1.playerscore, game.player2.playerscore, 0, 0, 'local');
-			gameFinished = true;
+			game.gameFinished = true;
 			game.localMode = false;
 		}
 		if (game.player2.playerscore === rounds) {
@@ -101,10 +120,14 @@ export function updateGame(db: any): void {
 			stmt.run(game.player1.name);
 			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, player3, player4, winner, loser, score_player1, score_player2, score_player3, score_player4, matchType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			stmt.run(game.player1.name, game.player2.name, 'null', 'null', game.player2.name, game.player1.name, game.player2.playerscore, game.player1.playerscore, 0, 0, 'local');
-			gameFinished = true;
+			game.gameFinished = true;
 			game.localMode = false;
 		}
 		calculateBallCoords();
+		sendGameinfo();
+		if (game.gameFinished) {
+			resetGame();
+		}
 	}
 }
 
@@ -142,40 +165,17 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 		reply.send({ status: 'Paddle 2 moved down' });
 	});
 
-	app.get('/resetgame', async (request: FastifyRequest, reply: FastifyReply) => {
-		resetGame();
-		reply.type('application/json').send({
-			ballX: game.ball.ballX,
-			ballY: game.ball.ballY,
-			player1_y: game.player1Paddle.y,
-			player2_y: game.player2Paddle.y,
-			player1_score: game.player1.playerscore,
-			player2_score: game.player2.playerscore,
-			gamefinished: gameFinished,
-		});
-	});
-
-	app.get('/getstatus', async (request: FastifyRequest, reply: FastifyReply) => {
-		reply.type('application/json').send({
-			ballX: game.ball.ballX,
-			ballY: game.ball.ballY,
-			player1_y: game.player1Paddle.y,
-			player2_y: game.player2Paddle.y,
-			player1_score: game.player1.playerscore,
-			player2_score: game.player2.playerscore,
-			gamefinished: gameFinished,
-			ballSpeedX: game.ball.ballSpeedX,
-		});
-	});
-
 	app.get('/makeTheBackendHaveThePlayer', async (request: FastifyRequest, reply: FastifyReply) => {
 		const { username, opponent } = request.query as { username: string; opponent: string };
 		game.player1.name = username;
 		game.player2.name = opponent;
+		game.gameFinished = false;
 		reply.send({ status: 'Player added to game' });
 	});
 
 	app.get('/localMode', async (request: FastifyRequest, reply: FastifyReply) => {
+		const { sender } = request.query as { sender: string };
+		game.localGameSender = sender;
 		game.localMode = true;
 		reply.send({ status: 'Local mode activated' });
 	});

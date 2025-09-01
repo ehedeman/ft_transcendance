@@ -212,7 +212,7 @@ export function tournamentStart(game: GameInfo)
 	const resetButton = document.getElementById("tournamentResetButton");
 	if (resetButton) resetButton.style.display = "block";
 	game.t.stage = TournamentStage.Registration;
-	fetch("/localMode")
+	fetch(`/localMode?sender=${game.currentlyLoggedIn.name}`)
 		.then(response => {
 			if (!response.ok) {
 				alert("Failed to start tournament. Please try again.");

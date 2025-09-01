@@ -98,6 +98,8 @@ export class GameInfo {
 
 	gameFinished: boolean;
 
+	localGameSender: string;
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();
@@ -131,6 +133,8 @@ export class GameInfo {
 		this.multiplayerName = [];
 
 		this.gameFinished = true;
+
+		this.localGameSender = "";
 	}
 }
 export type loginInfo = {

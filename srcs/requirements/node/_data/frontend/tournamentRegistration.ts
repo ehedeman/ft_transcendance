@@ -75,6 +75,7 @@ export async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 	document.addEventListener("keydown", handleKeydown);
 	document.addEventListener("keyup", handleKeyup);
 	tournamentPlayGame(game);
+	//start backend drawing here
 }
 
 function showtournamentRegistrationModal(playerNr: number): void {
@@ -106,7 +107,6 @@ export function callTournamentEventListeners(game:GameInfo)
 		//game.t.finishScreenRunning = false;
 		tournamentEnd(0, game);
 		restoreScreen(game);
-		 
 	});
 
 	document.getElementById("tournamentResetButton")?.addEventListener("click", () => {

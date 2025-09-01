@@ -192,6 +192,8 @@ export class GameInfo {
 
 	userInfoTemp: userInfo;
 
+	localMode: boolean;
+
 	remoteMode: boolean;
 
 	multiplayerMode: boolean;
@@ -251,6 +253,8 @@ export class GameInfo {
 			updated_at : "default",
 			created_at : "default",
 		}
+
+		this.localMode = false;
 
 		this.remoteMode = false;
 
