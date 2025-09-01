@@ -122,7 +122,7 @@ function hidetournamentRegistrationModal() {
 import { restoreScreenLoggedIn } from "./screenDisplay.js";
 export function callTournamentEventListeners(game: GameInfo) {
 	document.getElementById("tournamentFinishContinue")?.addEventListener("click", () => {
-		//game.t.finishScreenRunning = false;
+		game.t.finishScreenRunning = false;
 		tournamentEnd(0, game);
 		restoreScreenLoggedIn();
 	});
