@@ -12,34 +12,33 @@ type tournamentPlacements = {
 
 let rounds = 3;
 
-// function calcNextPlayers(game: GameInfo): string[]
-// {
-// 	var players: string[] = ["Empty"];
-// 	if (game.t.currentRound === 1)
-// 	{
-// 		players.splice(0, 1);
-// 		players.push(game.t.matchOrder[game.t.currentRound].name);
-// 		players.push(game.t.matchOrder[game.t.currentRound + 2].name);
-// 	}
-// 	if (game.t.currentRound === 2)
-// 	{
-// 		players.splice(0, 1);
-// 		if (game.t.winners[0])
-// 			players.push(game.t.winners[0].name);
-// 		if (game.t.winners[1])
-// 			players.push(game.t.winners[1].name);
-// 	}
-// 	if (game.t.currentRound === 3)
-// 	{
-// 		players.splice(0, 1);
-// 		players.splice(0, 1);
-// 		if (game.t.winners[0])
-// 			players.push(game.t.losers[0].name);
-// 		if (game.t.winners[1])
-// 			players.push(game.t.losers[1].name);
-// 	}
-// 	return players;
-// }
+function calcNextPlayers(game: GameInfo): string[]
+{
+	var players: string[] = ["Empty"];
+	if (game.t.currentRound === 1)
+	{
+		players.splice(0, 1);
+		players.push(game.t.matchOrder[game.t.currentRound].name);
+		players.push(game.t.matchOrder[game.t.currentRound + 2].name);
+	}
+	if (game.t.currentRound === 2)
+	{
+		players.splice(0, 1);
+		if (game.t.winners[0])
+			players.push(game.t.winners[0].name);
+		if (game.t.winners[1])
+			players.push(game.t.winners[1].name);
+	}
+	if (game.t.currentRound === 3)
+	{
+		players.splice(0, 1);
+		if (game.t.losers[0])
+			players.push(game.t.losers[0].name);
+		if (game.t.losers[1])
+			players.push(game.t.losers[1].name);
+	}
+	return players;
+}
 
 export function showWinnerScreen(game: GameInfo, winner: string)
 {
@@ -51,17 +50,17 @@ export function showWinnerScreen(game: GameInfo, winner: string)
 	{	
 		winnerScreen.style.display = "block";
 		const text = document.getElementById("WinnerScreenText");
-		// var nextPlayers = calcNextPlayers(game);
-		// if (nextPlayers.length === 2)
-		// {
-		// 	if (text)
-		// 		text.textContent = winner + " won!\nNext up: " + nextPlayers[0] + " vs. " + nextPlayers[1];
-		// }
-		// else
-		// {
+		var nextPlayers = calcNextPlayers(game);
+		if (nextPlayers.length === 2)
+		{
+			if (text)
+				text.textContent = winner + " won! Next up: " + nextPlayers[0] + " vs. " + nextPlayers[1];
+		}
+		else
+		{
 			if (text)
 				text.textContent = winner + " won!";
-		// }
+		}
 	}
 }
 
@@ -307,13 +306,12 @@ export function tournamentLogic(game: GameInfo): number
 			game.t.matches[length - 1].loser = game.t.matches[length - 1].player1;
 		}
 		game.gamefinished = true;
-		showWinnerScreen(game, game.t.matches[length - 1].winner.name);
-
+		
 		if (game.t.stage < TournamentStage.Consolation)  // if tournament is complete, we set the winners and losers
 		{
 			const winner = game.t.matches[length - 1].winner?.name || "default";
 			const loser = game.t.matches[length - 1].loser?.name || "default";
-
+			
 			if (winner !== "default" && loser !== "default")
 			{
 				game.t.winners.push(game.t.players[tournamentFindPlayer(winner, game)]);    //adds players to general winners and losers
@@ -325,6 +323,7 @@ export function tournamentLogic(game: GameInfo): number
 				return tournamentEnd(1, game);
 			}
 		}
+		showWinnerScreen(game, game.t.matches[length - 1].winner.name);
 		game.ball.ballPaused = true; 
 		if (tournamentPlayGame(game) === 0)
 			return (1);
