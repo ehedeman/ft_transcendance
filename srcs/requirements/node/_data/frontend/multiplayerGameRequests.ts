@@ -109,14 +109,17 @@ function subscribeToFormEvents(game: GameInfo) {
 	});
 	document.getElementById("cancelInvite1")?.addEventListener("click", (event) => {
 		event.preventDefault();
+		fetch("/cancelledGame");
 		hideSubmitForm();
 	});
 	document.getElementById("cancelInvite2")?.addEventListener("click", (event) => {
 		event.preventDefault();
+		fetch("/cancelledGame");
 		hideSubmitForm();
 	});
 	document.getElementById("cancelInvite3")?.addEventListener("click", (event) => {
 		event.preventDefault();
+		fetch("/cancelledGame");
 		hideSubmitForm();
 	});
 }

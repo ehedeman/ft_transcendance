@@ -250,6 +250,7 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 	document.getElementById("twoPlayerMatchCancel")?.addEventListener("click", (event: Event) => {
 		restoreMatchState();
 		restoreScreenLoggedIn();
+		fetch("/cancelledGame");
 		fetch("/endLocalMode");
 	});
 

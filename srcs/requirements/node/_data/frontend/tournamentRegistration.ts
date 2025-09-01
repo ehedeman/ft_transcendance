@@ -135,6 +135,7 @@ export function callTournamentEventListeners(game: GameInfo) {
 
 	document.getElementById("CancelGeneralTournament")?.addEventListener("click", () => {
 		hidetournamentRegistrationModal();
+		fetch("/cancelledGame");
 		const resetButton = document.getElementById("tournamentResetButton") as HTMLElement;
 		if (resetButton) resetButton.style.display = "none";
 		tournamentEnd(1, game);

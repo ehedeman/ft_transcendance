@@ -203,4 +203,8 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 		else if (!game.gameRunning)
 			reply.send({ status: 'Game Not Running'});
 	});
+
+	app.get('/cancelledGame', async (request: FastifyRequest, reply: FastifyReply) => {
+		game.gameRunning = false;
+	});
 }
