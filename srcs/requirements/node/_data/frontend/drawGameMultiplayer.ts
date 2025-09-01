@@ -67,18 +67,38 @@ function calculatePaddleCoordsMultiplayer(): void {
 export function drawMultiplayerGame(): void {
 	judgeGame();
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
-	ctx.font = "20px Arial"; ctx.fillStyle = "white";
-	ctx.fillText(game.players[0].name + ": " + game.players[0].playerscore, 10, 25);
-	ctx.fillText(game.players[1].name + ": " + game.players[1].playerscore, 10, 50);
-	ctx.fillText(game.players[2].name + ": " + game.players[2].playerscore, 10, 75);
-	ctx.fillText(game.players[3].name + ": " + game.players[3].playerscore, 10, 100);
-	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 125); // Display ball speed
+	const playerColors = ["#00ccff", "#ffcc00", "#66ff66", "#ff6666"];
+	ctx.font = "20px Arial";
+	for (let i = 0; i < 4; i++) {
+		ctx.fillStyle = playerColors[i];
+		ctx.fillText(
+			`${game.players[i].name}: ${game.players[i].playerscore}`,
+			10,
+			25 + i * 25
+		);
+	}
+	ctx.fillStyle = "white";
+	ctx.fillText(
+		"ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0),
+		10,
+		125
+	);
 	calculatePaddleCoordsMultiplayer();
 	drawMiddlePathMultiplayer();
 	drawCircleMultiplayer(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
-	ctx.fillStyle = "white";
-	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
-	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
-	ctx.fillRect(game.player3Paddle.x, game.player3Paddle.y, game.player3Paddle.width, game.player3Paddle.height);
-	ctx.fillRect(game.player4Paddle.x, game.player4Paddle.y, game.player4Paddle.width, game.player4Paddle.height);
+	const paddles = [
+		game.player1Paddle,
+		game.player2Paddle,
+		game.player3Paddle,
+		game.player4Paddle
+	];
+	for (let i = 0; i < paddles.length; i++) {
+		ctx.fillStyle = playerColors[i];
+		ctx.fillRect(
+			paddles[i].x,
+			paddles[i].y,
+			paddles[i].width,
+			paddles[i].height
+		);
+	}
 }
