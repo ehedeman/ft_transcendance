@@ -12,17 +12,56 @@ type tournamentPlacements = {
 
 let rounds = 3;
 
+// function calcNextPlayers(game: GameInfo): string[]
+// {
+// 	var players: string[] = ["Empty"];
+// 	if (game.t.currentRound === 1)
+// 	{
+// 		players.splice(0, 1);
+// 		players.push(game.t.matchOrder[game.t.currentRound].name);
+// 		players.push(game.t.matchOrder[game.t.currentRound + 2].name);
+// 	}
+// 	if (game.t.currentRound === 2)
+// 	{
+// 		players.splice(0, 1);
+// 		if (game.t.winners[0])
+// 			players.push(game.t.winners[0].name);
+// 		if (game.t.winners[1])
+// 			players.push(game.t.winners[1].name);
+// 	}
+// 	if (game.t.currentRound === 3)
+// 	{
+// 		players.splice(0, 1);
+// 		players.splice(0, 1);
+// 		if (game.t.winners[0])
+// 			players.push(game.t.losers[0].name);
+// 		if (game.t.winners[1])
+// 			players.push(game.t.losers[1].name);
+// 	}
+// 	return players;
+// }
+
 export function showWinnerScreen(game: GameInfo, winner: string)
 {
 	document.removeEventListener('keydown', handleKeydown);
 	document.removeEventListener('keyup', handleKeyup);
 	const winnerScreen = document.getElementById("WinnerScreen");
+		
 	if (winnerScreen)
-	{
+	{	
 		winnerScreen.style.display = "block";
 		const text = document.getElementById("WinnerScreenText");
-		if (text)
-			text.textContent = winner + " won!";
+		// var nextPlayers = calcNextPlayers(game);
+		// if (nextPlayers.length === 2)
+		// {
+		// 	if (text)
+		// 		text.textContent = winner + " won!\nNext up: " + nextPlayers[0] + " vs. " + nextPlayers[1];
+		// }
+		// else
+		// {
+			if (text)
+				text.textContent = winner + " won!";
+		// }
 	}
 }
 
@@ -46,6 +85,18 @@ function showTournamentResults(placements: tournamentPlacements[], game: GameInf
  	});
 
 	results.style.display = "block";
+}
+
+function restoreTournament(game: GameInfo)
+{
+	game.t.matchOrder.splice(0, game.t.matchOrder.length);
+	game.t.players.splice(0, game.t.players.length);
+	game.t.matches.splice(0, game.t.matches.length);
+	game.t.currentRound = 0;
+	game.t.stage = TournamentStage.Not_Running;
+	game.t.winners.splice(0, game.t.winners.length);
+	game.t.losers.splice(0, game.t.losers.length);
+	game.players.splice(0, game.players.length);
 }
 
 export function tournamentFinished(game:GameInfo): void
@@ -80,11 +131,12 @@ export function tournamentFinished(game:GameInfo): void
 
 export function tournamentEnd(returnValue: number, game: GameInfo): number
 {
-	game.t.currentRound = 0;
-	game.tournamentLoopActive = false;
-	game.t.stage = TournamentStage.Not_Running;
-	if (game.t.players.length > 0)
-		game.t.players.splice(0, game.t.players.length);
+	restoreTournament(game);
+	// game.t.currentRound = 0;
+	// game.tournamentLoopActive = false;
+	// game.t.stage = TournamentStage.Not_Running;
+	// if (game.t.players.length > 0)
+	// 	game.t.players.splice(0, game.t.players.length);
 	return (returnValue);
 }
 
@@ -205,6 +257,8 @@ function setMatchOrder(game: GameInfo): void
 
 export function tournamentStart(game: GameInfo)
 {
+	fetch("/resetgame");
+	restoreTournament(game);
 	document.removeEventListener('keydown', handleKeydown);
 	document.removeEventListener('keyup', handleKeyup);
 	hideEverything();

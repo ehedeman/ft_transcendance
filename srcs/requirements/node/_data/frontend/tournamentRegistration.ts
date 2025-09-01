@@ -17,6 +17,7 @@ function registerPlayer(i: number, game: GameInfo, players: PlayerLogin[]): Prom
 
 			if (!username || !password) {
 				alert("Username and password cannot be empty!");
+				tournamentEnd(1, game);
 				return;
 			}
 
@@ -30,6 +31,7 @@ function registerPlayer(i: number, game: GameInfo, players: PlayerLogin[]): Prom
 				.then((response) => {
 					if (!response.ok) {
 						alert("Login failed. Please try again.");
+						tournamentEnd(1, game);
 						resolve(null);
 						return;
 					}
@@ -87,7 +89,7 @@ export async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 		document.addEventListener("keyup", handleKeyup);
 		tournamentPlayGame(game);
 	} else {
-		game.players = [];
+		game.players.splice(0, game.players.length);
 		tournamentEnd(0, game);
 		hidetournamentRegistrationModal();
 		restoreScreenLoggedIn();
@@ -123,7 +125,6 @@ export function callTournamentEventListeners(game: GameInfo) {
 		//game.t.finishScreenRunning = false;
 		tournamentEnd(0, game);
 		restoreScreenLoggedIn();
-
 	});
 
 	document.getElementById("tournamentResetButton")?.addEventListener("click", () => {
