@@ -128,6 +128,7 @@ export function callTournamentEventListeners(game: GameInfo) {
 	});
 
 	document.getElementById("tournamentResetButton")?.addEventListener("click", () => {
+		game.t.finishScreenRunning = false;
 		tournamentEnd(0, game);
 		restoreScreenLoggedIn();
 	});

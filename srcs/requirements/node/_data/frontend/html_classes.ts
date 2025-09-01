@@ -155,7 +155,7 @@ export class htmlFriends extends HTMLElement {
 	connectedCallback() {
 		this.innerHTML = `
 		<div id="friendStuff" style="display: none;">
-			<div style="position:absolute; top: calc(120px + 620px)">
+			<div style="position:absolute; top: calc(120px + 620px); left: 50%;">
 				<header style="position:absolute;">Friends</header>
 			</div>
 			<div style="position: absolute; flex-direction: row; top: calc(120px + 620px + 20px); left: 50%; transform: translateX(-50%);">

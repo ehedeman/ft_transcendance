@@ -1,10 +1,11 @@
 1.during the match, if someone logout or refresh, we need to let him back... // This is appreciated but not mandatory... We don't have to do this. Just make sure the Server don't crash...
 2.when we go back the display is incorrect.
 
-You must implement validation mechanisms for forms and any user input, either on the base page if no backend is used, or on the server side if a backend is employed. // must be done at thhe end... :) pat
-
-what if someone forgets their password? And they are logged out? How can they recover their password? do we want to implement this?  pat
-
-ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: "The tournament system should be able to notify users about the next game"
 
 the tournament will not have the history match
+
+multiplkayer: not play with one self
+
+multiplayer hide all buttons for the INVITED person
+
+mult

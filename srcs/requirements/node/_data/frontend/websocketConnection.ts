@@ -55,10 +55,12 @@ async function handleGameInvitation(data: any) {
 }
 
 import { startMultiplayerGame } from "./multiplayerGame.js";
+import { hideEverything } from "./screenDisplay.js";
 function handleMultiplayerGameStart(data: any) {
 	const { play1, play2, play3, play4 } = data as { play1: string, play2: string, play3: string, play4: string };
 	game.multiplayerGameStart = true;
 	console.log("Starting multiplayer game with players:", play1, play2, play3, play4);
+	hideEverything();
 	startMultiplayerGame(play1, play2, play3, play4);
 }
 
