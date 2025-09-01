@@ -81,9 +81,24 @@ function resetGame(): void {
 function sendGameinfo() {
 	if (game.sockets.has(game.localGameSender)) {
 		const socket = game.sockets.get(game.localGameSender);
-		if (socket) {
+		if (socket && !game.tournamentLoopActive) {
 			socket.send(JSON.stringify({
 				type: "localGameInfo",
+				player1_name: game.player1.name,
+				player2_name: game.player2.name,
+				ballX: game.ball.ballX,
+				ballY: game.ball.ballY,
+				player1_y: game.player1Paddle.y,
+				player2_y: game.player2Paddle.y,
+				player1_score: game.player1.playerscore,
+				player2_score: game.player2.playerscore,
+				gamefinished: game.gameFinished,
+				ballSpeedX: game.ball.ballSpeedX,
+			}));
+		}
+		if (socket && game.tournamentLoopActive) {
+			socket.send(JSON.stringify({
+				type: "tournamentGameInfo",
 				player1_name: game.player1.name,
 				player2_name: game.player2.name,
 				ballX: game.ball.ballX,
@@ -169,6 +184,8 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 		const { username, opponent } = request.query as { username: string; opponent: string };
 		game.player1.name = username;
 		game.player2.name = opponent;
+		game.player1.playerscore = 0;
+		game.player2.playerscore = 0;
 		game.gameFinished = false;
 		reply.send({ status: 'Player added to game' });
 	});
@@ -188,5 +205,15 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 	app.get('/tournamentContinue', async (request: FastifyRequest, reply: FastifyReply) => {
 		game.localMode = true;
 		reply.send({ status: 'Tournament continued' });
+	});
+
+	app.get('/startTournament', async (request: FastifyRequest, reply: FastifyReply) => {
+		game.tournamentLoopActive = true;
+		reply.send({ status: 'Tournament started' });
+	});
+
+	app.get("/endTournament", async (request: FastifyRequest, reply: FastifyReply) => {
+		game.tournamentLoopActive = false;
+		reply.send({ status: 'Tournament ended' });
 	});
 }

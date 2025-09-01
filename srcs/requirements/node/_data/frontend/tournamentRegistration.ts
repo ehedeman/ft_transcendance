@@ -74,7 +74,20 @@ export async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 	game.tournamentLoopActive = true;
 	document.addEventListener("keydown", handleKeydown);
 	document.addEventListener("keyup", handleKeyup);
-	tournamentPlayGame(game);
+	fetch("/startTournament")
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("Failed to start tournament");
+			}
+			return response.json();
+		})
+		.then(data => {
+			console.log("Tournament started:", data);
+			tournamentPlayGame(game);
+		})
+		.catch(error => {
+			console.error("Error starting tournament:", error);
+		});
 	//start backend drawing here
 }
 
@@ -105,6 +118,20 @@ export function callTournamentEventListeners(game:GameInfo)
 {
 	document.getElementById("tournamentFinishContinue")?.addEventListener("click", () => {
 		//game.t.finishScreenRunning = false;
+		game.tournamentLoopActive = false;
+		fetch("/endTournament")
+			.then(response => {
+				if (!response.ok) {
+					throw new Error("Failed to end tournament");
+				}
+				return response.json();
+			})
+			.then(data => {
+				console.log("Tournament ended:", data);
+			})
+			.catch(error => {
+				console.error("Error ending tournament:", error);
+			});
 		tournamentEnd(0, game);
 		restoreScreen(game);
 	});

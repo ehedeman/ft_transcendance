@@ -100,6 +100,8 @@ export class GameInfo {
 
 	localGameSender: string;
 
+	tournamentLoopActive: boolean;
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();
@@ -135,6 +137,8 @@ export class GameInfo {
 		this.gameFinished = true;
 
 		this.localGameSender = "";
+
+		this.tournamentLoopActive = false;
 	}
 }
 export type loginInfo = {

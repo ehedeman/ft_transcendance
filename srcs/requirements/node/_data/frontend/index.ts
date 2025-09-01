@@ -117,7 +117,7 @@ callTournamentEventListeners(game);
 
 callTwoPlayerMatchEventListeners(game);
 
-import { callGameEventListeners, clickWinnerScreenContinue, updateGame } from "./gamePlay.js";
+import { callGameEventListeners, clickWinnerScreenContinue } from "./gamePlay.js";
 import { callTwoPlayerMatchEventListeners } from "./twoPlayerMatch_local.js";
 import { render } from "./page_render.js";
 clickWinnerScreenContinue(game);
@@ -155,4 +155,3 @@ window.onload = function () {
 			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 		});
 }
-updateGame();

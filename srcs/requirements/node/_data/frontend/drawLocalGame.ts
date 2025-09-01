@@ -1,7 +1,7 @@
 import { game, rounds, ctx, keysPressed } from "./index.js"
 import { showWinnerScreen } from "./tournament.js";
 
-function drawMiddlePathRemote1v1(): void {
+function drawMiddlePathLocalGame(): void {
 	ctx.strokeStyle = "white";
 	ctx.lineWidth = 2;
 	for (let y = 0; y < game.canvas.height; y += 20) {
@@ -12,7 +12,7 @@ function drawMiddlePathRemote1v1(): void {
 	}
 }
 
-function drawCircleRemote1v1(x: number, y: number, radius: number): void {
+function drawCircleLocalGame(x: number, y: number, radius: number): void {
 	ctx.beginPath();
 	ctx.arc(x, y, radius, 0, Math.PI * 2);
 	ctx.fillStyle = "white";
@@ -20,8 +20,8 @@ function drawCircleRemote1v1(x: number, y: number, radius: number): void {
 	ctx.closePath();
 }
 
-function calculatePaddleCoordsRemote1v1(): void {
-	if (game.localMode && !game.remoteMode && !game.multiplayerMode) {
+function calculatePaddleCoordsLocalGame(): void {
+	if (game.localMode && !game.remoteMode && !game.multiplayerMode && !game.tournamentLoopActive) {
 		if (keysPressed["space"]) {
 			fetch(`/pressSpace`);
 		}
@@ -58,9 +58,9 @@ export function drawLocalGame() {
 	ctx.fillText(game.players[0].name + ": " + game.players[0].playerscore, 10, 25);
 	ctx.fillText(game.players[1].name + ": " + game.players[1].playerscore, 10, 50);
 	ctx.fillText("ballSpeedX: " + (game.ball.ballSpeedX ? Math.abs(game.ball.ballSpeedX).toFixed(2) : 0), 10, 75); // Display ball speed
-	calculatePaddleCoordsRemote1v1();
-	drawMiddlePathRemote1v1();
-	drawCircleRemote1v1(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
+	calculatePaddleCoordsLocalGame();
+	drawMiddlePathLocalGame();
+	drawCircleLocalGame(game.ball.ballX, game.ball.ballY, game.ball.ballRadius);
 	ctx.fillStyle = "white";
 	ctx.fillRect(game.player1Paddle.x, game.player1Paddle.y, game.player1Paddle.width, game.player1Paddle.height);
 	ctx.fillRect(game.player2Paddle.x, game.player2Paddle.y, game.player2Paddle.width, game.player2Paddle.height);
