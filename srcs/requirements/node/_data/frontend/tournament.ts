@@ -10,7 +10,7 @@ type tournamentPlacements = {
 	place: number;
 }
 
-let rounds = 3;
+let rounds = 1;
 
 export function showWinnerScreen(game: GameInfo, winner: string) {
 	document.removeEventListener('keydown', handleKeydown);
@@ -126,6 +126,8 @@ export function tournamentPlayGame(game: GameInfo): number 	//loop sets matches 
 				.catch(error => {
 					console.error("Error adding player to game:", error);
 				});
+			console.log(game.t.matches[game.t.matches.length -1].player1.name, ": ", game.t.matches[game.t.matches.length -1].player1.score);
+			console.log(game.t.matches[game.t.matches.length -1].player2.name, ": ", game.t.matches[game.t.matches.length -1].player2.score);
 		}
 		else if (game.t.stage === TournamentStage.Final || game.t.stage === TournamentStage.Consolation)	// loser vs loser | winner vs winner
 		{

@@ -225,6 +225,7 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 			game.localMode = false;
 			game.tournamentLoopActive = false;
 			game.gameFinished = true;
+			resetGame();
 		}
 		reply.send({ status: 'Tournament ended' });
 	});
