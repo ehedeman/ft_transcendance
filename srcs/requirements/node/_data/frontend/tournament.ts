@@ -191,25 +191,30 @@ function playerInMatch(game: GameInfo, player: TournamentPlayer): boolean {
 }
 
 function setMatchOrder(game: GameInfo): void {
-	var allSorted = false;
-	while (!allSorted) {
-		var i = Math.floor(Math.random() * 3);	// get int max. 3
-		if (i < 0)
-			i = 0;
-		if (!playerInMatch(game, game.t.players[i]))// if not sorted, sort
-			game.t.matchOrder.push(game.t.players[i]);
-		else {
-			for (let index = 0; index < 4; index++) //if sorted, search for other player to be sorted
-			{
-				if (!playerInMatch(game, game.t.players[index])) //if next player found then end
-				{
-					game.t.matchOrder.push(game.t.players[index]);
-					break;
-				}
+	const maxAttempts = 100;
+	let attempts = 0;
+
+	while (game.t.matchOrder.length < 4 && attempts < maxAttempts) {
+		attempts++;
+
+		const i = Math.floor(Math.random() * game.t.players.length);
+		const candidate = game.t.players[i];
+
+		if (!playerInMatch(game, candidate)) {
+		game.t.matchOrder.push(candidate);
+		} else {
+		for (let index = 0; index < game.t.players.length; index++) {
+			const fallback = game.t.players[index];
+			if (!playerInMatch(game, fallback)) {
+			game.t.matchOrder.push(fallback);
+			break;
 			}
 		}
-		if (game.t.matchOrder.length === 4)	//if all players have been sorted
-			allSorted = true;
+		}
+	}
+
+	if (attempts >= maxAttempts) {
+		console.warn("Match order generation exceeded safe limit.");
 	}
 }
 

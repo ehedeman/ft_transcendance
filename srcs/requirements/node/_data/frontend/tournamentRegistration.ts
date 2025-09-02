@@ -64,17 +64,23 @@ export async function tournamentRegisterPlayers(game: GameInfo): Promise<void> {
 	const players: PlayerLogin[] = [];
 	for (let i = 1; i <= 4; i++) {
 		console.log("current iteration: " + i);
-		const player = await registerPlayer(i, game, players);
-		if (player) {
-			if (checkDoubleLogin(players, player)) {
-				i = i - 1;
-				continue;
+		let retries = 0;
+		let player;
+
+		do {
+			player = await registerPlayer(i, game, players);
+			retries++;
+			if (retries > 3) {
+			console.warn("Too many retries for player", i);
+			break;
 			}
-		}
+		} while (player && checkDoubleLogin(players, player));
+
 		if (!player || !player.username || !player.password) break;
+
 		console.log("Registered player:", player);
 		players.push(player);
-		game.players.push({ name: players[players.length - 1].username, gamesLost: 0, gamesWon: 0, playerscore: 0 });
+		game.players.push({ name: player.username, gamesLost: 0, gamesWon: 0, playerscore: 0 });
 	}
 	//uncommment once database is ready
 	if (game.players.length === 4) {
