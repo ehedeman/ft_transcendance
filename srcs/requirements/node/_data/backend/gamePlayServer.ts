@@ -48,7 +48,7 @@ function calculateBallCoords(): void {
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
-		if (game.ball.ballSpeedY < 10){
+		if (game.ball.ballSpeedY < 10) {
 			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random(); // Add some randomness to vertical speed
 		}
 	} else if (touchingPaddle2() && game.ball.ballSpeedX < 0) {
@@ -58,7 +58,7 @@ function calculateBallCoords(): void {
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
-		if (game.ball.ballSpeedY < 10){
+		if (game.ball.ballSpeedY < 10) {
 			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
 		}
 	}
@@ -120,7 +120,9 @@ function sendGameinfo() {
 
 export function updateGame(db: any): void {
 	if (game.localMode && !game.gameFinished && !game.remoteMode && !game.multiplayerMode) {
+		console.log(`Updating game for player1: ${game.player1.name}, player2: ${game.player2.name}`);
 		if (game.player1.playerscore === rounds) {
+			console.log("========================================================================================");
 			console.log('player1 name:', game.player1.name);
 			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
 			stmt.run(game.player1.name);
@@ -136,6 +138,7 @@ export function updateGame(db: any): void {
 			game.localMode = false;
 		}
 		if (game.player2.playerscore === rounds) {
+			console.log("========================================================================================");
 			console.log('player2 name:', game.player2.name);
 			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
 			stmt.run(game.player2.name);
@@ -228,8 +231,7 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 	});
 
 	app.get("/endTournament", async (request: FastifyRequest, reply: FastifyReply) => {
-		if (game.tournamentLoopActive)
-		{
+		if (game.tournamentLoopActive) {
 			game.localMode = false;
 			game.tournamentLoopActive = false;
 			game.gameFinished = true;
@@ -237,10 +239,10 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 		}
 		reply.send({ status: 'Tournament ended' });
 	});
-// 	app.get('/leaveGamePressed', async (request: FastifyRequest, reply: FastifyReply) => {
-// 		game.localMode = false;
-// 		resetGame();
-// 		sendGameinfo();
-// 		reply.send({ status: 'Left the game.' });
-// 	});
-	}
+	// 	app.get('/leaveGamePressed', async (request: FastifyRequest, reply: FastifyReply) => {
+	// 		game.localMode = false;
+	// 		resetGame();
+	// 		sendGameinfo();
+	// 		reply.send({ status: 'Left the game.' });
+	// 	});
+}

@@ -203,15 +203,15 @@ function setMatchOrder(game: GameInfo): void {
 		const candidate = game.t.players[i];
 
 		if (!playerInMatch(game, candidate)) {
-		game.t.matchOrder.push(candidate);
+			game.t.matchOrder.push(candidate);
 		} else {
-		for (let index = 0; index < game.t.players.length; index++) {
-			const fallback = game.t.players[index];
-			if (!playerInMatch(game, fallback)) {
-			game.t.matchOrder.push(fallback);
-			break;
+			for (let index = 0; index < game.t.players.length; index++) {
+				const fallback = game.t.players[index];
+				if (!playerInMatch(game, fallback)) {
+					game.t.matchOrder.push(fallback);
+					break;
+				}
 			}
-		}
 		}
 	}
 

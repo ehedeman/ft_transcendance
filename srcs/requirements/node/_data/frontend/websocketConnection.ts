@@ -105,7 +105,7 @@ export function createWebSocketConnection(username: string) {
 	};
 
 	game.websocket.onmessage = (event) => {
-		console.log("📥 Received from server:", event.data);
+		// console.log("📥 Received from server:", event.data);
 		handleWebSocketMessage(event);
 	};
 
