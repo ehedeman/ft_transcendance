@@ -10,7 +10,7 @@ type tournamentPlacements = {
 	place: number;
 }
 
-let rounds = 1;
+import { rounds } from "./index.js"
 
 export function showWinnerScreen(game: GameInfo, winner: string) {
 	document.removeEventListener('keydown', handleKeydown);
