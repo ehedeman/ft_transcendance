@@ -5,6 +5,7 @@ import { GameInfo, pageIndex, PlayerLogin } from "./frontendStructures.js";
 
 import { userInfo } from "./serverStructures.js"
 import { hideEverything } from "./screenDisplay.js"
+import { logout } from "./logout.js";
 
 var settingsAlreadyLoggedIn: boolean = false;
 //to determine whether user was logged in before accessing settings
@@ -177,12 +178,14 @@ export function callSettingsEventlisteners(game:GameInfo)
 {
 	document.getElementById("settingsDeleteAccount")?.addEventListener("click", () => 
 	{
+		let username: string = game.currentlyLoggedIn.name;
+		logout(game);
 		fetch("/deleteUser", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json"
 			},
-			body: JSON.stringify({ username: game.currentlyLoggedIn.name })
+			body: JSON.stringify({ username: username })
 		})
 		.then(response => {
 			if (!response.ok) {
