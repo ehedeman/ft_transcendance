@@ -133,8 +133,10 @@ clickWinnerScreenContinue(game);
 import { createWebSocketConnection } from "./websocketConnection.js";
 import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
+import { tournamentEnd } from "./tournament.js";
 
 window.onload = function () {
+	fetch("/endTournament");	// to make sure if tournament has been running its turned off now
 	fetch("/keepLogin")
 		.then(response => {
 			if (!response.ok) {

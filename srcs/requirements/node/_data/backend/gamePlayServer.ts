@@ -220,13 +220,18 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 	});
 
 	app.get("/endTournament", async (request: FastifyRequest, reply: FastifyReply) => {
-		game.tournamentLoopActive = false;
+		if (game.tournamentLoopActive)
+		{
+			game.localMode = false;
+			game.tournamentLoopActive = false;
+			game.gameFinished = true;
+		}
 		reply.send({ status: 'Tournament ended' });
 	});
-	app.get('/leaveGamePressed', async (request: FastifyRequest, reply: FastifyReply) => {
-		game.localMode = false;
-		resetGame();
-		sendGameinfo();
-		reply.send({ status: 'Left the game.' });
-	});
-}
+// 	app.get('/leaveGamePressed', async (request: FastifyRequest, reply: FastifyReply) => {
+// 		game.localMode = false;
+// 		resetGame();
+// 		sendGameinfo();
+// 		reply.send({ status: 'Left the game.' });
+// 	});
+	}

@@ -79,6 +79,8 @@ export function tournamentEnd(returnValue: number, game: GameInfo): number {
 	game.t.stage = TournamentStage.Not_Running;
 	if (game.t.players.length > 0)
 		game.t.players.splice(0, game.t.players.length);
+	if (game.players.length > 0)
+		game.players.splice(0, game.players.length);
 	return (returnValue);
 }
 
@@ -175,8 +177,6 @@ export function tournamentPlayGame(game: GameInfo): number 	//loop sets matches 
 		game.t.currentRound++;
 	}
 	else if (game.t.stage === TournamentStage.Complete) {
-		// tournamentFinished(game);
-		// return (tournamentEnd(0, game));
 		return (0);
 	}
 	return 0;

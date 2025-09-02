@@ -202,6 +202,7 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 		hideGuestPlayerButtons();
 		const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
 		if (container) container.style.display = "none";
+		game.players.splice(0, game.players.length);
 		game.players.push(game.currentlyLoggedIn);
 
 		// need to get Player info from database here/ just temporary like this
