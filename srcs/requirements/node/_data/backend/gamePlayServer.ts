@@ -223,4 +223,10 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 		game.tournamentLoopActive = false;
 		reply.send({ status: 'Tournament ended' });
 	});
+	app.get('/leaveGamePressed', async (request: FastifyRequest, reply: FastifyReply) => {
+		game.localMode = false;
+		resetGame();
+		sendGameinfo();
+		reply.send({ status: 'Left the game.' });
+	});
 }

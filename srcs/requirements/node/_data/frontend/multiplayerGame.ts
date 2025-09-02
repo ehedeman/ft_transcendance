@@ -59,4 +59,5 @@ export function startMultiplayerGame(play1: string, play2: string, play3: string
 	const player4 = new Player(play4);
 
 	game.players = [player1, player2, player3, player4];
+	hideEverything();
 }

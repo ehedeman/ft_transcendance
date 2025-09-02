@@ -241,10 +241,11 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 			restoreMatchState();
 			const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
 			if (container) container.style.display = "none";
+			// const leaveGameButton = document.getElementById("leaveGameButton") as HTMLButtonElement;
+			// if (leaveGameButton) leaveGameButton.style.display = "block";
 			// navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 		} else {
-			restoreMatchState();
-			navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
+			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 			emptyLoginFields("twoPlayerMatch");
 			fetch("/endLocalMode");
 			// restoreScreen(game);

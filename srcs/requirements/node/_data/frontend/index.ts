@@ -35,8 +35,9 @@ export function handleKeydown(e: KeyboardEvent): void {
 	if (scrollKeys.indexOf(e.key) !== -1) {
 		e.preventDefault();
 	}
-
-	keysPressed[e.key] = true;
+	//block w/s keys for remote
+	if (game.localMode || (e.key !== "w" && e.key !== "W" && e.key !== "S" && e.key !== "s"))
+		keysPressed[e.key] = true;
 }
 
 export function handleKeyup(e: KeyboardEvent): void {
@@ -92,6 +93,14 @@ window.onpopstate = (event: PopStateEvent) => {
 callHTMLclassDefines();
 callGameEventListeners(game);
 
+//only works for local so far
+// document.getElementById("leaveGameButton")?.addEventListener("click", () => {
+	
+// 	emptyLoginFields("twoPlayerMatch");
+// 	game.players.splice(0, game.players.length);
+// 	navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
+// 	fetch("/leaveGamePressed");
+// });
 /*-------------------------------------settings------------------------------------*/
 
 callSettingsEventlisteners(game);
@@ -118,11 +127,12 @@ callTournamentEventListeners(game);
 callTwoPlayerMatchEventListeners(game);
 
 import { callGameEventListeners, clickWinnerScreenContinue } from "./gamePlay.js";
-import { callTwoPlayerMatchEventListeners } from "./twoPlayerMatch_local.js";
+import { callTwoPlayerMatchEventListeners, restoreMatchState } from "./twoPlayerMatch_local.js";
 import { render } from "./page_render.js";
 clickWinnerScreenContinue(game);
 import { createWebSocketConnection } from "./websocketConnection.js";
 import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
+import { emptyLoginFields } from "./inputFieldHandling.js";
 
 window.onload = function () {
 	fetch("/keepLogin")

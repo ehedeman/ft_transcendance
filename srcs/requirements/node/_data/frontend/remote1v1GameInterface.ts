@@ -42,4 +42,5 @@ export function startRemote1v1Game(name1: string, name2: string): void {
 	const player2 = new Player(name2);
 
 	game.players = [player1, player2];
+	hideEverything();
 }

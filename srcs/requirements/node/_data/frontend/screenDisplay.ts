@@ -16,8 +16,10 @@ export function restoreScreen(game:GameInfo): void {
 	const logoutButton = document.getElementById("logoutButton");
 	const matchHistory = document.getElementById("matchHistory");
 	restoreMatchState();
+	//const leaveGameButton = document.getElementById("leaveGameButton");
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 
+	//if (leaveGameButton) leaveGameButton.style.display = "none";
 	if (messages) messages.style.display = "none";
 	if (logoutButton) logoutButton.style.display = "none";
 	if (preview) preview.src = "./avatars/default-avatar.png";
@@ -74,9 +76,9 @@ export function restoreScreenLoggedIn(): void {
 	const messages = document.getElementById("messages");
 	const matchHistory = document.getElementById("matchHistory");
 	const addFriend = document.getElementById("addFriend");
-
+	
 	restoreMatchState();
-
+	
 	if (messages) messages.style.display = "block";
 	if (logoutButton) logoutButton.style.display = "block";
 	if (registerButton) registerButton.style.display = "none";
@@ -117,6 +119,8 @@ export function hideEverything(){
 	const multiplayerMatchInviteForm1 = document.getElementById("multiplayerMatchInviteForm1");
 	const multiplayerMatchInviteForm2 = document.getElementById("multiplayerMatchInviteForm2");
 	const multiplayerMatchInviteForm3 = document.getElementById("multiplayerMatchInviteForm3");
+	//const leaveGameButton = document.getElementById("leaveGameButton");
+	//if (leaveGameButton) leaveGameButton.style.display = "none";
 	if (registerButton) registerButton.style.display = "none";
 	if (logoutButton) logoutButton.style.display = "none";
 	if (playSelect) playSelect.style.display = "none";
