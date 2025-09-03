@@ -2,7 +2,7 @@ import { restoreMatchState } from "./twoPlayerMatch_local.js";
 import { ctx } from "./index.js";
 import { GameInfo } from "./frontendStructures.js";
 
-export function restoreScreen(game:GameInfo): void {
+export function restoreScreen(game: GameInfo): void {
 	const registerButton = document.getElementById("registerButton");
 	const settingsButton = document.getElementById("settingsButton");
 	const playSelect = document.getElementById("playSelect");
@@ -15,6 +15,10 @@ export function restoreScreen(game:GameInfo): void {
 	const messages = document.getElementById("messages");
 	const logoutButton = document.getElementById("logoutButton");
 	const matchHistory = document.getElementById("matchHistory");
+	const dashboardButton = document.getElementById("dashboardButton");
+	const dashboardView = document.getElementById("dashboardView");
+	const globalDashboardButton = document.getElementById("globalDashboardButton");
+	const globalDashboardView = document.getElementById("globalDashboardView");
 	restoreMatchState();
 	//const leaveGameButton = document.getElementById("leaveGameButton");
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
@@ -32,10 +36,13 @@ export function restoreScreen(game:GameInfo): void {
 	if (settingsButton) settingsButton.style.display = "none";
 	if (friendStuff) friendStuff.style.display = "none";
 	if (matchHistory) matchHistory.style.display = "none";
+	if (dashboardButton) dashboardButton.style.display = "none";
+	if (dashboardView) dashboardView.style.display = "none";
+	if (globalDashboardButton) globalDashboardButton.style.display = "none";
+	if (globalDashboardView) globalDashboardView.style.display = "none";
 }
 
-export function hideDefaultButtons(): void
-{
+export function hideDefaultButtons(): void {
 	const registerButton = document.getElementById("registerButton");
 	const settingsButton = document.getElementById("settingsButton");
 	const playSelect = document.getElementById("playSelect");
@@ -76,9 +83,11 @@ export function restoreScreenLoggedIn(): void {
 	const messages = document.getElementById("messages");
 	const matchHistory = document.getElementById("matchHistory");
 	const addFriend = document.getElementById("addFriend");
-	
+	const dashboardButton = document.getElementById("dashboardButton");
+	const globalDashboardButton = document.getElementById("globalDashboardButton");
+
 	restoreMatchState();
-	
+
 	if (messages) messages.style.display = "block";
 	if (logoutButton) logoutButton.style.display = "block";
 	if (registerButton) registerButton.style.display = "none";
@@ -92,10 +101,12 @@ export function restoreScreenLoggedIn(): void {
 	if (preview) preview.src = "./avatars/default-avatar.png";
 	if (matchHistory) matchHistory.style.display = "block";
 	if (addFriend) addFriend.style.display = "block";
+	if (dashboardButton) dashboardButton.style.display = "block";
+	if (globalDashboardButton) globalDashboardButton.style.display = "block";
 
 }
 
-export function hideEverything(){
+export function hideEverything() {
 	const registerButton = document.getElementById("registerButton");
 	const playSelect = document.getElementById("playSelect");
 	const loginButton = document.getElementById("loginButton");

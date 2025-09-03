@@ -12,8 +12,10 @@ import { pipeline } from 'stream';
 import { promisify } from 'util';
 import { createWriteStream } from 'fs';
 import { FastifyRequest, FastifyReply } from "fastify";
+import { dashboardRoutes } from "./dashboardRoutes.js";
+import { globalStatsRoutes } from "./globalStatsRoutes.js";
 
-export const saltRounds = 1;
+export const saltRounds = 3; // Do not change this again please
 
 export const app = fastify({
 	logger: true,
@@ -74,7 +76,7 @@ app.get('/ping', async () => {
 	return { pong: 'it works!' };
 });
 
-export let rounds = 1;
+export let rounds = 3;
 
 export let accaleration = 0.1; // Speed increase factor
 
@@ -108,6 +110,9 @@ app.decorate("authenticate", async function (request: FastifyRequest, reply: Fas
 		reply.code(401).send({ message: "Unauthorized" });
 	}
 });
+
+await dashboardRoutes(app);
+await globalStatsRoutes(app);
 
 app.post("/register", async (request, reply) => {
 	const parts = request.parts();

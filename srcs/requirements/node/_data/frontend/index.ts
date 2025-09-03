@@ -5,7 +5,9 @@ import { callLoginEventListeners, getUserInfoAndCreateUserInterface, getUserMatc
 import { callTournamentEventListeners } from "./tournamentRegistration.js";
 import { callLogoutEventListeners } from "./logout.js";
 import { callHTMLclassDefines } from "./html_classes.js";
-export let rounds = 1;
+import { loadUserDashboard } from "./dashboard.js";
+import { loadGlobalStats } from "./globalDashboard.js";
+export let rounds = 3;
 
 export let game = new GameInfo();
 
@@ -83,6 +85,40 @@ window.addEventListener('popstate', (event) => {
 	}
 });
 
+
+// Just added_pat...
+const dashboardButton = document.getElementById("dashboardButton") as HTMLButtonElement;
+dashboardButton.style.display = "block";
+
+dashboardButton.addEventListener("click", () => {
+	document.getElementById("dashboardView")!.style.display = "block";
+	const alias = game.currentlyLoggedIn.name; // your logged-in user alias
+	loadUserDashboard(alias);
+});
+
+document.getElementById("closeDashboard")!.addEventListener("click", () => {
+	document.getElementById("dashboardView")!.style.display = "none";
+});
+// ..............added
+
+
+// added.....................
+
+const globalButton = document.getElementById("globalDashboardButton") as HTMLButtonElement;
+const globalView = document.getElementById("globalDashboardView") as HTMLDivElement;
+const globalClose = document.getElementById("closeGlobalDashboard") as HTMLButtonElement;
+
+globalButton.addEventListener("click", () => {
+	globalView.style.display = "block";
+	loadGlobalStats();
+});
+
+globalClose.addEventListener("click", () => {
+	globalView.style.display = "none";
+});
+
+// added.......
+
 // Initial load
 window.onpopstate = (event: PopStateEvent) => {
 	const state = event.state as renderInfo;
@@ -95,7 +131,7 @@ callGameEventListeners(game);
 
 //only works for local so far
 // document.getElementById("leaveGameButton")?.addEventListener("click", () => {
-	
+
 // 	emptyLoginFields("twoPlayerMatch");
 // 	game.players.splice(0, game.players.length);
 // 	navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);

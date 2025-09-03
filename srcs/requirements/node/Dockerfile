@@ -39,6 +39,10 @@ RUN chmod +x ./script.sh
 # Install better-sqlite3 before general dependencies to ensure native build
 RUN npm install better-sqlite3
 
+# JavaScript charting library
+RUN npm install chart.js
+
+
 # Install multipart support
 RUN npm install @fastify/multipart
 
