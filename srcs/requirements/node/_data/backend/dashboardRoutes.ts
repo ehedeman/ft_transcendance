@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { db } from "./server.js"; // your existing db instance
+import { db } from "./server.js";
 
 type MatchHistoryItem = {
 	date: string;
