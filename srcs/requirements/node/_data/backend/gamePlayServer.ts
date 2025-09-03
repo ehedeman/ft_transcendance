@@ -120,9 +120,7 @@ function sendGameinfo() {
 
 export function updateGame(db: any): void {
 	if (game.localMode && !game.gameFinished && !game.remoteMode && !game.multiplayerMode) {
-		console.log(`Updating game for player1: ${game.player1.name}, player2: ${game.player2.name}`);
 		if (game.player1.playerscore === rounds) {
-			console.log("========================================================================================");
 			console.log('player1 name:', game.player1.name);
 			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
 			stmt.run(game.player1.name);
@@ -138,7 +136,6 @@ export function updateGame(db: any): void {
 			game.localMode = false;
 		}
 		if (game.player2.playerscore === rounds) {
-			console.log("========================================================================================");
 			console.log('player2 name:', game.player2.name);
 			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
 			stmt.run(game.player2.name);
