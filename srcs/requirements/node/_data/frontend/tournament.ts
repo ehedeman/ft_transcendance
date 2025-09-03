@@ -81,6 +81,16 @@ export function tournamentEnd(returnValue: number, game: GameInfo): number {
 		game.t.players.splice(0, game.t.players.length);
 	if (game.players.length > 0)
 		game.players.splice(0, game.players.length);
+	if (game.t.matches.length > 0)
+		game.t.matches.splice(0, game.t.matches.length);
+	if (game.t.winners.length > 0)
+		game.t.winners.splice(0, game.t.winners.length);
+	if (game.t.losers.length > 0)
+		game.t.losers.splice(0, game.t.losers.length);
+	if (game.t.matchOrder.length > 0)
+		game.t.matchOrder.splice(0, game.t.matchOrder.length);
+	if (game.multiplayerName.length > 0)
+		game.multiplayerName.splice(0, game.multiplayerName.length);
 	return (returnValue);
 }
 
@@ -112,22 +122,24 @@ export function tournamentPlayGame(game: GameInfo): number 	//loop sets matches 
 				winner: game.t.defaultPlayer,
 				loser: game.t.defaultPlayer
 			});
-			fetch(`/makeTheBackendHaveThePlayer?username=${encodeURIComponent(game.t.matchOrder[index].name)}&opponent=${encodeURIComponent(game.t.matchOrder[index + 2].name)}`)
-				.then(response => {
-					if (!response.ok) {
-						throw new Error(response.statusText);
-					}
-					return response.json();
-				})
-				.then(data => {
-					game.localMode = true;
-					console.log("Player added to game:", data);
-				})
-				.catch(error => {
-					console.error("Error adding player to game:", error);
-				});
-			console.log(game.t.matches[game.t.matches.length -1].player1.name, ": ", game.t.matches[game.t.matches.length -1].player1.score);
-			console.log(game.t.matches[game.t.matches.length -1].player2.name, ": ", game.t.matches[game.t.matches.length -1].player2.score);
+			if (game.t.stage === TournamentStage.Regular1) {
+				fetch(`/makeTheBackendHaveThePlayer?username=${encodeURIComponent(game.t.matchOrder[index].name)}&opponent=${encodeURIComponent(game.t.matchOrder[index + 2].name)}`)
+					.then(response => {
+						if (!response.ok) {
+							throw new Error(response.statusText);
+						}
+						return response.json();
+					})
+					.then(data => {
+						game.localMode = true;
+						console.log("Player added to game:", data);
+					})
+					.catch(error => {
+						console.error("Error adding player to game:", error);
+					});
+			}
+			console.log(game.t.matches[game.t.matches.length - 1].player1.name, ": ", game.t.matches[game.t.matches.length - 1].player1.score);
+			console.log(game.t.matches[game.t.matches.length - 1].player2.name, ": ", game.t.matches[game.t.matches.length - 1].player2.score);
 		}
 		else if (game.t.stage === TournamentStage.Final || game.t.stage === TournamentStage.Consolation)	// loser vs loser | winner vs winner
 		{
@@ -157,20 +169,20 @@ export function tournamentPlayGame(game: GameInfo): number 	//loop sets matches 
 				winner: game.t.defaultPlayer,
 				loser: game.t.defaultPlayer
 			});
-			fetch(`/makeTheBackendHaveThePlayer?username=${encodeURIComponent(game.t.matchOrder[index].name)}&opponent=${encodeURIComponent(game.t.matchOrder[index + 2].name)}`)
-				.then(response => {
-					if (!response.ok) {
-						throw new Error(response.statusText);
-					}
-					return response.json();
-				})
-				.then(data => {
-					game.localMode = true;
-					console.log("Player added to game:", data);
-				})
-				.catch(error => {
-					console.error("Error adding player to game:", error);
-				});
+			// fetch(`/makeTheBackendHaveThePlayer?username=${encodeURIComponent(game.t.matchOrder[index].name)}&opponent=${encodeURIComponent(game.t.matchOrder[index + 2].name)}`)
+			// 	.then(response => {
+			// 		if (!response.ok) {
+			// 			throw new Error(response.statusText);
+			// 		}
+			// 		return response.json();
+			// 	})
+			// 	.then(data => {
+			// 		game.localMode = true;
+			// 		console.log("Player added to game:", data);
+			// 	})
+			// 	.catch(error => {
+			// 		console.error("Error adding player to game:", error);
+			// 	});
 			console.log(player1.name, ": ", player1.score);
 			console.log(player2.name, ": ", player2.score);
 		}

@@ -221,7 +221,13 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 	});
 
 	app.get('/tournamentContinue', async (request: FastifyRequest, reply: FastifyReply) => {
+		const { username, opponent } = request.query as { username: string; opponent: string };
+		game.player1.name = username;
+		game.player2.name = opponent;
+		game.player1.playerscore = 0;
+		game.player2.playerscore = 0;
 		game.localMode = true;
+		game.gameFinished = false;
 		reply.send({ status: 'Tournament continued' });
 	});
 
@@ -236,6 +242,8 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 			game.tournamentLoopActive = false;
 			game.gameFinished = true;
 			resetGame();
+			game.player1.name = "player1";
+			game.player2.name = "player2";
 		}
 		reply.send({ status: 'Tournament ended' });
 	});

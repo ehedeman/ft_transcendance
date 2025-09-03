@@ -110,8 +110,12 @@ export function handleTournamentGameInfo(data: any): void {
 	game.ball.ballY = ballY;
 	game.player1Paddle.y = player1_y;
 	game.player2Paddle.y = player2_y;
-	game.t.matches[length - 1].player1.score = player1_score;
-	game.t.matches[length - 1].player2.score = player2_score;
+	if (game.t.matches[length - 1].player1.name === player1_name && game.t.matches[length - 1].player2.name === player2_name) {
+		game.t.matches[length - 1].player1.score = player1_score;
+	}
+	if (game.t.matches[length - 1].player1.name === player1_name && game.t.matches[length - 1].player2.name === player2_name) {
+		game.t.matches[length - 1].player2.score = player2_score;
+	}
 	game.gamefinished = gamefinished;
 	game.ball.ballSpeedX = ballSpeedX;
 	drawTournamentGame();

@@ -43,7 +43,8 @@ export function clickWinnerScreenContinue(game: GameInfo) {
 			tournamentFinished(game);
 		}
 		else if (game.tournamentLoopActive && game.t.stage !== TournamentStage.Complete) {
-			fetch("/tournamentContinue");
+			var length = game.t.matches.length;
+			fetch(`/tournamentContinue?username=${encodeURIComponent(game.t.matches[length - 1].player1.name)}&opponent=${encodeURIComponent(game.t.matches[length - 1].player2.name)}`);
 			//replace tournamentContinue with the new start of game
 			game.gamefinished = false;
 			game.localMode = true;
