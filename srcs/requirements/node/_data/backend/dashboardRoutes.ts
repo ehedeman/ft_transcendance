@@ -33,11 +33,16 @@ export async function dashboardRoutes(app: FastifyInstance) {
 				const opponent = m.player1 === alias ? m.player2 : m.player1; // tenary if/else
 				const result: "Win" | "Loss" = m.winner === alias ? "Win" : "Loss";
 
-				if (m.winner === alias) {
+				if (m.player1 === alias) {
 					score = m.score_player1;
 				}
-				else {
-					score = m.score_player2; // This should never be the case... 
+				else if (m.player2 === alias)
+				{
+					score = m.score_player2; 
+				}
+				else
+				{
+					score = 0; // This should never be the case...
 				}
 				return {
 					date: m.match_date,
