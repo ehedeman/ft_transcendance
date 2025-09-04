@@ -15,7 +15,20 @@ export function friendSystem(app: FastifyInstance, db: any, game: GameInfo) {
 			rep.status(404).send({ error: 'User not found' });
 			return;
 		} else {
-			db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, ?)`).run(accountName, nameToAdd, 'pending');
+			let stmt = db.prepare(`SELECT * FROM newFriend WHERE username = ? AND friendname = ?`);
+			let existingRequest = stmt.get(accountName, nameToAdd);
+			if (existingRequest) {
+				rep.status(400).send({ error: 'Friend request already sent or user is already your friend' });
+				return;
+			} else {
+				stmt = db.prepare(`SELECT * FROM newFriend WHERE username = ? AND friendname = ?`);
+				existingRequest = stmt.get(nameToAdd, accountName);
+				if (existingRequest) {
+					rep.status(400).send({ error: 'Friend request already sent or user is already your friend' });
+					return;
+				}
+				db.prepare(`INSERT INTO newFriend (username, friendname, status) VALUES (?, ?, ?)`).run(accountName, nameToAdd, 'pending');
+			}
 		}
 		// Check if the user is online
 		if (game.sockets.has(nameToAdd)) {
