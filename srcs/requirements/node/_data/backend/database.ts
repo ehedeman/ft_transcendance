@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS users (
 	status TEXT DEFAULT 'offline',
 	wins INTEGER DEFAULT 0,
 	losses INTEGER DEFAULT 0,
-	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	updated_at DATETIME DEFAULT (datetime('now', 'localtime')),
+	created_at DATETIME DEFAULT (datetime('now', 'localtime'))
 );
 
 -- Create the newFriend table
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS chatHistory (
 	receiver TEXT NOT NULL,
 	message TEXT NOT NULL,
 	status TEXT DEFAULT 'sent',
-	timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+	timestamp DATETIME DEFAULT (datetime('now', 'localtime'))
 );
 
 CREATE TABLE IF NOT EXISTS matchHistory (
