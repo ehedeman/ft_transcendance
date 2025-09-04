@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS matchHistory (
 	score_player3 INTEGER DEFAULT 0,
 	score_player4 INTEGER DEFAULT 0,
 	matchType TEXT NOT NULL,
-	match_date DATETIME DEFAULT CURRENT_TIMESTAMP
+	match_date DATETIME DEFAULT (datetime('now', 'localtime'))
 );
 `);
 }
