@@ -75,17 +75,21 @@ function renderMatchHistory(matchHistory: any[]) {
 			listItem.style.marginBottom = "10px";
 			listItem.style.backgroundColor = "rgba(255,255,255,0.1)";
 			listItem.style.borderRadius = "8px";
-			
+
 			let matchDetails = `<div style="display: flex; flex-direction: column; gap: 6px; padding: 0 10px;">`;
-			
+
 			// Add date with better formatting
-			const matchDate = new Date(match.match_date);
-			const formattedDate = matchDate.toLocaleString();
+			// const matchDate = new Date(match.match_date);
+			// const formattedDate = matchDate.toLocaleString();
+			const utcString = match.match_date.replace(" ", "T") + "Z"; // Pat was here; incase of bugs..
+			const dateObj = new Date(utcString);
+			const formattedDate = dateObj.toLocaleString("de-DE", { timeZone: "Europe/Berlin" });
+
 			matchDetails += `<div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 6px; text-align: center;">${formattedDate}</div>`;
-			
+
 			// Match type with highlight
 			matchDetails += `<div style="font-weight: bold; font-size: 16px; color: #4facfe; margin-bottom: 8px; text-align: center;">${match.matchType} Match</div>`;
-			
+
 			// Players section
 			matchDetails += `<div style="margin-bottom: 10px; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">`;
 			if (match.player1) matchDetails += `<span style="display: inline-block; padding: 4px 8px; background: rgba(75, 192, 192, 0.2); border-radius: 4px;">${match.player1}</span>`;
@@ -93,7 +97,7 @@ function renderMatchHistory(matchHistory: any[]) {
 			if (match.player3) matchDetails += `<span style="display: inline-block; padding: 4px 8px; background: rgba(54, 162, 235, 0.2); border-radius: 4px;">${match.player3}</span>`;
 			if (match.player4) matchDetails += `<span style="display: inline-block; padding: 4px 8px; background: rgba(255, 206, 86, 0.2); border-radius: 4px;">${match.player4}</span>`;
 			matchDetails += `</div>`;
-			
+
 			// Score section
 			matchDetails += `<div style="display: grid; grid-template-columns: repeat(${getScoreColumnCount(match)}, 1fr); gap: 15px; margin-bottom: 12px; text-align: center;">`;
 			if (match.score_player1 !== undefined) matchDetails += `<div>P1: <span style="font-weight: bold;">${match.score_player1}</span></div>`;
@@ -101,7 +105,7 @@ function renderMatchHistory(matchHistory: any[]) {
 			if (match.score_player3 !== undefined) matchDetails += `<div>P3: <span style="font-weight: bold;">${match.score_player3}</span></div>`;
 			if (match.score_player4 !== undefined) matchDetails += `<div>P4: <span style="font-weight: bold;">${match.score_player4}</span></div>`;
 			matchDetails += `</div>`;
-			
+
 			// Winner/loser section with highlight - centered
 			matchDetails += `<div style="text-align: center; margin-top: 5px;">`;
 			if (match.winner) {
@@ -111,9 +115,9 @@ function renderMatchHistory(matchHistory: any[]) {
 				matchDetails += `<div style="color: rgba(255,255,255,0.7);">Loser: ${match.loser}</div>`;
 			}
 			matchDetails += `</div>`;
-			
+
 			matchDetails += `</div>`;
-			
+
 			listItem.innerHTML = matchDetails;
 			matchHistoryList.appendChild(listItem);
 		});

@@ -239,7 +239,7 @@ app.post("/updateUser", { preValidation: [app.authenticate] }, async (request, r
 app.post("/userInfo", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const _username = request.body as { username: string };
 
-	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
+	const stmt = db.prepare(`SELECT * FROM users WHERE  Full_Name = ?`);  // from Alias -> Full_Name  ----> Bug spotted_Pat
 	const user = stmt.get(_username.username) as userInfo;
 
 	if (!user || !user.Alias || !user.Full_Name || !user.Country || !user.avatar_url || !user.password_hash) {

@@ -32,10 +32,8 @@ export function hideGeneralRegistrationModal() {
 
 import { restoreScreenLoggedIn, restoreScreen } from "./screenDisplay.js";
 
-export function callRegistrationEventListeners(game:GameInfo)
-{
-	document.getElementById("showRegisterPassword")?.addEventListener("click", () => 
-	{
+export function callRegistrationEventListeners(game: GameInfo) {
+	document.getElementById("showRegisterPassword")?.addEventListener("click", () => {
 		const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
 		if (passwordInput.type === "password") {
 			passwordInput.type = "text";
@@ -44,7 +42,7 @@ export function callRegistrationEventListeners(game:GameInfo)
 		}
 	});
 	document.getElementById("registerButton")?.addEventListener("click", () => {
-		navigate(game.availablePages[pageIndex.REGISTER], "" ,game);
+		navigate(game.availablePages[pageIndex.REGISTER], "", game);
 		// const registerButton = document.getElementById("registerButton");
 		// const playSelect = document.getElementById("playSelect");
 		// const loginButton = document.getElementById("loginButton");
@@ -55,14 +53,12 @@ export function callRegistrationEventListeners(game:GameInfo)
 	});
 
 
-	document.addEventListener("DOMContentLoaded", () => 
-	{
+	document.addEventListener("DOMContentLoaded", () => {
 		console.log("DOM is fully loaded and parsed!");
 
 		// Get avatar input and set up preview once
 		const avatarInput = document.getElementById("registerAvatar") as HTMLInputElement;
-		avatarInput.addEventListener("change", () => 
-		{
+		avatarInput.addEventListener("change", () => {
 			const file = avatarInput.files && avatarInput.files[0];
 			const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
 			if (file) {
@@ -75,8 +71,7 @@ export function callRegistrationEventListeners(game:GameInfo)
 		});
 
 		// Handle registration form submission
-		document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => 
-		{
+		document.getElementById("generalRegistrationForm")?.addEventListener("submit", (e) => {
 			e.preventDefault();
 
 			const nameInput = document.getElementById("registerName") as HTMLInputElement;
@@ -105,46 +100,43 @@ export function callRegistrationEventListeners(game:GameInfo)
 			}
 
 			// TODO: remember to uncomment this
-			// if (name.length < 7 || name.length > 50) {
+			if (name.length > 6) {
+				alert("Alias must below 6 characters!");
+				navigate(game.availablePages[pageIndex.HOME], "", game);
+				return;
+			}
+			// if (username.length < 7 || username.length > 50) {
 			// 	alert("Name must be between 7 and 50 characters long.");
 			// 	navigate(game.availablePages[pageIndex.HOME], "", game);
 			// 	return;
 			// }
-			if (username.length > 6) {
-				alert("Alias must be less than 6 characters long.");
-				navigate(game.availablePages[pageIndex.HOME], "", game);
-				return;
-			}
-			
-			fetch("/register", 
-			{
-				method: "POST",
-				body: formData
-			})
-			.then(response =>
-			{
-				if (!response.ok) {
-					alert("Registration failed. Please try again_am _here.");
-					return;
-				}
-				console.log("Registration successful:", response);
-				alert("Registration successful! You can now log in.");
-				emptyLoginFields("registerSettings");
-				// hideGeneralRegistrationModal();
-				// restoreScreen(game);
-				navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
-				return response.json();
-			})
-			.catch(error => 
-			{
-				console.error("Error during Registration:", error);
-			});
+
+			fetch("/register",
+				{
+					method: "POST",
+					body: formData
+				})
+				.then(response => {
+					if (!response.ok) {
+						alert("Registration failed. Please try again_am _here.");
+						return;
+					}
+					console.log("Registration successful:", response);
+					alert("Registration successful! You can now log in.");
+					emptyLoginFields("registerSettings");
+					// hideGeneralRegistrationModal();
+					// restoreScreen(game);
+					navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
+					return response.json();
+				})
+				.catch(error => {
+					console.error("Error during Registration:", error);
+				});
 		});
 	});
 
 
-	document.getElementById("generalCancelRegistration")?.addEventListener("click", () =>
-	{
+	document.getElementById("generalCancelRegistration")?.addEventListener("click", () => {
 		// hideGeneralRegistrationModal();
 		// restoreScreen(game);
 		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);

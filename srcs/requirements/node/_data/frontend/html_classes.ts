@@ -1,6 +1,5 @@
 
-export function callHTMLclassDefines()
-{
+export function callHTMLclassDefines() {
 	customElements.define('settings-components', htmlSettings);
 	customElements.define('registration-components', htmlRegistration);
 	customElements.define('login-components', htmlLogin);
@@ -60,7 +59,7 @@ class htmlLogin extends HTMLElement {
 					<form id="generalLoginForm" method="post"
 						style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between; color: #2c3e50;">
 						<div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
-							<input type="text" id="loginUsername" name="username" placeholder="Username" required="true" 
+							<input type="text" id="loginUsername" name="username" placeholder="Alias" required="true" 
 								style="padding: 12px 16px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 16px; transition: all 0.3s;" />
 							<input type="password" id="loginPassword" name="password" placeholder="Password" required="true" 
 								style="padding: 12px 16px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 16px; transition: all 0.3s;" />
@@ -93,9 +92,9 @@ export class htmlRegistration extends HTMLElement {
 					<form id="generalRegistrationForm" method="post"
 						style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between; color: #2c3e50;">
 						<div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
-							<input type="text" id="registerName" name="name" placeholder="Name" required="true" 
+							<input type="text" id="registerName" name="name" placeholder="Alias" required="true" 
 								style="padding: 12px 16px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 16px; transition: all 0.3s;" />
-							<input type="text" id="registerUsername" name="username" placeholder="Username" required="true" 
+							<input type="text" id="registerUsername" name="username" placeholder="Full Name" required="true" 
 								style="padding: 12px 16px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 16px; transition: all 0.3s;" />
 							<input type="password" id="registerPassword" name="password" placeholder="Password" required="true" 
 								style="padding: 12px 16px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 16px; transition: all 0.3s;" />

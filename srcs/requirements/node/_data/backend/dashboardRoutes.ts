@@ -27,8 +27,11 @@ export async function dashboardRoutes(app: FastifyInstance) {
 	app.get("/user/:alias/stats", { preHandler: [app.authenticate] }, async (request, reply) => {
 		const alias = (request.params as { alias: string }).alias;
 
+		console.log("📌 Params:", request.params);
+		console.log("📌 Alias:", alias);
+
 		try {
-			const userRow = db.prepare("SELECT wins, losses FROM users WHERE Alias = ?").get(alias) as { wins: number; losses: number } | undefined;
+			const userRow = db.prepare("SELECT wins, losses FROM users WHERE Full_Name = ?").get(alias) as { wins: number; losses: number } | undefined;
 			if (!userRow) return reply.status(404).send({ message: "User not found" });
 
 			const matchesRows = db.prepare(`
@@ -45,7 +48,7 @@ export async function dashboardRoutes(app: FastifyInstance) {
 				if (m.player1 === alias) {
 					score = m.score_player1;
 				}
-				else if (m.player2 === alias) {
+				else if (m.player2 === alias) { //i would need to fix something here...
 					score = m.score_player2;
 				}
 				else {
