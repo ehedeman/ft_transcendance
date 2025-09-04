@@ -52,40 +52,40 @@ function calculateBallCoordsMultiplayer(): void {
 	// Check paddle collisions
 	if (touchingPaddle1Multiplayer() && game.ball.ballSpeedX > 0) {
 		// ballSpeedX *= -1 - accaleration;
-		if (game.ball.ballSpeedX < 30) {
+		if (game.ball.ballSpeedX < 25) {
 			game.ball.ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
-		if (game.ball.ballSpeedY < 10){
+		if (game.ball.ballSpeedY < 10 && game.ball.ballSpeedY > -10){
 			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
 		}
 	} else if (touchingPaddle2Multiplayer() && game.ball.ballSpeedX < 0) {
 		// ballSpeedX *= -1 - accaleration;
-		if (game.ball.ballSpeedX > -30) {
+		if (game.ball.ballSpeedX > -25) {
 			game.ball.ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
-		if (game.ball.ballSpeedY < 10){
+		if (game.ball.ballSpeedY < 10 && game.ball.ballSpeedY > -10){
 			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
 		}
 	} else if (touchingPaddle3Multiplayer() && game.ball.ballSpeedX > 0) {
-		if (game.ball.ballSpeedX > -30) {
+		if (game.ball.ballSpeedX > -25) {
 			game.ball.ballSpeedX *= -1 - accaleration;
 		} else {
 			game.ball.ballSpeedX *= -1;
 		}
-		if (game.ball.ballSpeedY < 10){
+		if (game.ball.ballSpeedY < 10 && game.ball.ballSpeedY > -10){
 			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
 		}
 	} else if (touchingPaddle4Multiplayer() && game.ball.ballSpeedX < 0) {
-		if (game.ball.ballSpeedX > -30) {
+		if (game.ball.ballSpeedX > -25) {
 			game.ball.ballSpeedX *= -1 - accaleration;
 		} else {
 			game.ball.ballSpeedX *= -1;
 		}
-		if (game.ball.ballSpeedY < 10){
+		if (game.ball.ballSpeedY < 10 && game.ball.ballSpeedY > -10){
 			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
 		}
 	}

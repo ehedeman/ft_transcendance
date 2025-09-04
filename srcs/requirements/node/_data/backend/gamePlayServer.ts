@@ -43,22 +43,22 @@ function calculateBallCoords(): void {
 	// Check paddle collisions
 	if (touchingPaddle1() && game.ball.ballSpeedX > 0) {
 		// ballSpeedX *= -1 - accaleration;
-		if (game.ball.ballSpeedX < 30) {
+		if (game.ball.ballSpeedX < 25) {
 			game.ball.ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
-		if (game.ball.ballSpeedY < 10) {
+		if (game.ball.ballSpeedY < 10 && game.ball.ballSpeedY > -10) {
 			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random(); // Add some randomness to vertical speed
 		}
 	} else if (touchingPaddle2() && game.ball.ballSpeedX < 0) {
 		// ballSpeedX *= -1 - accaleration;
-		if (game.ball.ballSpeedX > -30) {
+		if (game.ball.ballSpeedX > -25) {
 			game.ball.ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
-		if (game.ball.ballSpeedY < 10) {
+		if (game.ball.ballSpeedY < 10 && game.ball.ballSpeedY > -10) {
 			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
 		}
 	}
