@@ -130,8 +130,16 @@ export function hideEverything() {
 	const multiplayerMatchInviteForm1 = document.getElementById("multiplayerMatchInviteForm1");
 	const multiplayerMatchInviteForm2 = document.getElementById("multiplayerMatchInviteForm2");
 	const multiplayerMatchInviteForm3 = document.getElementById("multiplayerMatchInviteForm3");
+	const dashboardButton = document.getElementById("dashboardButton");
+	const dashboardView = document.getElementById("dashboardView");
+	const globalDashboardButton = document.getElementById("globalDashboardButton");
+	const globalDashboardView = document.getElementById("globalDashboardView");
 	//const leaveGameButton = document.getElementById("leaveGameButton");
 	//if (leaveGameButton) leaveGameButton.style.display = "none";
+	if (dashboardButton) dashboardButton.style.display = "none";
+	if (dashboardView) dashboardView.style.display = "none";
+	if (globalDashboardButton) globalDashboardButton.style.display = "none";
+	if (globalDashboardView) globalDashboardView.style.display = "none";
 	if (registerButton) registerButton.style.display = "none";
 	if (logoutButton) logoutButton.style.display = "none";
 	if (playSelect) playSelect.style.display = "none";

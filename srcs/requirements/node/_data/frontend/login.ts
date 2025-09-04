@@ -39,10 +39,12 @@ export function getUserInfoAndCreateUserInterface(username: string) {
 			userStatusInterFace.style.position = "absolute";
 			userStatusInterFace.style.left = "0";
 			userStatusInterFace.style.top = "0";
-			userStatusInterFace.style.backgroundColor = "rgba(76, 192, 149, 0.8)";
+			userStatusInterFace.style.backgroundColor = "rgba(145, 148, 145, 0.8)";
 			userStatusInterFace.style.width = "200px";
 			userStatusInterFace.style.height = "auto";
 			userStatusInterFace.style.border = "1px solid #000000ff";
+			userStatusInterFace.style.borderRadius = "50px / 30px"; // Makes it oval-shaped Remi
+			userStatusInterFace.style.padding = "10px 20px"; // Add some padding for better spacing Remi
 			document.body.appendChild(userStatusInterFace);
 			userStatusInterFace.innerHTML = `
 				<li><strong>Username:</strong> ${username}</li>
@@ -62,27 +64,70 @@ function renderMatchHistory(matchHistory: any[]) {
 		if (matchHistory.length === 0) {
 			const listItem = document.createElement("li");
 			listItem.textContent = "No match history found.";
+			listItem.style.padding = "12px";
+			listItem.style.textAlign = "center";
+			listItem.style.color = "rgba(255,255,255,0.7)";
 			matchHistoryList.appendChild(listItem);
 		}
 		matchHistory.forEach((match: any) => {
 			const listItem = document.createElement("li");
-			listItem.innerHTML = `Match ID: ${match.id}<br>
-									player1: ${match.player1}<br>
-									player2: ${match.player2}<br>
-									player3: ${match.player3}<br>
-									player4: ${match.player4}<br>
-									winner: ${match.winner}<br>
-									loser: ${match.loser}<br>
-									player1Score: ${match.score_player1}<br>
-									player2Score: ${match.score_player2}<br>
-									player3Score: ${match.score_player3}<br>
-									player4Score: ${match.score_player4}<br>
-									matchDate: ${match.match_date}<br>
-									matchType: ${match.matchType}
-									`;
+			listItem.style.padding = "16px";
+			listItem.style.marginBottom = "10px";
+			listItem.style.backgroundColor = "rgba(255,255,255,0.1)";
+			listItem.style.borderRadius = "8px";
+			
+			let matchDetails = `<div style="display: flex; flex-direction: column; gap: 6px; padding: 0 10px;">`;
+			
+			// Add date with better formatting
+			const matchDate = new Date(match.match_date);
+			const formattedDate = matchDate.toLocaleString();
+			matchDetails += `<div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 6px; text-align: center;">${formattedDate}</div>`;
+			
+			// Match type with highlight
+			matchDetails += `<div style="font-weight: bold; font-size: 16px; color: #4facfe; margin-bottom: 8px; text-align: center;">${match.matchType} Match</div>`;
+			
+			// Players section
+			matchDetails += `<div style="margin-bottom: 10px; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">`;
+			if (match.player1) matchDetails += `<span style="display: inline-block; padding: 4px 8px; background: rgba(75, 192, 192, 0.2); border-radius: 4px;">${match.player1}</span>`;
+			if (match.player2) matchDetails += `<span style="display: inline-block; padding: 4px 8px; background: rgba(255, 99, 132, 0.2); border-radius: 4px;">${match.player2}</span>`;
+			if (match.player3) matchDetails += `<span style="display: inline-block; padding: 4px 8px; background: rgba(54, 162, 235, 0.2); border-radius: 4px;">${match.player3}</span>`;
+			if (match.player4) matchDetails += `<span style="display: inline-block; padding: 4px 8px; background: rgba(255, 206, 86, 0.2); border-radius: 4px;">${match.player4}</span>`;
+			matchDetails += `</div>`;
+			
+			// Score section
+			matchDetails += `<div style="display: grid; grid-template-columns: repeat(${getScoreColumnCount(match)}, 1fr); gap: 15px; margin-bottom: 12px; text-align: center;">`;
+			if (match.score_player1 !== undefined) matchDetails += `<div>P1: <span style="font-weight: bold;">${match.score_player1}</span></div>`;
+			if (match.score_player2 !== undefined) matchDetails += `<div>P2: <span style="font-weight: bold;">${match.score_player2}</span></div>`;
+			if (match.score_player3 !== undefined) matchDetails += `<div>P3: <span style="font-weight: bold;">${match.score_player3}</span></div>`;
+			if (match.score_player4 !== undefined) matchDetails += `<div>P4: <span style="font-weight: bold;">${match.score_player4}</span></div>`;
+			matchDetails += `</div>`;
+			
+			// Winner/loser section with highlight - centered
+			matchDetails += `<div style="text-align: center; margin-top: 5px;">`;
+			if (match.winner) {
+				matchDetails += `<div style="font-weight: bold; color: #4facfe;">Winner: ${match.winner}</div>`;
+			}
+			if (match.loser) {
+				matchDetails += `<div style="color: rgba(255,255,255,0.7);">Loser: ${match.loser}</div>`;
+			}
+			matchDetails += `</div>`;
+			
+			matchDetails += `</div>`;
+			
+			listItem.innerHTML = matchDetails;
 			matchHistoryList.appendChild(listItem);
 		});
 	}
+}
+
+// Helper function to determine how many columns for scores
+function getScoreColumnCount(match: any): number {
+	let count = 0;
+	if (match.score_player1 !== undefined) count++;
+	if (match.score_player2 !== undefined) count++;
+	if (match.score_player3 !== undefined) count++;
+	if (match.score_player4 !== undefined) count++;
+	return count || 1;
 }
 
 export function getUserMatchHistory(username: string) {

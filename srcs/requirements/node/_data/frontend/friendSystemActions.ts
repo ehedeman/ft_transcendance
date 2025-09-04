@@ -34,12 +34,21 @@ export function getChatHistoryFunction(game: GameInfo) {
 			console.log(`${target.textContent} clicked`);
 			game.sendMessageTo = target.id;
 			console.log(`Message will be sent to: ${game.sendMessageTo}`);
-			// Reset all other list items to white
+			
+			// Show message input when a friend is selected Remi
+			const messagesElement = document.getElementById("messages");
+			if (messagesElement) {
+				messagesElement.style.display = "block";
+			}
+			
+			// Reset all other list items to default background
 			const listItems = document.querySelectorAll("#friendList li");
 			listItems.forEach(li => {
-				(li as HTMLElement).style.backgroundColor = "white";
+				(li as HTMLElement).style.backgroundColor = "";
+				(li as HTMLElement).style.color = "white"; // Make sure text stays white
 			});
-			target.style.backgroundColor = "lightblue";
+			target.style.backgroundColor = "#505050"; // Darker highlight for black background
+			target.style.color = "white"; // Keep text white for selected item
 			fetch(`/getChatHistory?username=${encodeURIComponent(game.currentlyLoggedIn.name)}&friendname=${encodeURIComponent(game.sendMessageTo)}`)
 				.then(response => {
 					if (!response.ok) {
@@ -56,6 +65,8 @@ export function getChatHistoryFunction(game: GameInfo) {
 						for (const message of game.chatHistory) {
 							const messageElement = document.createElement("LI");
 							messageElement.textContent = message;
+							messageElement.style.color = "white"; // Ensure messages are white on black background
+							messageElement.style.fontSize = "12px"; // Reduce font size for chat messages
 							chatHistoryElement.appendChild(messageElement);
 						}
 						chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
@@ -128,12 +139,14 @@ export function createConfirmModal(message: string): Promise<boolean> {
 		modal.style.textAlign = "center";
 		modal.style.width = "280px";
 		modal.style.fontFamily = "Arial, sans-serif";
+		modal.style.color = "black"; // Ensure text is black
 
 		// Message
 		const msg = document.createElement("p");
 		msg.textContent = message;
 		msg.style.marginBottom = "15px";
 		msg.style.fontSize = "14px";
+		msg.style.color = "black"; // Ensure message text is black
 
 		// Buttons container
 		const buttonContainer = document.createElement("div");
@@ -243,10 +256,10 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 		modal.style.zIndex = "2000";
 
 		modal.innerHTML = `
-		<div style="background:#fff; padding:20px; border-radius:10px; width:300px; max-width:90%; position:relative; text-align:center;">
+		<div style="background:#fff; padding:20px; border-radius:10px; width:300px; max-width:90%; position:relative; text-align:center; color: black;">
 		<span id="closeModal" style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:22px;">&times;</span>
-		<h3>User Details: ${target.id}</h3>
-		<div id="modalContent">Loading...</div>
+		<h3 style="color: black;">User Details: ${target.id}</h3>
+		<div id="modalContent" style="color: black;">Loading...</div>
 		</div>
 		`;
 

@@ -21,13 +21,13 @@ export function handleGameInfo(data: any) {
 	game.player1Paddle.y = player1_y;
 	game.player2Paddle.y = player2_y;
 	if (game.players.length === 2) {
-		game.players[0].playerscore = player1_score;
-		game.players[1].playerscore = player2_score;
+		game.players[0].playerscore = player2_score;
+		game.players[1].playerscore = player1_score;
 	} else {
-		let player1 = new Player(player1_name);
-		player1.playerscore = player1_score;
-		let player2 = new Player(player2_name);
-		player2.playerscore = player2_score;
+		let player1 = new Player(player2_name);
+		player1.playerscore = player2_score;
+		let player2 = new Player(player1_name);
+		player2.playerscore = player1_score;
 		game.players.push(player1, player2);
 		game.remoteMode = true;
 		hideEverything();
@@ -38,8 +38,8 @@ export function handleGameInfo(data: any) {
 }
 
 export function startRemote1v1Game(name1: string, name2: string): void {
-	const player1 = new Player(name1);
-	const player2 = new Player(name2);
+	const player1 = new Player(name2);
+	const player2 = new Player(name1);
 
 	game.players = [player1, player2];
 	hideEverything();

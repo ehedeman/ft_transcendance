@@ -91,6 +91,9 @@ const dashboardButton = document.getElementById("dashboardButton") as HTMLButton
 dashboardButton.style.display = "block";
 
 dashboardButton.addEventListener("click", () => {
+	hideEverything();
+	document.getElementById("dashboardButton")!.style.display = "block";
+	document.getElementById("globalDashboardButton")!.style.display = "block";
 	document.getElementById("dashboardView")!.style.display = "block";
 	const alias = game.currentlyLoggedIn.name; // your logged-in user alias
 	loadUserDashboard(alias);
@@ -98,6 +101,7 @@ dashboardButton.addEventListener("click", () => {
 
 document.getElementById("closeDashboard")!.addEventListener("click", () => {
 	document.getElementById("dashboardView")!.style.display = "none";
+	restoreScreenLoggedIn();
 });
 // ..............added
 
@@ -109,12 +113,16 @@ const globalView = document.getElementById("globalDashboardView") as HTMLDivElem
 const globalClose = document.getElementById("closeGlobalDashboard") as HTMLButtonElement;
 
 globalButton.addEventListener("click", () => {
+	hideEverything();
+	document.getElementById("dashboardButton")!.style.display = "block";
+	document.getElementById("globalDashboardButton")!.style.display = "block";
 	globalView.style.display = "block";
 	loadGlobalStats();
 });
 
 globalClose.addEventListener("click", () => {
 	globalView.style.display = "none";
+	restoreScreenLoggedIn();
 });
 
 // added.......
@@ -170,6 +178,7 @@ import { createWebSocketConnection } from "./websocketConnection.js";
 import { getFriendList, getFriendRequestList, getRejectedFriendRequests } from "./friendSystemFunctions.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
 import { tournamentEnd } from "./tournament.js";
+import { hideEverything, restoreScreenLoggedIn } from "./screenDisplay.js";
 
 window.onload = function () {
 	fetch("/endTournament");	// to make sure if tournament has been running its turned off now
