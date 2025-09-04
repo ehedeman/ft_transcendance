@@ -263,12 +263,12 @@ app.post("/userInfo", { preValidation: [app.authenticate] }, async (request, rep
 app.post("/deleteUser", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const { username } = request.body as { username: string };
 
-	const user = db.prepare("SELECT * FROM users WHERE Alias = ?").get(username);
+	const user = db.prepare("SELECT * FROM users WHERE Full_Name = ?").get(username); // From Alias -> full_Name  Pat bug here
 	if (!user) {
 		reply.status(401).send({ status: 401, message: "Invalid username" });
 		return;
 	}
-	db.prepare("DELETE FROM users WHERE Alias = ?").run(username);
+	db.prepare("DELETE FROM users WHERE  Full_Name = ?").run(username); // From Alias -> full_Name  Pat bug here
 
 	reply.status(200).send({ status: 200, message: "User successfully deleted" });
 });

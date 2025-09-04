@@ -11,21 +11,18 @@ var settingsAlreadyLoggedIn: boolean = false;
 //to determine whether user was logged in before accessing settings
 //or if the user had first logged in in the settings
 
-export function settingsStart(game: GameInfo)
-{
+export function settingsStart(game: GameInfo) {
 	hideEverything();
 
 	showSettings();
 	hideSettingsForm();
-	if (game.currentlyLoggedIn.name === "default")
-	{
+	if (game.currentlyLoggedIn.name === "default") {
 		settingsAlreadyLoggedIn = false;
 		showSettingsLogin();
 		document.removeEventListener("keydown", handleKeydown);
 		document.removeEventListener("keyup", handleKeyup);
 	}
-	else
-	{
+	else {
 		settingsAlreadyLoggedIn = true;
 		document.removeEventListener("keydown", handleKeydown);
 		document.removeEventListener("keyup", handleKeyup);
@@ -80,8 +77,8 @@ async function setSettingFields(_username: string, userInfoTemp: userInfo): Prom
 	userInfoTemp.Country = playerInfo.country;
 	userInfoTemp.status = "";
 	userInfoTemp.updated_at = "";
-	userInfoTemp.created_at = "";	
-		
+	userInfoTemp.created_at = "";
+
 	console.log("ID after: " + userInfoTemp.id);
 	// here set fields to what database has currently stored to display in settings
 	return true;
@@ -174,10 +171,8 @@ async function loginToSettings(game: GameInfo): Promise<boolean> {
 	}
 }
 
-export function callSettingsEventlisteners(game:GameInfo)
-{
-	document.getElementById("settingsDeleteAccount")?.addEventListener("click", () => 
-	{
+export function callSettingsEventlisteners(game: GameInfo) {
+	document.getElementById("settingsDeleteAccount")?.addEventListener("click", () => {
 		let username: string = game.currentlyLoggedIn.name;
 		logout(game);
 		fetch("/deleteUser", {
@@ -187,29 +182,28 @@ export function callSettingsEventlisteners(game:GameInfo)
 			},
 			body: JSON.stringify({ username: username })
 		})
-		.then(response => {
-			if (!response.ok) {
-				const message: string = response.status === 401 ? 'Username not found' : 'deletion failed. Please try again.';
-				alert(message);
-				return;
-			}
-			alert("Account deleted successfully!");
+			.then(response => {
+				if (!response.ok) {
+					const message: string = response.status === 401 ? 'Username not found' : 'deletion failed. Please try again.';
+					alert(message);
+					return;
+				}
+				alert("Account deleted successfully!");
 
-			game.currentlyLoggedIn.name = "default";
-			game.currentlyLoggedIn.gamesLost = 0;
-			game.currentlyLoggedIn.gamesWon = 0;
-			game.currentlyLoggedIn.playerscore = 0;
+				game.currentlyLoggedIn.name = "default";
+				game.currentlyLoggedIn.gamesLost = 0;
+				game.currentlyLoggedIn.gamesWon = 0;
+				game.currentlyLoggedIn.playerscore = 0;
 
-			// restoreScreen(game);
-			navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
-			return response.json();
-		})
-		.catch(error => {
-			console.error("Error during deletion:", error);
-		});
+				// restoreScreen(game);
+				navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
+				return response.json();
+			})
+			.catch(error => {
+				console.error("Error during deletion:", error);
+			});
 	});
-	document.getElementById('avatarPreviewSettings')?.addEventListener('click', function ()
-	{
+	document.getElementById('avatarPreviewSettings')?.addEventListener('click', function () {
 		document.getElementById('avatarUpload')?.click();
 	});
 
@@ -232,8 +226,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 		}
 	});
 
-	document.getElementById("settingsForm")?.addEventListener("submit", (e) => 
-	{
+	document.getElementById("settingsForm")?.addEventListener("submit", (e) => {
 		e.preventDefault();
 
 		const nameInput = document.getElementById("settingsName") as HTMLInputElement;
@@ -264,13 +257,11 @@ export function callSettingsEventlisteners(game:GameInfo)
 			.then(res => res.json())
 			.then(data => {
 				alert(data.message);
-				if (settingsAlreadyLoggedIn === true)
-				{
+				if (settingsAlreadyLoggedIn === true) {
 					// restoreScreenLoggedIn();
 					navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 				}
-				else
-				{
+				else {
 					navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 					// restoreScreen(game);
 				}
@@ -279,8 +270,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 		// hideSettings();
 	});
 
-	document.getElementById("settingsLogin")?.addEventListener("submit", async (e) => 
-	{
+	document.getElementById("settingsLogin")?.addEventListener("submit", async (e) => {
 		e.preventDefault();
 		const success = await loginToSettings(game);
 
@@ -300,14 +290,12 @@ export function callSettingsEventlisteners(game:GameInfo)
 		}
 	});
 
-	document.getElementById("settingsButton")?.addEventListener("click", () => 
-	{
+	document.getElementById("settingsButton")?.addEventListener("click", () => {
 		navigate(game.availablePages[pageIndex.SETTINGS], "", game);
 		// settingsStart(game);
 	});
 
-	document.getElementById("showSettingsPassword")?.addEventListener("click", () =>
-	{
+	document.getElementById("showSettingsPassword")?.addEventListener("click", () => {
 		const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
 		if (passwordInput.type === "password") {
 			passwordInput.type = "text";
@@ -316,16 +304,14 @@ export function callSettingsEventlisteners(game:GameInfo)
 		}
 	});
 
-	document.getElementById("settingsCancel")?.addEventListener("click", () =>
-	{
+	document.getElementById("settingsCancel")?.addEventListener("click", () => {
 		const settings = document.getElementById("settings") as HTMLElement;
 		if (settings) settings.style.display = "none";
 		document.addEventListener("keydown", handleKeydown);
 		document.addEventListener("keyup", handleKeyup);
 		emptyLoginFields("loginSettings");
 		restoreScreen(game);
-		if (settingsAlreadyLoggedIn === true)
-		{
+		if (settingsAlreadyLoggedIn === true) {
 			restoreScreenLoggedIn();
 			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 			// const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
@@ -335,8 +321,7 @@ export function callSettingsEventlisteners(game:GameInfo)
 			// const playSelect = document.getElementById ("playSelect") as HTMLElement;
 			// if (playSelect) playSelect.style.display = "block";
 		}
-		else
-		{
+		else {
 			game.currentlyLoggedIn.name = "default";
 			navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 		}

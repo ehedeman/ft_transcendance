@@ -140,13 +140,13 @@ export class htmlSettings extends HTMLElement {
 				<form id="settingsForm" method="post" style="flex-grow:1; display:flex; flex-direction:column; width: 100%; margin-bottom:20px; justify-content:space-between; align-items:center;">
 					<div style="display: flex; flex-direction: column; gap: 15px; width: 100%; margin-bottom: 15px;">
 						<div class="input-group" style="position: relative;">
-							<label style="display: block; margin-bottom: 5px; color: #666; font-size: 14px;">Name</label>
+							<label style="display: block; margin-bottom: 5px; color: #666; font-size: 14px;">Alias</label>
 							<input type="text" id="settingsName" name="name" required="false" 
 								style="width: 90%; padding: 12px 16px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 16px; transition: all 0.3s;" />
 						</div>
 						
 						<div class="input-group" style="position: relative;">
-							<label style="display: block; margin-bottom: 5px; color: #666; font-size: 14px;">Username</label>
+							<label style="display: block; margin-bottom: 5px; color: #666; font-size: 14px;">Full Name</label>
 							<input type="text" id="settingsUsername" name="username" required="false" 
 								style="width: 90%; padding: 12px 16px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 16px; transition: all 0.3s;" />
 						</div>
