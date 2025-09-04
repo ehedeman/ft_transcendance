@@ -1,6 +1,15 @@
 import { FastifyInstance } from "fastify";
 import { db } from "./server.js";
 
+export function parseLocalDateTime(dateTimeString: string): Date {
+	const [datePart, timePart] = dateTimeString.split(' ');
+	const [year, month, day] = datePart.split('-').map(Number);
+	const [hour, minute, second] = timePart.split(':').map(Number);
+
+	return new Date(year, month - 1, day, hour, minute, second);
+}
+
+
 type MatchHistoryItem = {
 	date: string;
 	opponent: string;
@@ -36,16 +45,18 @@ export async function dashboardRoutes(app: FastifyInstance) {
 				if (m.player1 === alias) {
 					score = m.score_player1;
 				}
-				else if (m.player2 === alias)
-				{
-					score = m.score_player2; 
+				else if (m.player2 === alias) {
+					score = m.score_player2;
 				}
-				else
-				{
+				else {
 					score = 0; // This should never be the case...
 				}
+
+				const German = parseLocalDateTime(m.match_date);
+				const German_time = German.toLocaleString("de-DE", { timeZone: "Europe/Berlin" });
+
 				return {
-					date: m.match_date,
+					date: German_time,
 					opponent,
 					result,
 					score

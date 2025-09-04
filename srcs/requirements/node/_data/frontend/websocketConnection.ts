@@ -97,7 +97,7 @@ function handleWebSocketMessage(event: MessageEvent) {
 };
 
 export function createWebSocketConnection(username: string) {
-	game.websocket = new WebSocket(`wss://10.12.7.7:3000/ws?username=${username}`); // Accept self-signed cert
+	game.websocket = new WebSocket(`wss://10.12.6.6:3000/ws?username=${username}`); // Accept self-signed cert
 
 	game.websocket.onopen = () => {
 		console.log("✅ WebSocket connection established successfully!");

@@ -1,4 +1,5 @@
 const Chart = (window as any).Chart;
+// import { parseLocalDateTime } from "./dashboardRoutes.js";
 
 
 
@@ -74,17 +75,43 @@ export function renderLeaderboardTable(leaderboard: LeaderboardItem[]): void {
 }
 
 // --- Recent Matches ---
+// export function renderRecentMatches(matches: RecentMatch[]): void {
+// 	const list = getEl<HTMLUListElement>("globalRecentMatches");
+// 	list.innerHTML = "";
+// 	if (!matches.length) list.innerHTML = "<li>No recent matches</li>";
+
+// 	matches.forEach(m => {
+// 		const li = document.createElement("li");
+// 		li.textContent = `${m.match_date}: ${m.player1} vs ${m.player2} — Winner: ${m.winner} (${m.matchType})`;
+// 		list.appendChild(li);
+// 	});
+// }
+
 export function renderRecentMatches(matches: RecentMatch[]): void {
 	const list = getEl<HTMLUListElement>("globalRecentMatches");
+	if (!list) return;
 	list.innerHTML = "";
-	if (!matches.length) list.innerHTML = "<li>No recent matches</li>";
+
+	if (!matches.length) {
+		list.innerHTML = "<li>No recent matches</li>";
+		return;
+	}
+
+	const fragment = document.createDocumentFragment();
 
 	matches.forEach(m => {
+		const utcString = m.match_date.replace(" ", "T") + "Z"; // "2025-09-04T16:37:42Z" replacing space with T...
+		const dateObj = new Date(utcString);
+		const germanTime = dateObj.toLocaleString("de-DE", { timeZone: "Europe/Berlin" });
+
 		const li = document.createElement("li");
-		li.textContent = `${m.match_date}: ${m.player1} vs ${m.player2} — Winner: ${m.winner} (${m.matchType})`;
-		list.appendChild(li);
+		li.textContent = `${germanTime}: ${m.player1} vs ${m.player2} — Winner: ${m.winner} (${m.matchType})`;
+		fragment.appendChild(li); // I need to understand while fragment isn't heavy ont the DOM but list is...
 	});
+
+	list.appendChild(fragment);
 }
+
 
 // --- Loader ---
 export async function loadGlobalStats(): Promise<void> {
