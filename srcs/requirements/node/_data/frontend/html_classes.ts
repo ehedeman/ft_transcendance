@@ -87,14 +87,18 @@ export class htmlRegistration extends HTMLElement {
 						<input type="text" id="registerUsername" name="username" placeholder="Full Name" required class="px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
 						<input type="password" id="registerPassword" name="password" placeholder="Password" required class="px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
 						<input type="text" id="registerCountry" name="country" placeholder="Country" required class="px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
-						<div class="flex justify-center mt-[10px]">
-							<label for="registerAvatar" class="cursor-pointer text-center">
-								<p class="mb-[10px] text-[#666]">Profile Picture</p>
-								<img id="registerAvatarImg" src="./avatars/default-avatar.png" alt="Select your avatar" class="w-[100px] h-[100px] rounded-full border-[3px] border-[#4facfe] object-cover shadow-[0_4px_8px_rgba(0,0,0,0.1)]" />
-							</label>
-							<input type="file" id="registerAvatar" name="avatar" accept="image/*" class="hidden" />
-							<img id="avatarPreview" src="./avatars/default-avatar.png" class="w-[100px] h-[100px] hidden" />
-						</div>
+							<div style="display: flex; justify-content: center; margin-top: 10px;">
+								<label for="registerAvatar" style="cursor:pointer; text-align: center;">
+									<p style="margin-bottom: 10px; color: #666;">Profile Picture</p>
+									<img id="registerAvatarImg" src="./avatars/default-avatar.png"
+										style="width:100px; height:100px; border-radius:50%; border:3px solid #4facfe; object-fit: cover; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
+										alt="Select your avatar" />
+								</label>
+								<input type="file" id="registerAvatar" name="avatar" accept="image/*"
+									style="display:none;" />
+								<img id="avatarPreview" src="./avatars/default-avatar.png"
+									style="width:100px; height:100px; display:none;" />
+							</div>
 					</div>
 					<div class="flex flex-col gap-[10px]">
 						<button type="submit" class="bg-gradient-to-br from-[#0061ff] to-[#60efff] font-semibold text-white px-4 py-3 rounded text-[16px]">
@@ -186,54 +190,47 @@ export class htmlSettings extends HTMLElement {
 export class htmlFriends extends HTMLElement {
 	connectedCallback() {
 		this.innerHTML = `
-		<div id="friendStuff" class="hidden">
-			<div class="bg-white/10 backdrop-blur-md rounded-[16px] border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] absolute top-[140px] right-5 w-[350px] p-5">
-				<header class="font-bold text-2xl mb-4 text-white">Friends</header>
-				<div class="flex flex-col gap-4">
-					<div>
-						<h3 class="text-base mb-2 text-white/80">
-							Friend List
-							</h3>
-						<ul id="friendList" class="w-full h-[150px] overflow-y-auto p-2.5 rounded-lg bg-black/40 text-white list-none m-0">
-							<li class="p-2 border-b border-white/10">
-								Please login to see friends
-							</li>
-						</ul>
-					</div>
-					<div>
-						<h3 class="text-base mb-2 text-white/80">
-							Chat History
-						</h3>
-					<ul id="friendList2" class="w-full h-[150px] overflow-y-auto p-2.5 rounded-lg bg-black/40 text-white list-none m-0 text-xs">
-						<li class="p-2 border-b border-white/10">
-							Please click a friend to see the history...
-						</li>
-					</ul>
-					</div>
-					<div id="messages" class="hidden w-full">
-						<div class="flex gap-2.5">
-							<input type="text" id="inputMessageBox" placeholder="Type your message here..." class="flex-grow border-0 rounded-full px-5 py-3 bg-white/90 text-gray-800 placeholder:text-gray-500" />
-							<button type="button" id="sendMessage" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] bg-gradient-to-br from-[#0061ff] to-[#60efff] border-0 font-semibold text-white px-3.5 py-2 rounded-full">
-								Send
-							</button>
-						</div>
-					</div>
-					<div>
-						<h3 class="text-base mb-2 text-white/80">Friend Requests</h3>
-						<div class="flex gap-2.5">
-							<ul id="friendRequestsList" class="flex-1 h-[100px] overflow-y-auto p-2.5 rounded-lg bg-black/40 text-white list-none m-0">
-								<li class="p-2 border-b border-white/10">
-									Your new friend requests will appear here
-								</li>
-							</ul>
-							<button type="button" id="addFriend" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] hidden w-[50px] h-[50px] rounded-full text-2xl leading-none self-end bg-gradient-to-br from-[#0061ff] to-[#60efff] border-0 font-semibold text-white">
-								+
-							</button>
-						</div>
-					</div>
-				</div>
+		<div id="multiplayerMatchInviteContainer" class="hidden absolute top-[30%] left-1/2 -translate-x-1/2 bg-white/95 p-8 rounded-2xl z-10 text-[#2c3e50] shadow-[0_10px_30px_rgba(0,0,0,0.3)] w-[400px]">
+		<!-- Form 1 -->
+		<form id="multiplayerMatchInviteForm1" method="post" class="flex-grow hidden flex flex-col gap-5">
+			<h1 id="inviteMultiPlayerHeader1" class="text-[28px] text-[#2c3e50] font-bold text-center">Invite First Player</h1>
+			<div class="flex flex-col gap-[15px]">
+			<input type="text" id="inputMultiplayerUsername1" name="username" placeholder="Enter first player's username" required
+				class="mb-2 w-[90%] px-4 py-3 rounded-lg border-2 border-[#e0e0e0] text-base" />
 			</div>
+			<div class="flex flex-col gap-2.5">
+			<button id="sendInvite1" type="submit" class="bg-gradient-to-br from-[#0061ff] to-[#60efff] border-none font-semibold text-white px-4 py-3 rounded text-base">Send Invite</button>
+			<button id="cancelInvite1" type="button" class="cancel-button px-4 py-3 rounded">Cancel</button>
+			</div>
+		</form>
+
+		<!-- Form 2 -->
+		<form id="multiplayerMatchInviteForm2" method="post" class="flex-grow hidden flex flex-col gap-5">
+			<h1 id="inviteMultiPlayerHeader2" class="text-[28px] text-[#2c3e50] font-bold text-center">Invite Second Player</h1>
+			<div class="flex flex-col gap-[15px]">
+			<input type="text" id="inputMultiplayerUsername2" name="username" placeholder="Enter second player's username" required
+				class="mb-2 w-[90%] px-4 py-3 rounded-lg border-2 border-[#e0e0e0] text-base" />
+			</div>
+			<div class="flex flex-col gap-2.5">
+			<button id="sendInvite2" type="submit" class="bg-gradient-to-br from-[#0061ff] to-[#60efff] border-none font-semibold text-white px-4 py-3 rounded text-base">Send Invite</button>
+			<button id="cancelInvite2" type="button" class="cancel-button px-4 py-3 rounded">Cancel</button>
+			</div>
+		</form>
+
+		<!-- Form 3 -->
+		<form id="multiplayerMatchInviteForm3" method="post" class="flex-grow hidden flex flex-col gap-5">
+			<h1 id="inviteMultiPlayerHeader3" class="text-[28px] text-[#2c3e50] font-bold text-center">Invite Third Player</h1>
+			<div class="flex flex-col gap-[15px]">
+			<input type="text" id="inputMultiplayerUsername3" name="username" placeholder="Enter third player's username" required
+				class="mb-2 w-[90%] px-4 py-3 rounded-lg border-2 border-[#e0e0e0] text-base" />
+			</div>
+			<div class="flex flex-col gap-2.5">
+			<button id="sendInvite3" type="submit" class="bg-gradient-to-br from-[#0061ff] to-[#60efff] border-none font-semibold text-white px-4 py-3 rounded text-base">Send Invite</button>
+			<button id="cancelInvite3" type="button" class="cancel-button px-4 py-3 rounded">Cancel</button>
+			</div>
+		</form>
 		</div>
+
 		`;
 	}
 }
