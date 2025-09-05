@@ -17,7 +17,7 @@ export function showWinnerScreen(game: GameInfo, winner: string) {
 	document.removeEventListener('keyup', handleKeyup);
 	const winnerScreen = document.getElementById("WinnerScreen");
 	if (winnerScreen) {
-		winnerScreen.style.display = "block";
+		winnerScreen.classList.remove("hidden");
 		const text = document.getElementById("WinnerScreenText");
 		if (text)
 			text.textContent = winner + " won!";
@@ -29,8 +29,8 @@ function showTournamentResults(placements: tournamentPlacements[], game: GameInf
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	const TournamentContinue = document.getElementById("tournamentFinishContinue");
 	const resetButton = document.getElementById("tournamentResetButton");
-	if (TournamentContinue) TournamentContinue.style.display = "block";
-	if (resetButton) resetButton.style.display = "none";
+	if (TournamentContinue) TournamentContinue.classList.remove("hidden");
+	if (resetButton) resetButton.classList.add("hidden");
 
 	const results = document.getElementById("tournamentResults") as HTMLBodyElement;
 	const placementList = document.getElementById("placementList") as HTMLBodyElement;
@@ -42,7 +42,7 @@ function showTournamentResults(placements: tournamentPlacements[], game: GameInf
 		placementList.appendChild(listItem);
 	});
 
-	results.style.display = "block";
+	results.classList.remove("hidden");
 }
 
 export function tournamentFinished(game: GameInfo): void {
@@ -238,7 +238,7 @@ export function tournamentStart(game: GameInfo) {
 	hideEverything();
 
 	const resetButton = document.getElementById("tournamentResetButton");
-	if (resetButton) resetButton.style.display = "block";
+	if (resetButton) resetButton.classList.remove("hidden");
 	game.t.stage = TournamentStage.Registration;
 	fetch(`/localMode?sender=${game.currentlyLoggedIn.name}`)
 		.then(response => {

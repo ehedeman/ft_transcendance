@@ -22,12 +22,12 @@ export function showGeneralRegistrationModal() {
 	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
 	nameInput.className = "mb-2 px-2 py-1 border rounded block";
 	countryInput.className = "mb-2 px-2 py-1 border rounded block";
-	modal.style.display = "flex";
+	modal.classList.remove("hidden");
 }
 
 export function hideGeneralRegistrationModal() {
 	const modal = document.getElementById("generalRegistrationModal") as HTMLDivElement;
-	modal.style.display = "none";
+	modal.classList.add("hidden");
 }
 
 import { restoreScreenLoggedIn, restoreScreen } from "./screenDisplay.js";
@@ -46,9 +46,9 @@ export function callRegistrationEventListeners(game: GameInfo) {
 		// const registerButton = document.getElementById("registerButton");
 		// const playSelect = document.getElementById("playSelect");
 		// const loginButton = document.getElementById("loginButton");
-		// if (registerButton) registerButton.style.display = "none";
-		// if (playSelect) playSelect.style.display = "none";
-		// if (loginButton) loginButton.style.display = "none";
+		// if (registerButton) registerButton.classList.add("hidden");
+		// if (playSelect) playSelect.classList.add("hidden");
+		// if (loginButton) loginButton.classList.add("hidden");
 		// showGeneralRegistrationModal();
 	});
 
@@ -63,10 +63,10 @@ export function callRegistrationEventListeners(game: GameInfo) {
 			const preview = document.getElementById("registerAvatarImg") as HTMLImageElement;
 			if (file) {
 				preview.src = URL.createObjectURL(file);
-				preview.style.display = "block";
+				preview.classList.remove("hidden");
 			} else {
 				preview.src = "./avatars/default-avatar.png";
-				preview.style.display = "none";
+				preview.classList.add("hidden");
 			}
 		});
 

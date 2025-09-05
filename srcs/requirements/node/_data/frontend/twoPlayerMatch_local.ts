@@ -6,43 +6,43 @@ import { hideEverything, restoreScreen, restoreScreenLoggedIn } from "./screenDi
 export function twoPlayerMatchStart(game: GameInfo) {
 	hideEverything();
 	const twoPlayerMatch = document.getElementById("twoPlayerMatchContainer") as HTMLDivElement;
-	if (twoPlayerMatch) twoPlayerMatch.style.display = "block";
+	if (twoPlayerMatch) twoPlayerMatch.classList.remove("hidden");
 }
 
 function showTwoPlayerMatchSelect() {
 	const select = document.getElementById("twoPlayerMatchSelect");
-	if (select) select.style.display = "block";
+	if (select) select.classList.remove("hidden");
 }
 
 function hideTwoPlayerMatchSelect() {
 	const select = document.getElementById("twoPlayerMatchSelect");
-	if (select) select.style.display = "none";
+	if (select) select.classList.add("hidden");
 }
 
 function showGuestPlayerButtons() {
 	const guestButton = document.getElementById("twoPlayerMatchGuestGame") as HTMLButtonElement;
 	const playerButton = document.getElementById("twoPlayerMatchPlayerGame") as HTMLButtonElement;
-	if (guestButton) guestButton.style.display = "block";
-	if (playerButton) playerButton.style.display = "block";
+	if (guestButton) guestButton.classList.remove("hidden");
+	if (playerButton) playerButton.classList.remove("hidden");
 }
 
 function hideGuestPlayerButtons() {
 	const guestButton = document.getElementById("twoPlayerMatchGuestGame") as HTMLButtonElement;
 	const playerButton = document.getElementById("twoPlayerMatchPlayerGame") as HTMLButtonElement;
 	const header = document.getElementById("twoPlayerMatchHeader");
-	if (header) header.style.display = "none"
-	if (guestButton) guestButton.style.display = "none";
-	if (playerButton) playerButton.style.display = "none";
+	if (header) header.classList.add("hidden")
+	if (guestButton) guestButton.classList.add("hidden");
+	if (playerButton) playerButton.classList.add("hidden");
 }
 
 function hideLogin() {
 	const login = document.getElementById("twoPlayerMatchLogin") as HTMLButtonElement;
-	if (login) login.style.display = "none";
+	if (login) login.classList.add("hidden");
 }
 
 function showLogin() {
 	const login = document.getElementById("twoPlayerMatchLogin") as HTMLButtonElement;
-	if (login) login.style.display = "block";
+	if (login) login.classList.remove("hidden");
 }
 
 function localMatch(game: GameInfo): void {
@@ -60,12 +60,12 @@ function localMatch(game: GameInfo): void {
 
 function showTwoPlayerMatchInviteForm() {
 	const inviteForm = document.getElementById("twoPlayerMatchInviteForm") as HTMLFormElement;
-	if (inviteForm) inviteForm.style.display = "block";
+	if (inviteForm) inviteForm.classList.remove("hidden");
 }
 
 function hideTwoPlayerMatchInviteForm() {
 	const inviteForm = document.getElementById("twoPlayerMatchInviteForm") as HTMLFormElement;
-	if (inviteForm) inviteForm.style.display = "none";
+	if (inviteForm) inviteForm.classList.add("hidden");
 	const input  = document.getElementById("twoPlayerMatchInviteInput") as HTMLInputElement;
 	if (input) input.value = "";
 }
@@ -82,9 +82,9 @@ export function restoreMatchState() {
 	hideTwoPlayerMatchInviteForm();
 	showTwoPlayerMatchSelect();
 	const header = document.getElementById("twoPlayerMatchHeader");
-	if (header) header.style.display = "block"
+	if (header) header.classList.remove("hidden")
 	const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
-	if (container) container.style.display = "none";
+	if (container) container.classList.add("hidden");
 }
 
 async function loginTotwoPlayerMatch(game: GameInfo): Promise<boolean> {
@@ -201,7 +201,7 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 	document.getElementById("twoPlayerMatchGuestGame")?.addEventListener("click", (event: Event) => {
 		hideGuestPlayerButtons();
 		const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
-		if (container) container.style.display = "none";
+		if (container) container.classList.add("hidden");
 		game.players.splice(0, game.players.length);
 		game.players.push(game.currentlyLoggedIn);
 
@@ -241,9 +241,9 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 		if (success) {
 			restoreMatchState();
 			const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
-			if (container) container.style.display = "none";
+			if (container) container.classList.add("hidden");
 			// const leaveGameButton = document.getElementById("leaveGameButton") as HTMLButtonElement;
-			// if (leaveGameButton) leaveGameButton.style.display = "block";
+			// if (leaveGameButton) leaveGameButton.classList.remove("hidden");
 			// navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 		} else {
 			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
@@ -269,6 +269,6 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 		sendTwoPlayerMatchInvite(inviteUsername, game);
 		hideTwoPlayerMatchInviteForm();
 		const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
-		if (container) container.style.display = "none";
+		if (container) container.classList.add("hidden");
 	});
 }

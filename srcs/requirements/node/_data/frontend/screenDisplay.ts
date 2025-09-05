@@ -23,23 +23,23 @@ export function restoreScreen(game: GameInfo): void {
 	//const leaveGameButton = document.getElementById("leaveGameButton");
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 
-	//if (leaveGameButton) leaveGameButton.style.display = "none";
-	if (messages) messages.style.display = "none";
-	if (logoutButton) logoutButton.style.display = "none";
+	//if (leaveGameButton) leaveGameButton.classList.add("hidden");
+	if (messages) messages.classList.add("hidden");
+	if (logoutButton) logoutButton.classList.add("hidden");
 	if (preview) preview.src = "./avatars/default-avatar.png";
-	if (registerButton) registerButton.style.display = "block";
-	if (playSelect) playSelect.style.display = "none";
-	if (loginButton) loginButton.style.display = "block";
-	if (registerModal) registerModal.style.display = "none";
-	if (settings) settings.style.display = "none";
-	if (loginModal) loginModal.style.display = "none";
-	if (settingsButton) settingsButton.style.display = "none";
-	if (friendStuff) friendStuff.style.display = "none";
-	if (matchHistory) matchHistory.style.display = "none";
-	if (dashboardButton) dashboardButton.style.display = "none";
-	if (dashboardView) dashboardView.style.display = "none";
-	if (globalDashboardButton) globalDashboardButton.style.display = "none";
-	if (globalDashboardView) globalDashboardView.style.display = "none";
+	if (registerButton) registerButton.classList.remove("hidden");
+	if (playSelect) playSelect.classList.add("hidden");
+	if (loginButton) loginButton.classList.remove("hidden");
+	if (registerModal) registerModal.classList.add("hidden");
+	if (settings) settings.classList.add("hidden");
+	if (loginModal) loginModal.classList.add("hidden");
+	if (settingsButton) settingsButton.classList.add("hidden");
+	if (friendStuff) friendStuff.classList.add("hidden");
+	if (matchHistory) matchHistory.classList.add("hidden");
+	if (dashboardButton) dashboardButton.classList.add("hidden");
+	if (dashboardView) dashboardView.classList.add("hidden");
+	if (globalDashboardButton) globalDashboardButton.classList.add("hidden");
+	if (globalDashboardView) globalDashboardView.classList.add("hidden");
 }
 
 export function hideDefaultButtons(): void {
@@ -55,17 +55,17 @@ export function hideDefaultButtons(): void {
 	const messages = document.getElementById("messages");
 	const matchHistory = document.getElementById("matchHistory");
 
-	if (messages) messages.style.display = "none";
-	if (logoutButton) logoutButton.style.display = "none";
-	if (registerButton) registerButton.style.display = "none";
-	if (playSelect) playSelect.style.display = "none";
-	if (loginButton) loginButton.style.display = "none";
-	if (registerModal) registerModal.style.display = "none";
-	if (settings) settings.style.display = "none";
-	if (loginModal) loginModal.style.display = "none";
-	if (settingsButton) settingsButton.style.display = "none";
-	if (friendStuff) friendStuff.style.display = "none";
-	if (matchHistory) matchHistory.style.display = "none";
+	if (messages) messages.classList.add("hidden");
+	if (logoutButton) logoutButton.classList.add("hidden");
+	if (registerButton) registerButton.classList.add("hidden");
+	if (playSelect) playSelect.classList.add("hidden");
+	if (loginButton) loginButton.classList.add("hidden");
+	if (registerModal) registerModal.classList.add("hidden");
+	if (settings) settings.classList.add("hidden");
+	if (loginModal) loginModal.classList.add("hidden");
+	if (settingsButton) settingsButton.classList.add("hidden");
+	if (friendStuff) friendStuff.classList.add("hidden");
+	if (matchHistory) matchHistory.classList.add("hidden");
 }
 
 export function restoreScreenLoggedIn(): void {
@@ -88,21 +88,21 @@ export function restoreScreenLoggedIn(): void {
 
 	restoreMatchState();
 
-	if (messages) messages.style.display = "block";
-	if (logoutButton) logoutButton.style.display = "block";
-	if (registerButton) registerButton.style.display = "none";
-	if (friendStuff) friendStuff.style.display = "block";
-	if (settingsButton) settingsButton.style.display = "block";
-	if (playSelect) playSelect.style.display = "block";
-	if (loginButton) loginButton.style.display = "none";
-	if (settings) settings.style.display = "none";
-	if (loginModal) loginModal.style.display = "none";
-	if (registerModal) registerModal.style.display = "none";
+	if (messages) messages.classList.remove("hidden");
+	if (logoutButton) logoutButton.classList.remove("hidden");
+	if (registerButton) registerButton.classList.add("hidden");
+	if (friendStuff) friendStuff.classList.remove("hidden");
+	if (settingsButton) settingsButton.classList.remove("hidden");
+	if (playSelect) playSelect.classList.remove("hidden");
+	if (loginButton) loginButton.classList.add("hidden");
+	if (settings) settings.classList.add("hidden");
+	if (loginModal) loginModal.classList.add("hidden");
+	if (registerModal) registerModal.classList.add("hidden");
 	if (preview) preview.src = "./avatars/default-avatar.png";
-	if (matchHistory) matchHistory.style.display = "block";
-	if (addFriend) addFriend.style.display = "block";
-	if (dashboardButton) dashboardButton.style.display = "block";
-	if (globalDashboardButton) globalDashboardButton.style.display = "block";
+	if (matchHistory) matchHistory.classList.remove("hidden");
+	if (addFriend) addFriend.classList.remove("hidden");
+	if (dashboardButton) dashboardButton.classList.remove("hidden");
+	if (globalDashboardButton) globalDashboardButton.classList.remove("hidden");
 
 }
 
@@ -135,32 +135,32 @@ export function hideEverything() {
 	const globalDashboardButton = document.getElementById("globalDashboardButton");
 	const globalDashboardView = document.getElementById("globalDashboardView");
 	//const leaveGameButton = document.getElementById("leaveGameButton");
-	//if (leaveGameButton) leaveGameButton.style.display = "none";
-	if (dashboardButton) dashboardButton.style.display = "none";
-	if (dashboardView) dashboardView.style.display = "none";
-	if (globalDashboardButton) globalDashboardButton.style.display = "none";
-	if (globalDashboardView) globalDashboardView.style.display = "none";
-	if (registerButton) registerButton.style.display = "none";
-	if (logoutButton) logoutButton.style.display = "none";
-	if (playSelect) playSelect.style.display = "none";
-	if (loginButton) loginButton.style.display = "none";
-	if (WinnerScreen) WinnerScreen.style.display = "none";
-	if (message) message.style.display = "none";
-	if (matchHistory) matchHistory.style.display = "none";
-	if (tournamentRegistrationModal) tournamentRegistrationModal.style.display = "none";
-	if (tournamentResults) tournamentResults.style.display = "none";
-	if (tournamentFinishContinue) tournamentFinishContinue.style.display = "none";
-	if (tournamentResetButton) tournamentResetButton.style.display = "none";
-	if (generalLoginModal) generalLoginModal.style.display = "none";
-	if (generalRegistrationModal) generalRegistrationModal.style.display = "none";
-	if (settings) settings.style.display = "none";
-	if (friendStuff) friendStuff.style.display = "none";
-	if (addFriend) addFriend.style.display = "none";
-	if (twoPlayerMatchContainer) twoPlayerMatchContainer.style.display = "none";
-	if (twoPlayerMatchLogin) twoPlayerMatchLogin.style.display = "none";
-	if (twoPlayerMatchInviteForm) twoPlayerMatchInviteForm.style.display = "none";
-	if (multiplayerMatchInviteContainer) multiplayerMatchInviteContainer.style.display = "none";
-	if (multiplayerMatchInviteForm1) multiplayerMatchInviteForm1.style.display = "none";
-	if (multiplayerMatchInviteForm2) multiplayerMatchInviteForm2.style.display = "none";
-	if (multiplayerMatchInviteForm3) multiplayerMatchInviteForm3.style.display = "none";
+	//if (leaveGameButton) leaveGameButton.classList.add("hidden");
+	if (dashboardButton) dashboardButton.classList.add("hidden");
+	if (dashboardView) dashboardView.classList.add("hidden");
+	if (globalDashboardButton) globalDashboardButton.classList.add("hidden");
+	if (globalDashboardView) globalDashboardView.classList.add("hidden");
+	if (registerButton) registerButton.classList.add("hidden");
+	if (logoutButton) logoutButton.classList.add("hidden");
+	if (playSelect) playSelect.classList.add("hidden");
+	if (loginButton) loginButton.classList.add("hidden");
+	if (WinnerScreen) WinnerScreen.classList.add("hidden");
+	if (message) message.classList.add("hidden");
+	if (matchHistory) matchHistory.classList.add("hidden");
+	if (tournamentRegistrationModal) tournamentRegistrationModal.classList.add("hidden");
+	if (tournamentResults) tournamentResults.classList.add("hidden");
+	if (tournamentFinishContinue) tournamentFinishContinue.classList.add("hidden");
+	if (tournamentResetButton) tournamentResetButton.classList.add("hidden");
+	if (generalLoginModal) generalLoginModal.classList.add("hidden");
+	if (generalRegistrationModal) generalRegistrationModal.classList.add("hidden");
+	if (settings) settings.classList.add("hidden");
+	if (friendStuff) friendStuff.classList.add("hidden");
+	if (addFriend) addFriend.classList.add("hidden");
+	if (twoPlayerMatchContainer) twoPlayerMatchContainer.classList.add("hidden");
+	if (twoPlayerMatchLogin) twoPlayerMatchLogin.classList.add("hidden");
+	if (twoPlayerMatchInviteForm) twoPlayerMatchInviteForm.classList.add("hidden");
+	if (multiplayerMatchInviteContainer) multiplayerMatchInviteContainer.classList.add("hidden");
+	if (multiplayerMatchInviteForm1) multiplayerMatchInviteForm1.classList.add("hidden");
+	if (multiplayerMatchInviteForm2) multiplayerMatchInviteForm2.classList.add("hidden");
+	if (multiplayerMatchInviteForm3) multiplayerMatchInviteForm3.classList.add("hidden");
 }

@@ -124,13 +124,13 @@ function showtournamentRegistrationModal(playerNr: number): void {
 
 	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
 
-	modal.style.display = "flex";
+	modal.classList.remove("hidden");
 }
 
 
 function hidetournamentRegistrationModal() {
 	const modal = document.getElementById("tournamentRegistrationModal") as HTMLDivElement;
-	modal.style.display = "none";
+	modal.classList.add("hidden");
 }
 
 import { restoreScreenLoggedIn } from "./screenDisplay.js";
@@ -164,12 +164,12 @@ export function callTournamentEventListeners(game: GameInfo) {
 		hidetournamentRegistrationModal();
 		fetch("/cancelledGame");
 		const resetButton = document.getElementById("tournamentResetButton") as HTMLElement;
-		if (resetButton) resetButton.style.display = "none";
+		if (resetButton) resetButton.classList.add("hidden");
 		tournamentEnd(1, game);
 		// restoreScreen(game);
 		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 		const playSelect = document.getElementById("playSelect");
-		if (playSelect) playSelect.style.display = "block";
+		if (playSelect) playSelect.classList.remove("hidden");
 		restoreScreenLoggedIn();
 		fetch("/endLocalMode");
 

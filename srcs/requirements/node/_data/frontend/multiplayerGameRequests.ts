@@ -4,20 +4,20 @@ import { hideDefaultButtons, hideEverything, restoreScreen, restoreScreenLoggedI
 function showSubmitForm() {
 	hideDefaultButtons();
 	const container = document.getElementById("multiplayerMatchInviteContainer");
-	if (container) container.style.display = "block";
+	if (container) container.classList.remove("hidden");
 	const form = document.getElementById("multiplayerMatchInviteForm1");
-	if (form) form.style.display = "block";
+	if (form) form.classList.remove("hidden");
 }
 
 function hideSubmitForm() {
 	const container = document.getElementById("multiplayerMatchInviteContainer");
-	if (container) container.style.display = "none";
+	if (container) container.classList.add("hidden");
 	const form1 = document.getElementById("multiplayerMatchInviteForm1");
-	if (form1) form1.style.display = "none";
+	if (form1) form1.classList.add("hidden");
 	const form2 = document.getElementById("multiplayerMatchInviteForm2");
-	if (form2) form2.style.display = "none";
+	if (form2) form2.classList.add("hidden");
 	const form3 = document.getElementById("multiplayerMatchInviteForm3");
-	if (form3) form3.style.display = "none";
+	if (form3) form3.classList.add("hidden");
 	restoreScreenLoggedIn();
 }
 
@@ -39,9 +39,9 @@ function subscribeToFormEvents(game: GameInfo) {
 					return;
 				}
 				const form2 = document.getElementById("multiplayerMatchInviteForm2");
-				if (form2) form2.style.display = "block";
+				if (form2) form2.classList.remove("hidden");
 				const form1 = document.getElementById("multiplayerMatchInviteForm1");
-				if (form1) form1.style.display = "none";
+				if (form1) form1.classList.add("hidden");
 				game.multiplayerName.push(username);
 			});
 	});
@@ -66,9 +66,9 @@ function subscribeToFormEvents(game: GameInfo) {
 					return;
 				}
 				const form3 = document.getElementById("multiplayerMatchInviteForm3");
-				if (form3) form3.style.display = "block";
+				if (form3) form3.classList.remove("hidden");
 				const form2 = document.getElementById("multiplayerMatchInviteForm2");
-				if (form2) form2.style.display = "none";
+				if (form2) form2.classList.add("hidden");
 				game.multiplayerName.push(username);
 			});
 	});
