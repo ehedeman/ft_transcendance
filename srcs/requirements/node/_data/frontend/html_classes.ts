@@ -38,16 +38,21 @@ class htmlTournament extends HTMLElement {
 			</form>
 		</div>
 	</div>
-			<div id="tournamentResults" style="display:none; position:absolute; top:20%; left:50%; transform:translateX(-50%); background:rgba(255,255,255,0.95); padding:30px; border-radius:16px; z-index:10; width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-				<h2 style="color: #2c3e50; font-size: 28px; margin-bottom: 20px; text-align: center; font-weight: 700;">Tournament Results</h2>
-				<div style="background: rgba(0,0,0,0.05); border-radius: 8px; padding: 15px;">
-					<ol id="placementList" style="color: #2c3e50; font-size: 18px; padding-left: 30px;"></ol>
-				</div>
-			</div>
+	<div id="tournamentResults" class="hidden absolute top-[20%] left-1/2 transform -translate-x-1/2 bg-white/95 p-8 rounded-2xl z-10 w-[400px] shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
+	<h2 class="text-[#2c3e50] text-[28px] mb-5 text-center font-bold">Tournament Results</h2>
+	<div class="bg-black/5 rounded-lg p-4">
+		<ol id="placementList" class="text-[#2c3e50] text-[18px] pl-8"></ol>
+	</div>
+	</div>
 
-			<button id="tournamentFinishContinue" style="display:none; position:absolute; z-index:2; left:50%; top:10%; transform:translateX(-50%);" class="action-button text-white px-6 py-3 rounded" style="font-size: 16px;">Continue</button>
-			<button id="tournamentResetButton" style="display:none; position:absolute; z-index:2; left:50%; top:70px; transform:translateX(-50%);" 
-				style="background: linear-gradient(135deg, #ff4b2b 0%, #ff416c 100%); border: none; font-weight: 600; color: white; padding: 10px 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); transition: all 0.2s ease;">Reset Tournament</button>
+	<button id="tournamentFinishContinue" class="hidden absolute z-20 left-1/2 top-[10%] transform -translate-x-1/2 text-white px-6 py-3 rounded text-[16px] bg-gradient-to-br from-[#0061ff] to-[#60efff] border-none font-semibold">
+	Continue
+	</button>
+
+	<button id="tournamentResetButton" class="hidden absolute z-20 left-1/2 top-[70px] transform -translate-x-1/2 font-semibold text-white px-5 py-2 rounded-lg shadow-[0_4px_8px_rgba(0,0,0,0.2)] transition-all duration-200 bg-gradient-to-br from-[#ff4b2b] to-[#ff416c] border-none">
+	Reset Tournament
+	</button>
+
 `;
 	}
 }
@@ -199,42 +204,51 @@ export class htmlSettings extends HTMLElement {
 export class htmlFriends extends HTMLElement {
 	connectedCallback() {
 		this.innerHTML = `
-		<div id="friendStuff" style="display: none;">
-			<div class="game-card" style="position:absolute; top: 140px; right: 20px; width: 350px; padding: 20px;">
-				<header style="font-weight: 700; font-size: 24px; margin-bottom: 15px; color: white;">Friends</header> 
-				<div style="display: flex; flex-direction: column; gap: 15px;">
+		<div id="friendStuff" class="hidden">
+			<div class="bg-white/10 backdrop-blur-md rounded-[16px] border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)] absolute top-[140px] right-5 w-[350px] p-5">
+				<header class="font-bold text-2xl mb-4 text-white">Friends</header>
+				<div class="flex flex-col gap-4">
 					<div>
-						<h3 style="font-size: 16px; margin-bottom: 8px; color: rgba(255,255,255,0.8);">Friend List</h3>
-						<ul id="friendList" style="width: 100%; height: 150px; overflow-y: auto; padding: 10px; border-radius: 8px; background-color: rgba(0,0,0,0.4); color: white; list-style-type: none; margin: 0;">
-							<li style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">Please login to see friends</li>
+						<h3 class="text-base mb-2 text-white/80">
+							Friend List
+							</h3>
+						<ul id="friendList" class="w-full h-[150px] overflow-y-auto p-2.5 rounded-lg bg-black/40 text-white list-none m-0">
+							<li class="p-2 border-b border-white/10">
+								Please login to see friends
+							</li>
 						</ul>
 					</div>
 					<div>
-						<h3 style="font-size: 16px; margin-bottom: 8px; color: rgba(255,255,255,0.8);">Chat History</h3>
-						<ul id="friendList2" style="width: 100%; height: 150px; overflow-y: auto; padding: 10px; border-radius: 8px; background-color: rgba(0,0,0,0.4); color: white; list-style-type: none; margin: 0; font-size: 12px;">
-							<li style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">Please click a friend to see the history...</li>
-						</ul>
+						<h3 class="text-base mb-2 text-white/80">
+							Chat History
+						</h3>
+					<ul id="friendList2" class="w-full h-[150px] overflow-y-auto p-2.5 rounded-lg bg-black/40 text-white list-none m-0 text-xs">
+						<li class="p-2 border-b border-white/10">
+							Please click a friend to see the history...
+						</li>
+					</ul>
 					</div>
-					<div>
-						<h3 style="font-size: 16px; margin-bottom: 8px; color: rgba(255,255,255,0.8);">Friend Requests</h3>
-						<div style="display: flex; gap: 10px;">
-							<ul id="friendRequestsList" style="flex: 1; height: 100px; overflow-y: auto; padding: 10px; border-radius: 8px; background-color: rgba(0,0,0,0.4); color: white; list-style-type: none; margin: 0;">
-								<li style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">Your new friend requests will appear here</li>
-							</ul>
-							<button style="width: 50px; height: 50px; display: none; border-radius: 50%; font-size: 24px; line-height: 0; align-self: flex-end;" id="addFriend" class="action-button text-white">+</button>
+					<div id="messages" class="hidden w-full">
+						<div class="flex gap-2.5">
+							<input type="text" id="inputMessageBox" placeholder="Type your message here..." class="flex-grow border-0 rounded-full px-5 py-3 bg-white/90 text-gray-800 placeholder:text-gray-500" />
+							<button type="button" id="sendMessage" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] bg-gradient-to-br from-[#0061ff] to-[#60efff] border-0 font-semibold text-white px-3.5 py-2 rounded-full">
+								Send
+							</button>
 						</div>
 					</div>
-				</div>
-			</div>
-			
-			<!-- Message input below friend panel -->
-			<div id="messages" class="game-card" style="position:absolute; display: none; top: calc(140px + 750px); right: 20px; width: 350px; padding: 15px;">
-				<div style="display: flex; gap: 10px;">
-					<input type="text" id="inputMessageBox" placeholder="Type your message here..."
-						style="flex-grow: 1; border: none; border-radius: 20px; padding: 12px 20px; background: rgba(255, 255, 255, 0.9); color: #333;" />
-					<button id="sendMessage" class="action-button text-white px-4 py-2 rounded" style="border-radius: 20px;">
-						Send
-					</button>
+					<div>
+						<h3 class="text-base mb-2 text-white/80">Friend Requests</h3>
+						<div class="flex gap-2.5">
+							<ul id="friendRequestsList" class="flex-1 h-[100px] overflow-y-auto p-2.5 rounded-lg bg-black/40 text-white list-none m-0">
+								<li class="p-2 border-b border-white/10">
+									Your new friend requests will appear here
+								</li>
+							</ul>
+							<button type="button" id="addFriend" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] hidden w-[50px] h-[50px] rounded-full text-2xl leading-none self-end bg-gradient-to-br from-[#0061ff] to-[#60efff] border-0 font-semibold text-white">
+								+
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -308,7 +322,7 @@ export class htmlMultiplayerMatch extends HTMLElement {
 			</div>
 			<div class="flex flex-col gap-2.5">
 			<button id="sendInvite1" type="submit" class="bg-gradient-to-br from-[#0061ff] to-[#60efff] border-none font-semibold text-white px-4 py-3 rounded text-base">Send Invite</button>
-			<button id="cancelInvite1" type="button" class="cancel-button px-4 py-3 rounded">Cancel</button>
+			<button id="cancelInvite1" type="button" class="bg-gradient-to-br from-[#8e9eab] to-[#eef2f3] border-none font-semibold text-[#2c3e50] px-4 py-3 rounded">Cancel</button>
 			</div>
 		</form>
 
@@ -321,7 +335,7 @@ export class htmlMultiplayerMatch extends HTMLElement {
 			</div>
 			<div class="flex flex-col gap-2.5">
 			<button id="sendInvite2" type="submit" class="bg-gradient-to-br from-[#0061ff] to-[#60efff] border-none font-semibold text-white px-4 py-3 rounded text-base">Send Invite</button>
-			<button id="cancelInvite2" type="button" class="cancel-button px-4 py-3 rounded">Cancel</button>
+			<button id="cancelInvite2" type="button" class="bg-gradient-to-br from-[#8e9eab] to-[#eef2f3] border-none font-semibold text-[#2c3e50] px-4 py-3 rounded">Cancel</button>
 			</div>
 		</form>
 
@@ -334,7 +348,7 @@ export class htmlMultiplayerMatch extends HTMLElement {
 			</div>
 			<div class="flex flex-col gap-2.5">
 			<button id="sendInvite3" type="submit" class="bg-gradient-to-br from-[#0061ff] to-[#60efff] border-none font-semibold text-white px-4 py-3 rounded text-base">Send Invite</button>
-			<button id="cancelInvite3" type="button" class="cancel-button px-4 py-3 rounded">Cancel</button>
+			<button id="cancelInvite3" type="button" class="bg-gradient-to-br from-[#8e9eab] to-[#eef2f3] border-none font-semibold text-[#2c3e50] px-4 py-3 rounded">Cancel</button>
 			</div>
 		</form>
 		</div>
