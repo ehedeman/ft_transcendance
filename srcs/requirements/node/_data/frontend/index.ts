@@ -121,7 +121,7 @@ globalButton.addEventListener("click", () => {
 });
 
 globalClose.addEventListener("click", () => {
-	globalView.style.display = "none";
+	globalView.");
 	restoreScreenLoggedIn();
 });
 

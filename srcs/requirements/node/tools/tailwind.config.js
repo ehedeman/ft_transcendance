@@ -1,7 +1,11 @@
 module.exports = {
   content: ['./data/public/index.html', './data/frontend/**/*.{ts,js}'],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        montserrat: ['Montserrat', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
-};
+}
