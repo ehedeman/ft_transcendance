@@ -57,13 +57,13 @@ export function clickWinnerScreenContinue(game: GameInfo) {
 			game.localMode = false;
 		}
 		const winnerScreen = document.getElementById("WinnerScreen");
-		if (winnerScreen) winnerScreen.style.display = "none";
+		if (winnerScreen) winnerScreen.classList.add("hidden");
 		document.addEventListener("keydown", handleKeydown);
 		document.addEventListener("keyup", handleKeyup);
 		getFriendList(game.currentlyLoggedIn.name);
 		getFriendRequestList(game.currentlyLoggedIn.name);
 		const addFriend = document.getElementById("addFriend") as HTMLElement;
-		if (addFriend) addFriend.style.display = "block";
+		if (addFriend) addFriend.classList.remove("hidden");
 		getRejectedFriendRequests(game.currentlyLoggedIn.name);
 		getUserMatchHistory(game.currentlyLoggedIn.name);
 		document.getElementById("userStatusInterface")?.remove();

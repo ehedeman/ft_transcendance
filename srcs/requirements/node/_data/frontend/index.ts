@@ -88,19 +88,19 @@ window.addEventListener('popstate', (event) => {
 
 // Just added_pat...
 const dashboardButton = document.getElementById("dashboardButton") as HTMLButtonElement;
-dashboardButton.style.display = "block";
+dashboardButton.classList.remove("hidden");
 
 dashboardButton.addEventListener("click", () => {
 	hideEverything();
-	document.getElementById("dashboardButton")!.style.display = "block";
-	document.getElementById("globalDashboardButton")!.style.display = "block";
-	document.getElementById("dashboardView")!.style.display = "block";
+	document.getElementById("dashboardButton")!.classList.remove("hidden");
+	document.getElementById("globalDashboardButton")!.classList.remove("hidden");
+	document.getElementById("dashboardView")!.classList.remove("hidden");
 	const alias = game.currentlyLoggedIn.name; // your logged-in user alias
 	loadUserDashboard(alias);
 });
 
 document.getElementById("closeDashboard")!.addEventListener("click", () => {
-	document.getElementById("dashboardView")!.style.display = "none";
+	document.getElementById("dashboardView")!.classList.add("hidden");
 	restoreScreenLoggedIn();
 });
 // ..............added
@@ -114,14 +114,14 @@ const globalClose = document.getElementById("closeGlobalDashboard") as HTMLButto
 
 globalButton.addEventListener("click", () => {
 	hideEverything();
-	document.getElementById("dashboardButton")!.style.display = "block";
-	document.getElementById("globalDashboardButton")!.style.display = "block";
-	globalView.style.display = "block";
+	document.getElementById("dashboardButton")!.classList.remove("hidden");
+	document.getElementById("globalDashboardButton")!.classList.remove("hidden");
+	globalView.classList.remove("hidden");
 	loadGlobalStats();
 });
 
 globalClose.addEventListener("click", () => {
-	globalView.style.display = "none";
+	globalView.classList.add("hidden");
 	restoreScreenLoggedIn();
 });
 
@@ -200,7 +200,7 @@ window.onload = function () {
 			getFriendList(data.username);
 			getFriendRequestList(data.username);
 			const addFriend = document.getElementById("addFriend") as HTMLElement;
-			if (addFriend) addFriend.style.display = "block";
+			if (addFriend) addFriend.classList.remove("hidden");
 			getRejectedFriendRequests(data.username);
 			getUserInfoAndCreateUserInterface(data.username);
 			getUserMatchHistory(data.username);

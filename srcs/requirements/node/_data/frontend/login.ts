@@ -13,12 +13,12 @@ export function showGeneralLoginModal(game: GameInfo) {
 	usernameInput.value = "";
 	passwordInput.value = "";
 	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
-	modal.style.display = "flex";
+	modal.classList.remove("hidden");
 }
 
 export function hideGeneralLoginModal() {
 	const modal = document.getElementById("generalLoginModal") as HTMLDivElement;
-	modal.style.display = "none";
+	modal.classList.add("hidden");
 }
 
 export function getUserInfoAndCreateUserInterface(username: string) {
@@ -187,7 +187,7 @@ function loginRequest(loginPlayer: PlayerLogin, game: GameInfo) {
 			getFriendList(loginPlayer.username);
 			getFriendRequestList(loginPlayer.username);
 			const addFriend = document.getElementById("addFriend") as HTMLElement;
-			if (addFriend) addFriend.style.display = "block";
+			if (addFriend) addFriend.classList.remove("hidden");
 			getRejectedFriendRequests(loginPlayer.username);
 			getUserInfoAndCreateUserInterface(loginPlayer.username);
 			getUserMatchHistory(loginPlayer.username);

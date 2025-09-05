@@ -33,12 +33,12 @@ export function logout(game:GameInfo)
 		// const playSelect = document.getElementById("playSelect");
 		// const friendStuff = document.getElementById("friendStuff");
 		// const messages = document.getElementById("messages");
-		// if (logoutButton) logoutButton.style.display = "none";
-		// if (loginButton) loginButton.style.display = "block";
-		// if (registerButton) registerButton.style.display = "block";
-		// if (playSelect) playSelect.style.display = "none";
-		// if (friendStuff) friendStuff.style.display = "none";
-		// if (messages) messages.style.display = "none";
+		// if (logoutButton) logoutButton.classList.add("hidden");
+		// if (loginButton) loginButton.classList.remove("hidden");
+		// if (registerButton) registerButton.classList.remove("hidden");
+		// if (playSelect) playSelect.classList.add("hidden");
+		// if (friendStuff) friendStuff.classList.add("hidden");
+		// if (messages) messages.classList.add("hidden");
 		ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 		return response.json();
 	})

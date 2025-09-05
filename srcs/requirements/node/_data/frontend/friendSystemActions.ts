@@ -38,7 +38,7 @@ export function getChatHistoryFunction(game: GameInfo) {
 			// Show message input when a friend is selected Remi
 			const messagesElement = document.getElementById("messages");
 			if (messagesElement) {
-				messagesElement.style.display = "block";
+				messagesElement.classList.remove("hidden");
 			}
 			
 			// Reset all other list items to default background
@@ -125,7 +125,7 @@ export function createConfirmModal(message: string): Promise<boolean> {
 		overlay.style.width = "100vw";
 		overlay.style.height = "100vh";
 		overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-		overlay.style.display = "flex";
+		overlay.classList.remove("hidden");
 		overlay.style.alignItems = "center";
 		overlay.style.justifyContent = "center";
 		overlay.style.zIndex = "2000";
@@ -150,7 +150,7 @@ export function createConfirmModal(message: string): Promise<boolean> {
 
 		// Buttons container
 		const buttonContainer = document.createElement("div");
-		buttonContainer.style.display = "flex";
+		buttonContainer.classList.remove("hidden");
 		buttonContainer.style.justifyContent = "space-around";
 
 		// Yes button
@@ -250,7 +250,7 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 		modal.style.width = "100%";
 		modal.style.height = "100%";
 		modal.style.backgroundColor = "rgba(0,0,0,0.5)";
-		modal.style.display = "flex";
+		modal.classList.remove("hidden");
 		modal.style.justifyContent = "center";
 		modal.style.alignItems = "center";
 		modal.style.zIndex = "2000";

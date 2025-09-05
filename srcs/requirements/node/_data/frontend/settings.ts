@@ -86,48 +86,48 @@ async function setSettingFields(_username: string, userInfoTemp: userInfo): Prom
 
 export function showSettings(): void {
 	const settings = document.getElementById("settings") as HTMLElement;
-	if (settings) settings.style.display = "flex";
+	if (settings) settings.classList.remove("hidden");
 }
 
 function hideSettings(): void {
 	const settings = document.getElementById("settings") as HTMLElement;
-	if (settings) settings.style.display = "none";
+	if (settings) settings.classList.add("hidden");
 }
 
 function hideSettingsForm(): void {
 	const settingsForm = document.getElementById("settingsForm") as HTMLElement;
-	if (settingsForm) settingsForm.style.display = "none";
+	if (settingsForm) settingsForm.classList.add("hidden");
 	const saveButton = document.getElementById("settingsSave") as HTMLElement;
 	const deleteButton = document.getElementById("settingsDeleteAccount") as HTMLElement;
 	const showPasswordButton = document.getElementById("showSettingsPassword") as HTMLElement;
-	if (saveButton) saveButton.style.display = "none";
-	if (deleteButton) deleteButton.style.display = "none";
-	if (showPasswordButton) showPasswordButton.style.display = "none";
+	if (saveButton) saveButton.classList.add("hidden");
+	if (deleteButton) deleteButton.classList.add("hidden");
+	if (showPasswordButton) showPasswordButton.classList.add("hidden");
 }
 
 
 function showSettingsForm(): void {
 	const settingsForm = document.getElementById("settingsForm") as HTMLElement;
-	if (settingsForm) settingsForm.style.display = "flex";
+	if (settingsForm) settingsForm.classList.remove("hidden");
 
 	const settingsHeader = document.getElementById("settingsHeader") as HTMLElement;
 	if (settingsHeader) settingsHeader.textContent = "Settings";
 	const saveButton = document.getElementById("settingsSave") as HTMLElement;
 	const deleteButton = document.getElementById("settingsDeleteAccount") as HTMLElement;
 	const showPasswordButton = document.getElementById("showSettingsPassword") as HTMLElement;
-	if (saveButton) saveButton.style.display = "block";
-	if (deleteButton) deleteButton.style.display = "block";
-	if (showPasswordButton) showPasswordButton.style.display = "block";
+	if (saveButton) saveButton.classList.remove("hidden");
+	if (deleteButton) deleteButton.classList.remove("hidden");
+	if (showPasswordButton) showPasswordButton.classList.remove("hidden");
 }
 
 function hideSettingsLogin(): void {
 	const settingsLogin = document.getElementById("settingsLogin") as HTMLElement;
-	if (settingsLogin) settingsLogin.style.display = "none";
+	if (settingsLogin) settingsLogin.classList.add("hidden");
 }
 
 function showSettingsLogin(): void {
 	const settingsLogin = document.getElementById("settingsLogin") as HTMLElement;
-	if (settingsLogin) settingsLogin.style.display = "flex";
+	if (settingsLogin) settingsLogin.classList.remove("hidden");
 	const settingsHeader = document.getElementById("settingsHeader") as HTMLElement;
 	if (settingsHeader) settingsHeader.textContent = "Log in to continue.";
 }
@@ -216,12 +216,12 @@ export function callSettingsEventlisteners(game: GameInfo) {
 				const file = input.files && input.files[0];
 				if (file) {
 					preview.src = URL.createObjectURL(file);
-					preview.style.display = "block";
+					preview.classList.remove("hidden");
 				}
 			}
 			else {
 				preview.src = "./avatars/default-avatar.png";
-				preview.style.display = "none";
+				preview.classList.add("hidden");
 			}
 		}
 	});
@@ -306,7 +306,7 @@ export function callSettingsEventlisteners(game: GameInfo) {
 
 	document.getElementById("settingsCancel")?.addEventListener("click", () => {
 		const settings = document.getElementById("settings") as HTMLElement;
-		if (settings) settings.style.display = "none";
+		if (settings) settings.classList.add("hidden");
 		document.addEventListener("keydown", handleKeydown);
 		document.addEventListener("keyup", handleKeyup);
 		emptyLoginFields("loginSettings");
@@ -315,11 +315,11 @@ export function callSettingsEventlisteners(game: GameInfo) {
 			restoreScreenLoggedIn();
 			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 			// const logoutButton = document.getElementById ("logoutButton") as HTMLElement;
-			// if (logoutButton) logoutButton.style.display = "block";
+			// if (logoutButton) logoutButton.classList.remove("hidden");
 			// const loginButton = document.getElementById ("loginButton") as HTMLElement;
-			// if (loginButton) loginButton.style.display = "none";
+			// if (loginButton) loginButton.classList.add("hidden");
 			// const playSelect = document.getElementById ("playSelect") as HTMLElement;
-			// if (playSelect) playSelect.style.display = "block";
+			// if (playSelect) playSelect.classList.remove("hidden");
 		}
 		else {
 			game.currentlyLoggedIn.name = "default";
