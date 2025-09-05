@@ -44,11 +44,9 @@ export function getChatHistoryFunction(game: GameInfo) {
 			// Reset all other list items to default background
 			const listItems = document.querySelectorAll("#friendList li");
 			listItems.forEach(li => {
-				(li as HTMLElement).style.backgroundColor = "";
-				(li as HTMLElement).style.color = "white"; // Make sure text stays white
+				(li as HTMLElement).className = "text-white";
 			});
-			target.style.backgroundColor = "#505050"; // Darker highlight for black background
-			target.style.color = "white"; // Keep text white for selected item
+			target.className = "bg-gray-700 text-white";
 			fetch(`/getChatHistory?username=${encodeURIComponent(game.currentlyLoggedIn.name)}&friendname=${encodeURIComponent(game.sendMessageTo)}`)
 				.then(response => {
 					if (!response.ok) {
@@ -65,8 +63,7 @@ export function getChatHistoryFunction(game: GameInfo) {
 						for (const message of game.chatHistory) {
 							const messageElement = document.createElement("LI");
 							messageElement.textContent = message;
-							messageElement.style.color = "white"; // Ensure messages are white on black background
-							messageElement.style.fontSize = "12px"; // Reduce font size for chat messages
+							messageElement.className = "text-white text-xs";
 							chatHistoryElement.appendChild(messageElement);
 						}
 						chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
@@ -119,59 +116,31 @@ export function createConfirmModal(message: string): Promise<boolean> {
 	return new Promise((resolve) => {
 		// Create overlay
 		const overlay = document.createElement("div");
-		overlay.style.position = "fixed";
-		overlay.style.top = "0";
-		overlay.style.left = "0";
-		overlay.style.width = "100vw";
-		overlay.style.height = "100vh";
-		overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+		overlay.className = "fixed inset-0 w-screen h-screen bg-black/50 flex items-center justify-center z-[2000]";
 		overlay.classList.remove("hidden");
-		overlay.style.alignItems = "center";
-		overlay.style.justifyContent = "center";
-		overlay.style.zIndex = "2000";
 
 		// Create modal box
 		const modal = document.createElement("div");
-		modal.style.backgroundColor = "white";
-		modal.style.padding = "20px";
-		modal.style.borderRadius = "10px";
-		modal.style.boxShadow = "0 5px 15px rgba(0,0,0,0.3)";
-		modal.style.textAlign = "center";
-		modal.style.width = "280px";
-		modal.style.fontFamily = "Arial, sans-serif";
-		modal.style.color = "black"; // Ensure text is black
+		modal.className = "bg-white p-5 rounded-lg shadow-lg text-center w-[280px] font-sans text-black";
 
 		// Message
 		const msg = document.createElement("p");
 		msg.textContent = message;
-		msg.style.marginBottom = "15px";
-		msg.style.fontSize = "14px";
-		msg.style.color = "black"; // Ensure message text is black
+		msg.className = "mb-4 text-sm text-black";
 
 		// Buttons container
 		const buttonContainer = document.createElement("div");
-		buttonContainer.classList.remove("hidden");
-		buttonContainer.style.justifyContent = "space-around";
+		buttonContainer.className = "flex justify-around";
 
 		// Yes button
 		const yesBtn = document.createElement("button");
 		yesBtn.textContent = "Yes";
-		yesBtn.style.backgroundColor = "#4CAF50";
-		yesBtn.style.color = "white";
-		yesBtn.style.border = "none";
-		yesBtn.style.padding = "6px 12px";
-		yesBtn.style.borderRadius = "5px";
-		yesBtn.style.cursor = "pointer";
+		yesBtn.className = "bg-green-500 text-white border-none px-3 py-1.5 rounded cursor-pointer";
 
 		// No button
 		const noBtn = document.createElement("button");
 		noBtn.textContent = "No";
-		noBtn.style.backgroundColor = "#f44336";
-		noBtn.style.color = "white";
-		noBtn.style.border = "none";
-		noBtn.style.padding = "6px 12px";
-		noBtn.style.borderRadius = "5px";
-		noBtn.style.cursor = "pointer";
+		noBtn.className = "bg-red-500 text-white border-none px-3 py-1.5 rounded cursor-pointer";
 
 		// Append everything
 		buttonContainer.appendChild(yesBtn);
@@ -244,22 +213,14 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 	detailButton.addEventListener("click", () => {
 		const modal = document.createElement("div");
 		modal.id = "userModal";
-		modal.style.position = "fixed";
-		modal.style.top = "0";
-		modal.style.left = "0";
-		modal.style.width = "100%";
-		modal.style.height = "100%";
-		modal.style.backgroundColor = "rgba(0,0,0,0.5)";
+		modal.className = "fixed inset-0 w-full h-full bg-black/50 flex justify-center items-center z-[2000]";
 		modal.classList.remove("hidden");
-		modal.style.justifyContent = "center";
-		modal.style.alignItems = "center";
-		modal.style.zIndex = "2000";
 
 		modal.innerHTML = `
-		<div style="background:#fff; padding:20px; border-radius:10px; width:300px; max-width:90%; position:relative; text-align:center; color: black;">
-		<span id="closeModal" style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:22px;">&times;</span>
-		<h3 style="color: black;">User Details: ${target.id}</h3>
-		<div id="modalContent" style="color: black;">Loading...</div>
+		<div class="bg-white p-5 rounded-lg w-[300px] max-w-[90%] relative text-center text-black">
+		<span id="closeModal" class="absolute top-2.5 right-4 cursor-pointer text-xl">&times;</span>
+		<h3 class="text-black">User Details: ${target.id}</h3>
+		<div id="modalContent" class="text-black">Loading...</div>
 		</div>
 		`;
 
@@ -276,7 +237,7 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 			.then(data => {
 				const content = modal.querySelector("#modalContent")!;
 				content.innerHTML = `
-					${data.avatarUrl ? `<img src="${data.avatarUrl}" alt="${target.id}'s avatar" style="width:80px; height:80px; border-radius:50%; margin-bottom:10px;">` : ""}
+					${data.avatarUrl ? `<img src="${data.avatarUrl}" alt="${target.id}'s avatar" class="w-20 h-20 rounded-full mb-2.5">` : ""}
 					${Object.entries(data).filter(([k]) => k !== "avatarUrl").map(([k, v]) => `<p>${k}: ${v}</p>`).join("")}
 				`;
 				const blockButton = document.createElement("button");
@@ -349,16 +310,10 @@ export function showFriendStatus(game: GameInfo) {
 					hoverTimer = window.setTimeout(() => {
 						let userinfo = document.createElement("ul");
 						userinfo.id = "userinfo";
-						userinfo.style.position = "absolute";
+						userinfo.className = "absolute bg-yellow-300 text-black p-2 rounded text-xs pointer-events-auto z-[1000]";
+						// We need to keep these dynamic position styles inline since they depend on mouse position
 						userinfo.style.left = `${e.clientX}px`;
 						userinfo.style.top = `${e.clientY}px`;
-						userinfo.style.backgroundColor = "#e4da17ff";
-						userinfo.style.color = "black";
-						userinfo.style.padding = "5px 8px";
-						userinfo.style.borderRadius = "5px";
-						userinfo.style.fontSize = "12px";
-						userinfo.style.pointerEvents = "auto";
-						userinfo.style.zIndex = "1000";
 						document.body.appendChild(userinfo);
 						fetch(`/userStatus?username=${target.id}`)
 							.then(response => {
@@ -374,8 +329,7 @@ export function showFriendStatus(game: GameInfo) {
 								console.log("Avatar URL:", avatarUrl);
 								avatarImg.src = avatarUrl;
 								avatarImg.alt = `${target.id}'s avatar`;
-								avatarImg.style.width = "50px";
-								avatarImg.style.height = "50px";
+								avatarImg.className = "w-12 h-12";
 								userinfo.appendChild(avatarImg);
 								for (const key in data) {
 									if (key !== "avatarUrl") {

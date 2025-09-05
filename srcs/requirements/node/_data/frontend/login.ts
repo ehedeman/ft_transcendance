@@ -36,19 +36,11 @@ export function getUserInfoAndCreateUserInterface(username: string) {
 			// Create user interface elements
 			const userStatusInterFace = document.createElement("ul");
 			userStatusInterFace.id = "userStatusInterface";
-			userStatusInterFace.style.position = "absolute";
-			userStatusInterFace.style.left = "0";
-			userStatusInterFace.style.top = "0";
-			userStatusInterFace.style.backgroundColor = "rgba(145, 148, 145, 0.8)";
-			userStatusInterFace.style.width = "200px";
-			userStatusInterFace.style.height = "auto";
-			userStatusInterFace.style.border = "1px solid #000000ff";
-			userStatusInterFace.style.borderRadius = "50px / 30px"; // Makes it oval-shaped Remi
-			userStatusInterFace.style.padding = "10px 20px"; // Add some padding for better spacing Remi
+			userStatusInterFace.className = "absolute left-0 top-0 bg-gray-500/80 w-[200px] h-auto border border-black rounded-oval px-5 py-2.5";
 			document.body.appendChild(userStatusInterFace);
 			userStatusInterFace.innerHTML = `
 				<li><strong>Username:</strong> ${username}</li>
-				<li><img src="${userInfo.avatarUrl}" alt="${username}'s avatar" style="width:80px; height:80px; border-radius:50%; margin-bottom:10px;" /></li>
+				<li><img src="${userInfo.avatarUrl}" alt="${username}'s avatar" class="w-20 h-20 rounded-full mb-2.5" /></li>
 				${Object.entries(userInfo).filter(([key]) => key !== "avatarUrl").map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`).join("")}
 			`;
 		})
@@ -64,19 +56,14 @@ function renderMatchHistory(matchHistory: any[]) {
 		if (matchHistory.length === 0) {
 			const listItem = document.createElement("li");
 			listItem.textContent = "No match history found.";
-			listItem.style.padding = "12px";
-			listItem.style.textAlign = "center";
-			listItem.style.color = "rgba(255,255,255,0.7)";
+			listItem.className = "p-3 text-center text-white/70";
 			matchHistoryList.appendChild(listItem);
 		}
 		matchHistory.forEach((match: any) => {
 			const listItem = document.createElement("li");
-			listItem.style.padding = "16px";
-			listItem.style.marginBottom = "10px";
-			listItem.style.backgroundColor = "rgba(255,255,255,0.1)";
-			listItem.style.borderRadius = "8px";
+			listItem.className = "p-4 mb-2.5 bg-white/10 rounded-lg";
 
-			let matchDetails = `<div style="display: flex; flex-direction: column; gap: 6px; padding: 0 10px;">`;
+			let matchDetails = `<div class="flex flex-col gap-1.5 px-2.5">`;
 
 			// Add date with better formatting
 			// const matchDate = new Date(match.match_date);
@@ -85,34 +72,34 @@ function renderMatchHistory(matchHistory: any[]) {
 			const dateObj = new Date(utcString);
 			const formattedDate = dateObj.toLocaleString("de-DE", { timeZone: "Europe/Berlin" });
 
-			matchDetails += `<div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 6px; text-align: center;">${formattedDate}</div>`;
+			matchDetails += `<div class="text-sm text-white/70 mb-1.5 text-center">${formattedDate}</div>`;
 
 			// Match type with highlight
-			matchDetails += `<div style="font-weight: bold; font-size: 16px; color: #4facfe; margin-bottom: 8px; text-align: center;">${match.matchType} Match</div>`;
+			matchDetails += `<div class="font-bold text-base text-blue-400 mb-2 text-center">${match.matchType} Match</div>`;
 
 			// Players section
-			matchDetails += `<div style="margin-bottom: 10px; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">`;
-			if (match.player1) matchDetails += `<span style="display: inline-block; padding: 4px 8px; background: rgba(75, 192, 192, 0.2); border-radius: 4px;">${match.player1}</span>`;
-			if (match.player2) matchDetails += `<span style="display: inline-block; padding: 4px 8px; background: rgba(255, 99, 132, 0.2); border-radius: 4px;">${match.player2}</span>`;
-			if (match.player3) matchDetails += `<span style="display: inline-block; padding: 4px 8px; background: rgba(54, 162, 235, 0.2); border-radius: 4px;">${match.player3}</span>`;
-			if (match.player4) matchDetails += `<span style="display: inline-block; padding: 4px 8px; background: rgba(255, 206, 86, 0.2); border-radius: 4px;">${match.player4}</span>`;
+			matchDetails += `<div class="mb-2.5 flex justify-center flex-wrap gap-2.5">`;
+			if (match.player1) matchDetails += `<span class="inline-block px-2 py-1 bg-teal-500/20 rounded">${match.player1}</span>`;
+			if (match.player2) matchDetails += `<span class="inline-block px-2 py-1 bg-red-400/20 rounded">${match.player2}</span>`;
+			if (match.player3) matchDetails += `<span class="inline-block px-2 py-1 bg-blue-500/20 rounded">${match.player3}</span>`;
+			if (match.player4) matchDetails += `<span class="inline-block px-2 py-1 bg-yellow-300/20 rounded">${match.player4}</span>`;
 			matchDetails += `</div>`;
 
 			// Score section
-			matchDetails += `<div style="display: grid; grid-template-columns: repeat(${getScoreColumnCount(match)}, 1fr); gap: 15px; margin-bottom: 12px; text-align: center;">`;
-			if (match.score_player1 !== undefined) matchDetails += `<div>P1: <span style="font-weight: bold;">${match.score_player1}</span></div>`;
-			if (match.score_player2 !== undefined) matchDetails += `<div>P2: <span style="font-weight: bold;">${match.score_player2}</span></div>`;
-			if (match.score_player3 !== undefined) matchDetails += `<div>P3: <span style="font-weight: bold;">${match.score_player3}</span></div>`;
-			if (match.score_player4 !== undefined) matchDetails += `<div>P4: <span style="font-weight: bold;">${match.score_player4}</span></div>`;
+			matchDetails += `<div class="grid grid-cols-${getScoreColumnCount(match)} gap-3.5 mb-3 text-center">`;
+			if (match.score_player1 !== undefined) matchDetails += `<div>P1: <span class="font-bold">${match.score_player1}</span></div>`;
+			if (match.score_player2 !== undefined) matchDetails += `<div>P2: <span class="font-bold">${match.score_player2}</span></div>`;
+			if (match.score_player3 !== undefined) matchDetails += `<div>P3: <span class="font-bold">${match.score_player3}</span></div>`;
+			if (match.score_player4 !== undefined) matchDetails += `<div>P4: <span class="font-bold">${match.score_player4}</span></div>`;
 			matchDetails += `</div>`;
 
 			// Winner/loser section with highlight - centered
-			matchDetails += `<div style="text-align: center; margin-top: 5px;">`;
+			matchDetails += `<div class="text-center mt-1.5">`;
 			if (match.winner) {
-				matchDetails += `<div style="font-weight: bold; color: #4facfe;">Winner: ${match.winner}</div>`;
+				matchDetails += `<div class="font-bold text-blue-400">Winner: ${match.winner}</div>`;
 			}
 			if (match.loser) {
-				matchDetails += `<div style="color: rgba(255,255,255,0.7);">Loser: ${match.loser}</div>`;
+				matchDetails += `<div class="text-white/70">Loser: ${match.loser}</div>`;
 			}
 			matchDetails += `</div>`;
 

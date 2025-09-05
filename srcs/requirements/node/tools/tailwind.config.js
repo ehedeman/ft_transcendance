@@ -5,6 +5,9 @@ module.exports = {
       fontFamily: {
         montserrat: ['Montserrat', 'sans-serif'],
       },
+      borderRadius: {
+        'oval': '50px / 30px',
+      },
     },
   },
   plugins: [],

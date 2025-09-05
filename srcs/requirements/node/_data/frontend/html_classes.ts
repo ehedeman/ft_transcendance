@@ -101,17 +101,17 @@ export class htmlRegistration extends HTMLElement {
 						<input type="text" id="registerUsername" name="username" placeholder="Full Name" required class="px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
 						<input type="password" id="registerPassword" name="password" placeholder="Password" required class="px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
 						<input type="text" id="registerCountry" name="country" placeholder="Country" required class="px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
-							<div style="display: flex; justify-content: center; margin-top: 10px;">
-								<label for="registerAvatar" style="cursor:pointer; text-align: center;">
-									<p style="margin-bottom: 10px; color: #666;">Profile Picture</p>
+							<div class="flex justify-center mt-2.5">
+								<label for="registerAvatar" class="cursor-pointer text-center">
+									<p class="mb-2.5 text-gray-600">Profile Picture</p>
 									<img id="registerAvatarImg" src="./avatars/default-avatar.png"
-										style="width:100px; height:100px; border-radius:50%; border:3px solid #4facfe; object-fit: cover; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
+										class="w-[100px] h-[100px] rounded-full border-[3px] border-blue-400 object-cover shadow-md"
 										alt="Select your avatar" />
 								</label>
 								<input type="file" id="registerAvatar" name="avatar" accept="image/*"
-									style="display:none;" />
+									class="hidden" />
 								<img id="avatarPreview" src="./avatars/default-avatar.png"
-									style="width:100px; height:100px; display:none;" />
+									class="w-[100px] h-[100px] hidden" />
 							</div>
 					</div>
 					<div class="flex flex-col gap-[10px]">
