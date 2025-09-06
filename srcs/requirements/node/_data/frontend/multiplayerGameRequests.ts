@@ -18,6 +18,12 @@ function hideSubmitForm() {
 	if (form2) form2.classList.add("hidden");
 	const form3 = document.getElementById("multiplayerMatchInviteForm3");
 	if (form3) form3.classList.add("hidden");
+	const input1 = document.getElementById("inputMultiplayerUsername1") as HTMLInputElement;
+	if (input1) input1.value = "";
+	const input2 = document.getElementById("inputMultiplayerUsername2") as HTMLInputElement;
+	if (input2) input2.value = "";
+	const input3 = document.getElementById("inputMultiplayerUsername3") as HTMLInputElement;
+	if (input3) input3.value = "";
 	restoreScreenLoggedIn();
 }
 
@@ -31,6 +37,10 @@ function subscribeToFormEvents(game: GameInfo) {
 			hideSubmitForm();
 			return;
 		}
+		const form2 = document.getElementById("multiplayerMatchInviteForm2");
+		if (form2) form2.classList.remove("hidden");
+		const form1 = document.getElementById("multiplayerMatchInviteForm1");
+		if (form1) form1.classList.add("hidden");
 		fetch(`/multiplayer?invitedUser=${username}&username=${game.currentlyLoggedIn.name}`)
 			.then(response => {
 				if (!response.ok) {
@@ -38,10 +48,8 @@ function subscribeToFormEvents(game: GameInfo) {
 					hideSubmitForm();
 					return;
 				}
-				const form2 = document.getElementById("multiplayerMatchInviteForm2");
-				if (form2) form2.classList.remove("hidden");
-				const form1 = document.getElementById("multiplayerMatchInviteForm1");
-				if (form1) form1.classList.add("hidden");
+				const input1 = document.getElementById("inputMultiplayerUsername1") as HTMLInputElement;
+				input1.value = "";
 				game.multiplayerName.push(username);
 			});
 	});
@@ -58,6 +66,10 @@ function subscribeToFormEvents(game: GameInfo) {
 			hideSubmitForm();
 			return;
 		}
+		const form3 = document.getElementById("multiplayerMatchInviteForm3");
+		if (form3) form3.classList.remove("hidden");
+		const form2 = document.getElementById("multiplayerMatchInviteForm2");
+		if (form2) form2.classList.add("hidden");
 		fetch(`/multiplayer?invitedUser=${username}&username=${game.currentlyLoggedIn.name}`)
 			.then(response => {
 				if (!response.ok) {
@@ -65,10 +77,8 @@ function subscribeToFormEvents(game: GameInfo) {
 					hideSubmitForm();
 					return;
 				}
-				const form3 = document.getElementById("multiplayerMatchInviteForm3");
-				if (form3) form3.classList.remove("hidden");
-				const form2 = document.getElementById("multiplayerMatchInviteForm2");
-				if (form2) form2.classList.add("hidden");
+				const input2 = document.getElementById("inputMultiplayerUsername2") as HTMLInputElement;
+				input2.value = "";
 				game.multiplayerName.push(username);
 			});
 	});
@@ -85,6 +95,7 @@ function subscribeToFormEvents(game: GameInfo) {
 			hideSubmitForm();
 			return;
 		}
+		hideSubmitForm();
 		fetch(`/multiplayer?invitedUser=${username}&username=${game.currentlyLoggedIn.name}`)
 			.then(response => {
 				if (!response.ok) {
@@ -93,6 +104,8 @@ function subscribeToFormEvents(game: GameInfo) {
 					return;
 				}
 				hideSubmitForm();
+				const input3 = document.getElementById("inputMultiplayerUsername3") as HTMLInputElement;
+				input3.value = "";
 				game.multiplayerMode = true;
 				game.multiplayerName.push(username);
 				fetch(`/multiplayerGameStart?username=${game.currentlyLoggedIn.name}
@@ -105,6 +118,7 @@ function subscribeToFormEvents(game: GameInfo) {
 													restoreScreenLoggedIn();
 													return;
 												}
+												game.multiplayerName.splice(0, game.multiplayerName.length);
 											});
 			});
 	});
