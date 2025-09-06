@@ -244,6 +244,11 @@ export function callSettingsEventlisteners(game: GameInfo) {
 		formData.append("password", passwordInput.value.trim() || game.userInfoTemp.password_hash);
 		formData.append("country", countryInput.value.trim());
 
+		if (nameInput.value.length > 6) {
+			alert("Alias must below 6 characters!");
+			navigate(game.availablePages[pageIndex.HOME], "", game);
+			return;
+		}
 		if (avatarFileInput.files && avatarFileInput.files[0]) {
 			formData.append("avatar", avatarFileInput.files[0]); // new avatar
 		} else {
