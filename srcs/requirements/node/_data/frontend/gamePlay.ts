@@ -55,6 +55,7 @@ export function clickWinnerScreenContinue(game: GameInfo) {
 		}
 		if (game.localMode && !game.tournamentLoopActive) {
 			game.localMode = false;
+			fetch("/endLocalMode");
 		}
 		const winnerScreen = document.getElementById("WinnerScreen");
 		if (winnerScreen) winnerScreen.classList.add("hidden");

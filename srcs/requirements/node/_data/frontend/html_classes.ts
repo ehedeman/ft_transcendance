@@ -30,7 +30,7 @@ class htmlTournament extends HTMLElement {
 						<button type="button" id="showTournamentPassword" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] flex-1 bg-gradient-to-br from-[#4facfe] to-[#00f2fe] font-semibold text-white px-4 py-2 rounded">
 							Show Password
 						</button>
-						<button type="button" id="CancelGeneralTournament" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] flex-1 bg-gradient-to-br from-[#8e9eab] to-[#eef2f3] font-semibold text-[#2c3e50] px-4 py-2 rounded">
+						<button type="button" id="cancelTournamentRegistration" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] flex-1 bg-gradient-to-br from-[#8e9eab] to-[#eef2f3] font-semibold text-[#2c3e50] px-4 py-2 rounded">
 							Cancel
 						</button>
 					</div>
@@ -309,6 +309,18 @@ export class htmlTwoPlayerMatch extends HTMLElement {
 	}
 }
 
+
+			// <form id="twoPlayerMatchInviteForm" method="post" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col gap-[15px] mb-5">
+			// 	<h2 id="twoPlayerMatchInviteHeader" class="text-[#2c3e50] text-[20px] font-semibold mb-2.5">
+			// 		Invite a Friend
+			// 	</h2>
+			// 	<input type="text" id="twoPlayerMatchInviteUsername" name="username" required placeholder="Friend's Username" class="w-[90%] px-4 py-3 rounded-lg border-2 border-[#e0e0e0] text-[16px]" />
+			// 	<button type="submit" id="twoPlayerMatchInviteSubmit" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] px-4 py-3 rounded text-white bg-gradient-to-br from-[#0061ff] to-[#60efff] border-0 font-semibold">
+			// 		Send Invite
+			// 	</button>
+			// </form>
+
+			
 export class htmlMultiplayerMatch extends HTMLElement {
 	connectedCallback() {
 		this.innerHTML = `

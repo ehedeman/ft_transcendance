@@ -266,6 +266,11 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 			alert("Please enter a friend's username.");
 			return;
 		}
+		if (inviteUsername === game.currentlyLoggedIn.name)
+		{
+			alert("You cannot invite yourself!");
+			return ;
+		}
 		sendTwoPlayerMatchInvite(inviteUsername, game);
 		hideTwoPlayerMatchInviteForm();
 		const container = document.getElementById("twoPlayerMatchContainer") as HTMLButtonElement;
