@@ -10,7 +10,7 @@ async function handleFriendRequest(data: any) {
 		if (friendList) {
 			const newFriendItem = document.createElement("li");
 			newFriendItem.id = friendName;
-			newFriendItem.style.cursor = "pointer";
+			newFriendItem.classList.add("cursor-pointer");
 			newFriendItem.textContent = friendName;
 			friendList.appendChild(newFriendItem);
 		}
@@ -32,7 +32,7 @@ function handlePrivateMessage(data: any) {
 	} else {
 		const friendListElement = document.getElementById(from);
 		if (friendListElement) {
-			friendListElement.style.backgroundColor = "yellow"; // Highlight the friend's name
+			friendListElement.classList.add("bg-yellow-400"); // Highlight the friend's name
 		}
 	}
 }
@@ -97,7 +97,7 @@ function handleWebSocketMessage(event: MessageEvent) {
 };
 
 export function createWebSocketConnection(username: string) {
-	game.websocket = new WebSocket(`wss://10.12.6.8:3000/ws?username=${username}`); // Accept self-signed cert
+	game.websocket = new WebSocket(`wss://10.12.6.6:3000/ws?username=${username}`); // Accept self-signed cert
 
 	game.websocket.onopen = () => {
 		console.log("✅ WebSocket connection established successfully!");

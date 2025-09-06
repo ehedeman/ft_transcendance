@@ -16,7 +16,7 @@ export const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 canvas.width = 900;
 canvas.height = 600;
-canvas.style.background = "black";
+canvas.classList.add("bg-black");
 
 
 let canvas_focus: boolean = false;
