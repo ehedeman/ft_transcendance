@@ -232,7 +232,9 @@ export class htmlFriends extends HTMLElement {
 						<div class="flex gap-2.5">
 							<input type="text" id="inputMessageBox" placeholder="Type your message here..." class="flex-grow border-0 rounded-full px-5 py-3 bg-white/90 text-gray-800 placeholder:text-gray-500" />
 							<button type="button" id="sendMessage" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] bg-gradient-to-br from-[#0061ff] to-[#60efff] border-0 font-semibold text-white px-3.5 py-2 rounded-full">
-								Send
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+        							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    							</svg>
 							</button>
 						</div>
 					</div>

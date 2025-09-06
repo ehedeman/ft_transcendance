@@ -246,7 +246,7 @@ export function callSettingsEventlisteners(game: GameInfo) {
 
 		if (nameInput.value.length > 6) {
 			alert("Alias must below 6 characters!");
-			navigate(game.availablePages[pageIndex.HOME], "", game);
+			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 			return;
 		}
 		if (avatarFileInput.files && avatarFileInput.files[0]) {
@@ -254,26 +254,28 @@ export function callSettingsEventlisteners(game: GameInfo) {
 		} else {
 			formData.append("avatar_url", game.userInfoTemp.avatar_url); // keep the one in DB
 		}
-
-		fetch("/updateUser", {
-			method: "POST",
-			body: formData
-		})
-			.then(res => res.json())
-			.then(data => {
-				alert(data.message);
-				if (settingsAlreadyLoggedIn === true) {
-					// restoreScreenLoggedIn();
-					game.currentlyLoggedIn.name = usernameInput.value;
-					navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
-				}
-				else {
-					navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
-					// restoreScreen(game);
-				}
+		if (passwordInput.value.trim() ||
+			game.userInfoTemp.Full_Name !== nameInput.value.trim() ||
+				game.userInfoTemp.Alias !== usernameInput.value.trim() ||
+					game.userInfoTemp.Country !== countryInput.value.trim())
+		{
+			logout(game);
+			fetch("/updateUser", {
+				method: "POST",
+				body: formData
 			})
-			.catch(err => console.error("Update failed", err));
-		// hideSettings();
+				.then(res => res.json())
+				.then(data => {
+					alert(data.message);
+					// if (settingsAlreadyLoggedIn === true) {
+					// 	game.currentlyLoggedIn.name = nameInput.value.trim();
+					// }
+					navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
+				})
+				.catch(err => console.error("Update failed", err));
+		}
+		else
+			navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 	});
 
 	document.getElementById("settingsLogin")?.addEventListener("submit", async (e) => {
