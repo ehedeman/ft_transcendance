@@ -38,9 +38,8 @@ export function getChatHistoryFunction(game: GameInfo) {
 			// Show message input when a friend is selected Remi
 			const messagesElement = document.getElementById("messages");
 			if (messagesElement) {
-				messagesElement.style.display = "block";
+				messagesElement.classList.remove("hidden");
 			}
-			
 			// Reset all other list items to default background
 			const listItems = document.querySelectorAll("#friendList li");
 			listItems.forEach(li => {
