@@ -69,6 +69,7 @@ export function tournamentFinished(game: GameInfo): void {
 			{ username: thirdPlace.name, place: 3 },
 			{ username: lastPlace.name, place: 4 }
 		];
+		game.localMode = false;
 		showTournamentResults(placements, game);
 	}
 }
