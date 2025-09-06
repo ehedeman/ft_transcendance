@@ -11,23 +11,20 @@ export function showGeneralRegistrationModal() {
 	const avatarInput = document.getElementById("registerAvatar") as HTMLInputElement;
 	if (avatarInput) {
 		avatarInput.value = "";
-		avatarInput.type = "file";
-		avatarInput.className = "mb-2 px-2 py-1 border rounded block";
-		// avatarInput.required = false; // optional
 	}
-	nameInput.value = "";
-	usernameInput.value = "";
-	passwordInput.value = "";
-	countryInput.value = "";
-	usernameInput.className = "mb-2 px-2 py-1 border rounded block";
-	nameInput.className = "mb-2 px-2 py-1 border rounded block";
-	countryInput.className = "mb-2 px-2 py-1 border rounded block";
-	modal.classList.remove("hidden");
+	if (nameInput) nameInput.value = "";
+	if (usernameInput)usernameInput.value = "";
+	if (passwordInput)passwordInput.value = "";
+	if (countryInput)countryInput.value = "";
+	if (usernameInput)usernameInput.className = "mb-2 px-2 py-1 border rounded block";
+	if (nameInput)nameInput.className = "mb-2 px-2 py-1 border rounded block";
+	if (countryInput)countryInput.className = "mb-2 px-2 py-1 border rounded block";
+	if (modal)modal.classList.remove("hidden");
 }
 
 export function hideGeneralRegistrationModal() {
 	const modal = document.getElementById("generalRegistrationModal") as HTMLDivElement;
-	modal.classList.add("hidden");
+	if (modal)modal.classList.add("hidden");
 }
 
 import { restoreScreenLoggedIn, restoreScreen } from "./screenDisplay.js";
@@ -35,7 +32,7 @@ import { restoreScreenLoggedIn, restoreScreen } from "./screenDisplay.js";
 export function callRegistrationEventListeners(game: GameInfo) {
 	document.getElementById("showRegisterPassword")?.addEventListener("click", () => {
 		const passwordInput = document.getElementById("registerPassword") as HTMLInputElement;
-		if (passwordInput.type === "password") {
+		if (passwordInput && passwordInput.type === "password") {
 			passwordInput.type = "text";
 		} else {
 			passwordInput.type = "password";

@@ -89,6 +89,28 @@ class htmlLogin extends HTMLElement {
 	}
 }
 
+			// <div id="avatarContainer" class="text-center mb-[20px] mt-[10px]">
+			// 	<label class="block mb-[8px] text-[#666] text-[14px]">Profile Picture</label>
+			// 	<img id="avatarPreviewSettings" src="./avatars/default-avatar.png" alt="Avatar" class="w-[120px] h-[120px] rounded-full cursor-pointer border-[3px] border-[#4facfe] object-cover shadow-[0_4px_8px_rgba(0,0,0,0.1)]" />
+			// 	<input type="file" id="avatarUpload" name="avatar" accept="image/*" class="hidden" />
+			// </div>
+
+			// 	<div class="flex justify-center mt-[10px]">
+			// 	<label for="registerAvatar" class="cursor-pointer text-center">
+			// 		<p class="mb-[10px] text-[#666]">Profile Picture</p>
+			// 		<img id="registerAvatarImg" src="./avatars/default-avatar.png" alt="Select your avatar" class="w-[100px] h-[100px] rounded-full border-[3px] border-[#4facfe] object-cover shadow-[0_4px_8px_rgba(0,0,0,0.1)]"/>
+			// 	</label>
+			// 	<input type="file" id="registerAvatar" name="avatar" accept="image/*" class="hidden"/>
+			// </div>
+
+			// 	<label for="registerAvatar" style="cursor:pointer; text-align: center;">
+			// 		<p style="margin-bottom: 10px; color: #666;">Profile Picture</p>
+			// 		<img id="registerAvatarImg" src="./avatars/default-avatar.png" style="width:100px; height:100px; border-radius:50%; border:3px solid #4facfe; object-fit: cover; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" alt="Select your avatar" />
+			// 	</label>
+			// 	<input type="file" id="registerAvatar" name="avatar" accept="image/*" style="display:none;" />
+			// </div>
+
+
 export class htmlRegistration extends HTMLElement {
 	connectedCallback() {
 		this.innerHTML = `
@@ -101,30 +123,25 @@ export class htmlRegistration extends HTMLElement {
 						<input type="text" id="registerUsername" name="username" placeholder="Full Name" required class="px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
 						<input type="password" id="registerPassword" name="password" placeholder="Password" required class="px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
 						<input type="text" id="registerCountry" name="country" placeholder="Country" required class="px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
-							<div style="display: flex; justify-content: center; margin-top: 10px;">
-								<label for="registerAvatar" style="cursor:pointer; text-align: center;">
-									<p style="margin-bottom: 10px; color: #666;">Profile Picture</p>
-									<img id="registerAvatarImg" src="./avatars/default-avatar.png"
-										style="width:100px; height:100px; border-radius:50%; border:3px solid #4facfe; object-fit: cover; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
-										alt="Select your avatar" />
-								</label>
-								<input type="file" id="registerAvatar" name="avatar" accept="image/*"
-									style="display:none;" />
-								<img id="avatarPreview" src="./avatars/default-avatar.png"
-									style="width:100px; height:100px; display:none;" />
-							</div>
+						<div class="flex justify-center mt-[10px]">
+							<label for="registerAvatar" class="cursor-pointer text-center">
+								<p class="mb-[10px] text-[#666]">Profile Picture</p>
+								<img id="registerAvatarImg" src="./avatars/default-avatar.png" alt="Select your avatar" class="w-[100px] h-[100px] rounded-full border-[3px] border-[#4facfe] object-cover shadow-[0_4px_8px_rgba(0,0,0,0.1)]"/>
+							</label>
+							<input type="file" id="registerAvatar" name="avatar" accept="image/*" class="hidden"/>
+						</div>
 					</div>
 					<div class="flex flex-col gap-[10px]">
 						<button type="submit" class="bg-gradient-to-br from-[#0061ff] to-[#60efff] font-semibold text-white px-4 py-3 rounded text-[16px]">
 							Create Account
 						</button>
 						<div class="flex gap-[10px] justify-between">
-						<button type="button" id="showRegisterPassword" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] flex-1 bg-gradient-to-br from-[#4facfe] to-[#00f2fe] font-semibold text-white px-4 py-2 rounded">
-							Show Password
-						</button>
-						<button type="button" id="generalCancelRegistration" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] flex-1 bg-gradient-to-br from-[#8e9eab] to-[#eef2f3] font-semibold text-[#2c3e50] px-4 py-2 rounded">
-							Cancel
-						</button>
+							<button type="button" id="showRegisterPassword" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] flex-1 bg-gradient-to-br from-[#4facfe] to-[#00f2fe] font-semibold text-white px-4 py-2 rounded">
+								Show Password
+							</button>
+							<button type="button" id="generalCancelRegistration" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] flex-1 bg-gradient-to-br from-[#8e9eab] to-[#eef2f3] font-semibold text-[#2c3e50] px-4 py-2 rounded">
+								Cancel
+							</button>
 						</div>
 					</div>
 				</form>
