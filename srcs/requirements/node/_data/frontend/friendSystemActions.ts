@@ -211,6 +211,7 @@ import { startRemote1v1Game } from "./remote1v1GameInterface.js";
 function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo) {
 	let detailButton = document.createElement("button");
 	detailButton.textContent = "View Details";
+	detailButton.className = "bg-gray-200 text-black px-3 py-1 rounded hover:bg-gray-300"
 	detailButton.addEventListener("click", () => {
 		const modal = document.createElement("div");
 		modal.id = "userModal";
@@ -243,6 +244,7 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 				`;
 				const blockButton = document.createElement("button");
 				blockButton.textContent = "Block User";
+				blockButton.className = "bg-red-500 text-white px-3 py-1 rounded mr-2 hover:bg-gray-600";
 				blockButton.addEventListener("click", async () => {
 					const result = await createConfirmModal(`Are you sure you want to block ${target.id}?`);
 					if (result) {
@@ -267,6 +269,7 @@ function labelButton(target: HTMLElement, userinfo: HTMLElement, game: GameInfo)
 				content.appendChild(blockButton);
 				const inviteButton = document.createElement("button");
 				inviteButton.textContent = "Invite User";
+				inviteButton.className = "bg-green-500 text-white px-3 py-1 rounded mr-2 hover:bg-gray-600";
 				content.appendChild(inviteButton);
 				inviteButton.addEventListener("click", async () => {
 					fetch(`/inviteUserTo1v1Game?invitedUser=${encodeURIComponent(target.id)}&username=${game.currentlyLoggedIn.name}`)

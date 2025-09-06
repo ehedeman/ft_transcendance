@@ -145,11 +145,11 @@ export class htmlSettings extends HTMLElement {
 					<div class="flex flex-col gap-[15px] w-full mb-[15px]">
 						<div class="relative">
 							<label class="block mb-[5px] text-[#666] text-[14px]">Alias</label>
-							<input type="text" id="settingsName" name="name" class="w-[90%] px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
+							<input type="text" id="settingsName" name="name" required class="w-[90%] px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
 						</div>
 						<div class="relative">
 							<label class="block mb-[5px] text-[#666] text-[14px]">Full Name</label>
-							<input type="text" id="settingsUsername" name="username" class="w-[90%] px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
+							<input type="text" id="settingsUsername" name="username" required class="w-[90%] px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
 						</div>
 						<div class="relative">
 							<label class="block mb-[5px] text-[#666] text-[14px]">Password</label>
@@ -157,7 +157,7 @@ export class htmlSettings extends HTMLElement {
 						</div>
 						<div class="relative">
 							<label class="block mb-[5px] text-[#666] text-[14px]">Country</label>
-							<input type="text" id="settingsCountry" name="country" class="w-[90%] px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
+							<input type="text" id="settingsCountry" name="country" required class="w-[90%] px-[16px] py-[12px] rounded-lg border-2 border-[#e0e0e0] text-[16px] transition-all duration-300" />
 						</div>
 					</div>
 					<div id="avatarContainer" class="text-center mb-[20px] mt-[10px]">
