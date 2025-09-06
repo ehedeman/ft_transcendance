@@ -1,4 +1,4 @@
-import { navigate } from "./index.js";
+import { handleKeydown, handleKeyup, navigate } from "./index.js";
 import { GameInfo, pageIndex, Player, PlayerLogin } from "./frontendStructures.js";
 import { emptyLoginFields } from "./inputFieldHandling.js";
 import { hideEverything, restoreScreen, restoreScreenLoggedIn } from "./screenDisplay.js";
@@ -222,12 +222,13 @@ export function callTwoPlayerMatchEventListeners(game: GameInfo) {
 			})
 			.then(data => {
 				game.localMode = true;
+				document.addEventListener("keydown", handleKeydown);
+				document.addEventListener("keyup", handleKeyup);
 				console.log("Player added to game:", data);
 			})
 			.catch(error => {
 				console.error("Error adding player to game:", error);
 			});
-		return true;
 	});
 	document.getElementById("twoPlayerMatchPlayerGame")?.addEventListener("click", (event: Event) => {
 		hideGuestPlayerButtons();
