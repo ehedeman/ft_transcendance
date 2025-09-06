@@ -8,6 +8,8 @@ import { tournamentStart } from "./tournament.js";
 import { twoPlayerMatchStart } from "./twoPlayerMatch_local.js";
 import { multiplayerGameStart } from "./multiplayerGameRequests.js";
 import { hideEverything } from "./screenDisplay.js"
+import { loadGlobalStats } from "./globalDashboard.js";
+import { loadUserDashboard } from "./dashboard.js";
 
 
 function mimicRegistration() {
@@ -23,6 +25,8 @@ function mimicLogin(game: GameInfo) {
 }
 
 export const render = (view: string, state: any, game: GameInfo) => {
+	if (game.remoteMode || game.localMode || game.multiplayerMode)
+		return ;
 	console.log("loading" + view + "...");
 	restoreScreen(game);
 
@@ -63,6 +67,14 @@ export const render = (view: string, state: any, game: GameInfo) => {
 				break;
 			case game.availablePages[pageIndex.MULTIPLAYER]:
 				multiplayerGameStart(game);
+				break;
+			case game.availablePages[pageIndex.DASHBOARD]:
+				restoreScreenLoggedIn();
+				loadUserDashboard(game.currentlyLoggedIn.name);
+				break;
+			case game.availablePages[pageIndex.GLOBALSTATS]:
+				restoreScreenLoggedIn();
+				loadGlobalStats();
 				break;
 			default:
 				break;

@@ -115,6 +115,10 @@ export function renderRecentMatches(matches: RecentMatch[]): void {
 
 // --- Loader ---
 export async function loadGlobalStats(): Promise<void> {
+	const globalView = document.getElementById("globalDashboardView") as HTMLDivElement;
+	document.getElementById("dashboardButton")!.classList.remove("hidden");
+	document.getElementById("globalDashboardButton")!.classList.remove("hidden");
+	globalView.classList.remove("hidden");
 	try {
 		const res = await fetch("/stats/global", { credentials: "include" });
 		if (!res.ok) throw new Error("Failed to fetch global stats");

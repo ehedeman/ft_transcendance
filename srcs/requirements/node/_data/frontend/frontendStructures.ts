@@ -133,6 +133,9 @@ export enum pageIndex {
 	CHECKING_PROFILE,
 	REGISTER,
 	LOGIN,
+	DASHBOARD,
+	GLOBALSTATS,
+
 }	//match = 1v1
 
 // export type pages = {
@@ -237,7 +240,7 @@ export class GameInfo {
 
 		this.currentlyLoggedIn = { name:"default", gamesLost:0, gamesWon: 0, playerscore: 0	};
 	
-		this.availablePages = ["home", "settings", "tournament", "multiplayer", "match", "profile", "register", "login", "settings-login", "remote-match", "local-match"];
+		this.availablePages = ["home", "settings", "tournament", "multiplayer", "match", "profile", "register", "login", "dashboard", "globalview"];
 
 		this.gamefinished =false;
 

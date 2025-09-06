@@ -49,9 +49,11 @@ export function handleKeyup(e: KeyboardEvent): void {
 document.addEventListener("keydown", handleKeydown);
 document.addEventListener("keyup", handleKeyup);
 
-//location.hash.replace('#', '') ||
-const initialView = 'home';
-history.replaceState({ view: initialView }, '', `#${initialView}`);
+
+const initialView = location.hash.replace('#', '') || 'home';
+if (!game.remoteMode && !game.localMode && !game.multiplayerMode) {
+	history.replaceState({ view: initialView }, '', `#${initialView}`);
+}
 render(initialView, {
 	view: "home",
 	info: "",
@@ -60,6 +62,20 @@ render(initialView, {
 
 
 export const navigate = (view: string, infoString: string, game: GameInfo) => {
+	if (game.remoteMode || game.localMode || game.multiplayerMode || game.multiplayerMode) {
+		if (game.multiplayerMode)
+		{
+			if (location.hash !== "#" + game.availablePages[pageIndex.MULTIPLAYER]) {
+				location.hash = "#" + game.availablePages[pageIndex.MULTIPLAYER];
+			}
+		} else if (game.remoteMode || game.localMode)
+		{
+			if (location.hash !== "#" + game.availablePages[pageIndex.MATCH]) {
+				location.hash = "#" + game.availablePages[pageIndex.MATCH];
+			}
+		}
+		return ;
+	}
 	var gameSnapShot_: gameSnapShot = { players: game.players, currentlyLoggedIn: game.currentlyLoggedIn };
 
 	var renderInfo_: renderInfo = {
@@ -77,11 +93,29 @@ export const navigate = (view: string, infoString: string, game: GameInfo) => {
 // Handle browser back/forward
 
 window.addEventListener('popstate', (event) => {
+	if (game.remoteMode || game.localMode || game.multiplayerMode || game.multiplayerMode)
+		return ;
 	const state = event.state as renderInfo;
 	if (state?.view) {
 		render(state.view, state, game);
 	} else {
 		render('home', state, game); // fallback
+	}
+});
+
+window.addEventListener("hashchange", (e) => {
+	if (game.remoteMode || game.localMode || game.multiplayerMode || game.multiplayerMode) {
+		if (game.multiplayerMode)
+		{
+			if (location.hash !== "#" + game.availablePages[pageIndex.MULTIPLAYER]) {
+				location.hash = "#" + game.availablePages[pageIndex.MULTIPLAYER];
+			}
+		} else if (game.remoteMode || game.localMode)
+		{
+			if (location.hash !== "#" + game.availablePages[pageIndex.MATCH]) {
+				location.hash = "#" + game.availablePages[pageIndex.MATCH];
+			}
+		}
 	}
 });
 
@@ -92,16 +126,18 @@ dashboardButton.classList.remove("hidden");
 
 dashboardButton.addEventListener("click", () => {
 	hideEverything();
-	document.getElementById("dashboardButton")!.classList.remove("hidden");
-	document.getElementById("globalDashboardButton")!.classList.remove("hidden");
-	document.getElementById("dashboardView")!.classList.remove("hidden");
-	const alias = game.currentlyLoggedIn.name; // your logged-in user alias
-	loadUserDashboard(alias);
+	navigate(game.availablePages[pageIndex.DASHBOARD], "", game);
+	// document.getElementById("dashboardButton")!.classList.remove("hidden");
+	// document.getElementById("globalDashboardButton")!.classList.remove("hidden");
+	// document.getElementById("dashboardView")!.classList.remove("hidden");
+	// const alias = game.currentlyLoggedIn.name; // your logged-in user alias
+	// loadUserDashboard(alias);
 });
 
 document.getElementById("closeDashboard")!.addEventListener("click", () => {
 	document.getElementById("dashboardView")!.classList.add("hidden");
-	restoreScreenLoggedIn();
+	navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
+	// restoreScreenLoggedIn();
 });
 // ..............added
 
@@ -114,21 +150,25 @@ const globalClose = document.getElementById("closeGlobalDashboard") as HTMLButto
 
 globalButton.addEventListener("click", () => {
 	hideEverything();
-	document.getElementById("dashboardButton")!.classList.remove("hidden");
-	document.getElementById("globalDashboardButton")!.classList.remove("hidden");
-	globalView.classList.remove("hidden");
-	loadGlobalStats();
+	navigate(game.availablePages[pageIndex.GLOBALSTATS], "", game);
+	// document.getElementById("dashboardButton")!.classList.remove("hidden");
+	// document.getElementById("globalDashboardButton")!.classList.remove("hidden");
+	// globalView.classList.remove("hidden");
+	// loadGlobalStats();
 });
 
 globalClose.addEventListener("click", () => {
 	globalView.classList.add("hidden");
-	restoreScreenLoggedIn();
+	navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
+	// restoreScreenLoggedIn();
 });
 
 // added.......
 
 // Initial load
 window.onpopstate = (event: PopStateEvent) => {
+	if (game.remoteMode || game.localMode || game.multiplayerMode || game.multiplayerMode)
+		return ;
 	const state = event.state as renderInfo;
 	const view = state?.view || 'home';
 	render(view, state, game);
@@ -182,17 +222,30 @@ import { hideEverything, restoreScreenLoggedIn } from "./screenDisplay.js";
 
 window.onload = function () {
 	fetch("/endTournament");	// to make sure if tournament has been running its turned off now
+	if (game.remoteMode || game.localMode || game.multiplayerMode || game.multiplayerMode) {
+		if (game.multiplayerMode)
+		{
+			if (location.hash !== "#" + game.availablePages[pageIndex.MULTIPLAYER]) {
+				location.hash = "#" + game.availablePages[pageIndex.MULTIPLAYER];
+			}
+		} else if (game.remoteMode || game.localMode)
+		{
+			if (location.hash !== "#" + game.availablePages[pageIndex.MATCH]) {
+				location.hash = "#" + game.availablePages[pageIndex.MATCH];
+			}
+		}
+	}
 	fetch("/keepLogin")
 		.then(response => {
 			if (!response.ok) {
-				navigate(game.availablePages[pageIndex.HOME], "", game);
+				navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 				return;
 			}
 			return response.json();
 		})
 		.then(data => {
 			if (!data || !data.username) {
-				navigate(game.availablePages[pageIndex.HOME], "", game);
+				navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);
 				return;
 			}
 			createWebSocketConnection(data.username);

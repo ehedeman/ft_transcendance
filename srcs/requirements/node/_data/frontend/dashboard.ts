@@ -89,6 +89,9 @@ function renderMatchHistoryList(matches: Match[]): void {
 
 // --- Load Dashboard ---
 export async function loadUserDashboard(alias: string): Promise<void> {
+	document.getElementById("dashboardButton")!.classList.remove("hidden");
+	document.getElementById("globalDashboardButton")!.classList.remove("hidden");
+	document.getElementById("dashboardView")!.classList.remove("hidden");	
 	try {
 		const res = await fetch(`/user/${alias}/stats`, { credentials: "include" });
 		if (!res.ok) throw new Error("Failed to fetch dashboard data");

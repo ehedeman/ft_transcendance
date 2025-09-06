@@ -259,6 +259,7 @@ export function callSettingsEventlisteners(game: GameInfo) {
 				alert(data.message);
 				if (settingsAlreadyLoggedIn === true) {
 					// restoreScreenLoggedIn();
+					game.currentlyLoggedIn.name = usernameInput.value;
 					navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
 				}
 				else {

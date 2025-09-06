@@ -1,5 +1,5 @@
 import { Player } from "./frontendStructures.js"
-import { game } from "./index.js"
+import { game, handleKeydown, handleKeyup } from "./index.js"
 import { drawGame } from "./drawGame.js"
 import { hideEverything } from "./screenDisplay.js";
 
@@ -42,5 +42,7 @@ export function startRemote1v1Game(name1: string, name2: string): void {
 	const player2 = new Player(name1);
 
 	game.players = [player1, player2];
+	document.addEventListener("keydown", handleKeydown);
+	document.addEventListener("keyup", handleKeyup);
 	hideEverything();
 }
