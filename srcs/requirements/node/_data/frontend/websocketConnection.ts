@@ -43,10 +43,14 @@ async function handleGameInvitation(data: any) {
 	if (result) {
 		if (module === "1v1") {
 			game.remoteMode = true;
+			game.localMode = false;
+			game.multiplayerMode = false;
 			startRemote1v1Game(from, game.currentlyLoggedIn.name);
 		}
 		else if (module === "multiplayer") {
 			game.multiplayerMode = true;
+			game.remoteMode = false;
+			game.localMode = false;
 		}
 		game.websocket?.send(JSON.stringify({ reply: "accept" }));
 	} else {
