@@ -28,9 +28,9 @@ function showTournamentResults(placements: tournamentPlacements[], game: GameInf
 	game.t.finishScreenRunning = true;
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 	const TournamentContinue = document.getElementById("tournamentFinishContinue");
-	const resetButton = document.getElementById("tournamentResetButton");
+	// const resetButton = document.getElementById("tournamentResetButton");
 	if (TournamentContinue) TournamentContinue.classList.remove("hidden");
-	if (resetButton) resetButton.classList.add("hidden");
+	// if (resetButton) resetButton.classList.add("hidden");
 
 	const results = document.getElementById("tournamentResults") as HTMLBodyElement;
 	const placementList = document.getElementById("placementList") as HTMLBodyElement;
@@ -237,8 +237,8 @@ export function tournamentStart(game: GameInfo) {
 	document.removeEventListener('keyup', handleKeyup);
 	hideEverything();
 
-	const resetButton = document.getElementById("tournamentResetButton");
-	if (resetButton) resetButton.classList.remove("hidden");
+	// const resetButton = document.getElementById("tournamentResetButton");
+	// if (resetButton) resetButton.classList.remove("hidden");
 	game.t.stage = TournamentStage.Registration;
 	fetch(`/localMode?sender=${game.currentlyLoggedIn.name}`)
 		.then(response => {

@@ -117,7 +117,7 @@ export function hideEverything() {
 	const tournamentRegistrationModal = document.getElementById("tournamentRegistrationModal");
 	const tournamentResults = document.getElementById("tournamentResults");
 	const tournamentFinishContinue = document.getElementById("tournamentFinishContinue");
-	const tournamentResetButton = document.getElementById("tournamentResetButton");
+	// const tournamentResetButton = document.getElementById("tournamentResetButton");
 	const generalLoginModal = document.getElementById("generalLoginModal");
 	const generalRegistrationModal = document.getElementById("generalRegistrationModal");
 	const settings = document.getElementById("settingsButton");
@@ -150,7 +150,7 @@ export function hideEverything() {
 	if (tournamentRegistrationModal) tournamentRegistrationModal.classList.add("hidden");
 	if (tournamentResults) tournamentResults.classList.add("hidden");
 	if (tournamentFinishContinue) tournamentFinishContinue.classList.add("hidden");
-	if (tournamentResetButton) tournamentResetButton.classList.add("hidden");
+	// if (tournamentResetButton) tournamentResetButton.classList.add("hidden");
 	if (generalLoginModal) generalLoginModal.classList.add("hidden");
 	if (generalRegistrationModal) generalRegistrationModal.classList.add("hidden");
 	if (settings) settings.classList.add("hidden");

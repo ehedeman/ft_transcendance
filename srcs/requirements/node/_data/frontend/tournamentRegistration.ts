@@ -154,17 +154,17 @@ export function callTournamentEventListeners(game: GameInfo) {
 		restoreScreenLoggedIn();
 	});
 
-	document.getElementById("tournamentResetButton")?.addEventListener("click", () => {
-		game.t.finishScreenRunning = false;
-		tournamentEnd(0, game);
-		restoreScreenLoggedIn();
-	});
+	// document.getElementById("tournamentResetButton")?.addEventListener("click", () => {
+	// 	game.t.finishScreenRunning = false;
+	// 	tournamentEnd(0, game);
+	// 	restoreScreenLoggedIn();
+	// });
 
 	document.getElementById("CancelGeneralTournament")?.addEventListener("click", () => {
 		hidetournamentRegistrationModal();
 		fetch("/cancelledGame");
-		const resetButton = document.getElementById("tournamentResetButton") as HTMLElement;
-		if (resetButton) resetButton.classList.add("hidden");
+		// const resetButton = document.getElementById("tournamentResetButton") as HTMLElement;
+		// if (resetButton) resetButton.classList.add("hidden");
 		tournamentEnd(1, game);
 		// restoreScreen(game);
 		navigate(game.availablePages[pageIndex.HOME], "loggedOut", game);

@@ -39,23 +39,23 @@ class htmlTournament extends HTMLElement {
 		</div>
 	</div>
 	<div id="tournamentResults" class="hidden absolute top-[20%] left-1/2 transform -translate-x-1/2 bg-white/95 p-8 rounded-2xl z-10 w-[400px] shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
-	<h2 class="text-[#2c3e50] text-[28px] mb-5 text-center font-bold">Tournament Results</h2>
-	<div class="bg-black/5 rounded-lg p-4">
-		<ol id="placementList" class="text-[#2c3e50] text-[18px] pl-8"></ol>
-	</div>
+		<h2 class="text-[#2c3e50] text-[28px] mb-5 text-center font-bold">Tournament Results</h2>
+		<div class="bg-black/5 rounded-lg p-4">
+			<ol id="placementList" style="color: #2c3e50; font-size: 18px; padding-left: 30px;"></ol>
+		</div>
 	</div>
 
 	<button id="tournamentFinishContinue" class="hidden absolute z-20 left-1/2 top-[10%] transform -translate-x-1/2 text-white px-6 py-3 rounded text-[16px] bg-gradient-to-br from-[#0061ff] to-[#60efff] border-none font-semibold">
 	Continue
 	</button>
 
-	<button id="tournamentResetButton" class="hidden absolute z-20 left-1/2 top-[70px] transform -translate-x-1/2 font-semibold text-white px-5 py-2 rounded-lg shadow-[0_4px_8px_rgba(0,0,0,0.2)] transition-all duration-200 bg-gradient-to-br from-[#ff4b2b] to-[#ff416c] border-none">
-	Reset Tournament
-	</button>
-
-`;
-	}
+	
+	`;
 }
+}
+// <button id="tournamentResetButton" class="hidden absolute z-20 left-1/2 top-[70px] transform -translate-x-1/2 font-semibold text-white px-5 py-2 rounded-lg shadow-[0_4px_8px_rgba(0,0,0,0.2)] transition-all duration-200 bg-gradient-to-br from-[#ff4b2b] to-[#ff416c] border-none">
+// 	Reset Tournament
+// </button>
 
 class htmlLogin extends HTMLElement {
 	connectedCallback() {
