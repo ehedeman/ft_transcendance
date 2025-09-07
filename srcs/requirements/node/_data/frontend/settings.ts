@@ -234,6 +234,7 @@ export function callSettingsEventlisteners(game: GameInfo) {
 		const passwordInput = document.getElementById("settingsPassword") as HTMLInputElement;
 		const countryInput = document.getElementById("settingsCountry") as HTMLInputElement;
 		const avatarFileInput = document.getElementById("avatarUpload") as HTMLInputElement; // **file input**
+		const avatar_url_Path = document.getElementById("avatarPreviewSettings") as HTMLInputElement;
 
 		console.log(game.userInfoTemp.id);
 		console.log(usernameInput.value);
@@ -243,6 +244,10 @@ export function callSettingsEventlisteners(game: GameInfo) {
 		formData.append("username", usernameInput.value.trim());
 		formData.append("password", passwordInput.value.trim() || game.userInfoTemp.password_hash);
 		formData.append("country", countryInput.value.trim());
+
+		const trimmedPath = avatar_url_Path.src.replace(window.location.origin, "");
+		console.log("This na from HTML file:", trimmedPath.trim());
+		console.log("userinfo class:", game.userInfoTemp.avatar_url);
 
 		if (nameInput.value.length > 6) {
 			alert("Alias must below 6 characters!");
@@ -257,7 +262,8 @@ export function callSettingsEventlisteners(game: GameInfo) {
 		if (passwordInput.value.trim() ||
 			game.userInfoTemp.Full_Name !== nameInput.value.trim() ||
 				game.userInfoTemp.Alias !== usernameInput.value.trim() ||
-					game.userInfoTemp.Country !== countryInput.value.trim())
+					game.userInfoTemp.Country !== countryInput.value.trim() || 
+					game.userInfoTemp.avatar_url !== trimmedPath.trim())
 		{
 			logout(game);
 			fetch("/updateUser", {
