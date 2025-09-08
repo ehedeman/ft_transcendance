@@ -37,15 +37,26 @@ function showTournamentResults(placements: tournamentPlacements[], game: GameInf
 	const results = document.getElementById("tournamentResults") as HTMLDivElement;
 	const placementList = document.getElementById("placementList") as HTMLOListElement;
 
-	placementList.innerHTML = "";
-	placements.forEach((player, index) => {
-		const listItem = document.createElement("li");
-		var index_ = index + 1;
-		listItem.textContent = `${index_}. ${player.username}`;
-		placementList.appendChild(listItem);
-	});
+	if (placementList && results)
+	{
+		placementList.innerHTML = "";
+		placements.forEach((player, index) => {
+			const listItem = document.createElement("li");
+			var index_ = index + 1;
+			listItem.textContent = `${index_}. ${player.username}`;
+			placementList.appendChild(listItem);
+		});
 
-	results.classList.remove("hidden");
+		results.classList.remove("hidden");
+	}
+	else
+	{
+		console.log("Failed to load placement List..");
+		fetch("/endTournament");
+		fetch("/endLocalMode");
+		tournamentEnd(1, game);
+		navigate(game.availablePages[pageIndex.HOME], "loggedIn", game);
+	}
 } 
 
 export function tournamentFinished(game: GameInfo): void {
@@ -80,6 +91,7 @@ export function tournamentFinished(game: GameInfo): void {
 export function tournamentEnd(returnValue: number, game: GameInfo): number {
 	game.t.currentRound = 0;
 	game.tournamentLoopActive = false;
+	game.localMode = false;
 	game.t.stage = TournamentStage.Not_Running;
 	if (game.t.players.length > 0)
 		game.t.players.splice(0, game.t.players.length);

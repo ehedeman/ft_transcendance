@@ -31,6 +31,8 @@ function registerPlayer(i: number, game: GameInfo, players: PlayerLogin[]): Prom
 				.then((response) => {
 					if (!response.ok) {
 						alert("Login failed. Please try again.");
+						fetch("/endTournament");
+						fetch("/endLocalMode");
 						tournamentEnd(1, game);
 						resolve(null);
 						return;
