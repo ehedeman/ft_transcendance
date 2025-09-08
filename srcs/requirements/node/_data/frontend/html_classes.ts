@@ -39,9 +39,9 @@ class htmlTournament extends HTMLElement {
 		</div>
 	</div>
 	<div id="tournamentResults" class="hidden absolute top-[20%] left-1/2 transform -translate-x-1/2 bg-white/95 p-8 rounded-2xl z-10 w-[400px] shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
-		<h2 class="text-[#2c3e50] text-[28px] mb-5 text-center font-bold">Tournament Results</h2>
+		<h2 class="text-black text-[28px] mb-5 text-center font-bold">Tournament Results</h2>
 		<div class="bg-black/5 rounded-lg p-4">
-			<ol id="placementList" class="text-[18px] pl-[30px]"></ol>
+			<ol id="placementList" class="text-black text-[18px] pl-[30px]"></ol>
 		</div>
 	</div>
 

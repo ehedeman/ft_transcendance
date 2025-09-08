@@ -24,6 +24,8 @@ export function showWinnerScreen(game: GameInfo, winner: string) {
 	}
 }
 
+
+
 function showTournamentResults(placements: tournamentPlacements[], game: GameInfo): void {
 	game.t.finishScreenRunning = true;
 	ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
@@ -32,18 +34,19 @@ function showTournamentResults(placements: tournamentPlacements[], game: GameInf
 	if (TournamentContinue) TournamentContinue.classList.remove("hidden");
 	// if (resetButton) resetButton.classList.add("hidden");
 
-	const results = document.getElementById("tournamentResults") as HTMLBodyElement;
-	const placementList = document.getElementById("placementList") as HTMLBodyElement;
+	const results = document.getElementById("tournamentResults") as HTMLDivElement;
+	const placementList = document.getElementById("placementList") as HTMLOListElement;
 
 	placementList.innerHTML = "";
 	placements.forEach((player, index) => {
 		const listItem = document.createElement("li");
-		listItem.textContent = `${player.username}`;
+		var index_ = index + 1;
+		listItem.textContent = `${index_}. ${player.username}`;
 		placementList.appendChild(listItem);
 	});
 
 	results.classList.remove("hidden");
-}
+} 
 
 export function tournamentFinished(game: GameInfo): void {
 	var last = -1;
