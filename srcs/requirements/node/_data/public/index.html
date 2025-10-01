@@ -1,225 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full m-0">
 
 <head>
+	<script src="https://cdn.tailwindcss.com"></script>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Pong Game</title>
-	<link href="styles.css" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
 </head>
-<div>
+
+<body id="gameScreen" class="min-h-full m-0 p-0 bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364] bg-cover bg-fixed text-[#fefafa] font-montserrat">
 	<header>
-		<h1 id="maintitle"
-			style="position:absolute; z-index: 1; left: 50%; top: 0%; color:black; transform: translateX(-50%);"
-			class="text-4xl font-bold mb-8">Pong Game</h1>
+		<h1 id="maintitle" class="text-white font-bold tracking-[1px] [text-shadow:0px_2px_4px_rgba(0,0,0,0.5)] absolute z-[1] left-1/2 top-0 transform -translate-x-1/2 text-[42px] font-bold mb-8">
+			Pong Game
+		</h1>
 	</header>
 	<label for="gameScreen">
-		<button id="loginButton"
-			style="position:absolute; z-index: 2; left: 25%; top: 70px; transform: translateX(-50%);"
-			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
-			Log in
+		<div class="nav-container absolute top-[90px] left-0 right-0 z-[2] flex justify-around px-[40px]">
+			<div class="flex gap-[20px]">
+				<button id="loginButton" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] relative py-[10px] px-[24px] bg-gradient-to-br from-[#4facfe] to-[#00f2fe] border-0 font-semibold text-white font-bold rounded mb-4">
+					Log in
+				</button>
+				<button id="logoutButton" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] hidden relative py-[10px] px-[24px] mr-[30px] bg-gradient-to-br from-[#4facfe] to-[#00f2fe] border-0 font-semibold text-white font-bold rounded mb-4">
+					Log out
+				</button>
+				<button id="registerButton" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] relative py-[10px] px-[24px] bg-gradient-to-br from-[#4facfe] to-[#00f2fe] border-0 font-semibold text-white font-bold rounded mb-4">
+					Register
+				</button>
+			</div>
+			<div class="flex gap-[20px]">
+				<button id="globalDashboardButton" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] hidden py-[10px] px-[24px] bg-gradient-to-br from-[#4facfe] to-[#00f2fe] border-0 font-semibold text-white font-bold rounded mb-4">
+					Global Stats
+				</button>
+				<button id="dashboardButton" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] hidden py-[10px] px-[24px] bg-gradient-to-br from-[#4facfe] to-[#00f2fe] border-0 font-semibold text-white font-bold rounded mb-4">
+					Dashboard
+				</button>
+				<select id="playSelect" class="hidden relative h-[44px] px-[24px] pr-[30px] bg-gradient-to-br from-[#4facfe] to-[#00f2fe] text-white text-base font-semibold border-0 appearance-none cursor-pointer rounded">
+					<option value="" disabled selected>Play</option>
+					<option value="tournament">Tournament</option>
+					<option value="multiplayer">Multiplayer</option>
+					<option value="1v1">1v1</option>
+				</select>
+			</div>
+		</div>
+		<button id="settingsButton" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] absolute z-[2] right-[20px] top-[20px] flex items-center justify-center w-[50px] h-[50px] rounded-full text-[20px] bg-gradient-to-br from-[#4facfe] to-[#00f2fe] border-0 font-semibold text-white">
+			⚙️
 		</button>
-		<button id="registerButton"
-			style="position:absolute; z-index: 2; left: 50%; top: 70px; transform: translateX(-50%);"
-			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
-			Register
-		</button>
-		<button id="settingsButton"
-			style="position:absolute; z-index: 2;left: 95%; top: 2%; transform: translateX(-50%);"
-			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
-			Settings
-		</button>
+		<div id="WinnerScreen" class="hidden absolute top-[30%] left-1/2 transform -translate-x-1/2 bg-white/95 p-[30px] rounded-[16px] z-[10] shadow-[0_10px_30px_rgba(0,0,0,0.3)] text-center">
+			<h2 id="WinnerScreenText" class="text-[#2c3e50] text-[28px] mb-5"></h2>
+			<button type="button" id="WinnerScreenContinue" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] bg-gradient-to-br from-[#0061ff] to-[#60efff] border-0 font-semibold text-white px-6 py-3 rounded">
+				Continue
+			</button>
+		</div>
 	</label>
 
-	<body id="gameScreen " class="bg-gray-900 flex items-center justify-center h-screen text-white">
-		<div id="settings"
-			style="display:none; position:absolute; flex-grow:1; display:none; flex-direction:column; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width: 300px;">
-			<div style="display:flex; flex-direction:column;  justify-content:space-between; align-items:center; height:100%;">
-				<h2 id="settingsHeader"></h2>
-				<form id="settingsForm" method="post"
-					style="flex-grow:1; display:flex; flex-direction:column; margin-bottom:10px; justify-content:space-between; align-items:center;">
-					<input type="text" id="settingsName" name="name" required="false" />
-					<input type="text" id="settingsUsername" name="username" required="false" />
-					<input type="password" id="settingsPassword" name="password" />
-					<input type="text" id="settingsCountry" name="country" required="false" />
+	<settings-components></settings-components>
+	<registration-components></registration-components>
+	<login-components></login-components>
+	<tournament-components></tournament-components>
+	<two-player-match></two-player-match>
+	<multiplayer-match></multiplayer-match>
 
-					<div id="avatarContainer" style="text-align:center; margin-bottom:10px; margin-top:10px;">
-						<img id="avatarPreviewSettings" src="avatars/default-avatar.png" alt="Avatar"
-							style="width:100px; height:100px; border-radius:50%; cursor:pointer;" />
-						<input type="file" id="avatarUpload" name="avatar" accept="image/*" style="display:none;" />
-					</div>
-					<div style="display: flex; gap: 10px;">
-						<button style="flex: 1;" type="button" id="showSettingsPassword"
-							class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
-						<button style="flex: 1;" type="submit" id="settingsSave"
-							class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
-						<button style="flex: 1;" type="button" id="settingsDeleteAccount"
-							class="bg-blue-500 text-white px-4 py-2 rounded">Delete Account</button>
-					</div>
-				</form>
-				<form id="settingsLogin" method="post"
-					style="flex-grow:1; display:flex; flex-direction:column; margin-bottom:10px; justify-content:space-between;">
-					<input type="text" id="settingsLoginUsername" name="username" placeholder="Username"
-						required="true" />
-					<input type="password" id="settingsLoginPassword" name="password" placeholder="Password"
-						required="true" />
+	<div class="absolute left-1/2 top-[140px] transform -translate-x-1/2 p-[20px] bg-white/10 backdrop-blur-md rounded-[16px] border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
+		<canvas tabindex="1" id="gameCanvas" class="relative border-2 border-white/30 rounded-[16px] shadow-[0_12px_32px_rgba(0,0,0,0.3)]"></canvas>
+	</div>
 
-					<button type="submit" id="settingsLoginSubmit" class="bg-blue-500 text-white px-4 py-2 rounded">Log
-						In</button>
-				</form>
-				<button style="flex-grow:1; gap: 10px;" type="button" id="settingsCancel" 
-					class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
+	<friend-components></friend-components>
+	
+	<div id="dashboardView" class="hidden absolute top-[160px] left-1/2 transform -translate-x-1/2 bg-white/95 text-[#2c3e50] p-[30px] rounded-[16px] w-[80%] max-w-[1000px] max-h-[600px] overflow-y-auto z-[5] shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
+		<h2 class="text-center font-bold text-[28px] mb-[20px] text-[#2c3e50]">
+			Your Dashboard
+		</h2>
+		<div class="grid grid-cols-2 gap-[20px] mb-[20px]">
+			<div class="bg-white/80 p-[20px] rounded-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+				<h3 class="mt-0 mb-[15px] text-[18px]">Match Results</h3>
+				<canvas id="matchPieChart" class="w-full max-h-[250px]"></canvas>
+			</div>
+			<div class="bg-white/80 p-[20px] rounded-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+				<h3 class="mt-0 mb-[15px] text-[18px]">Performance</h3>
+				<canvas id="matchBarChart" class="w-full max-h-[250px]"></canvas>
 			</div>
 		</div>
-		<div id="generalRegistrationModal"
-			style="display:none; position:absolute; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
-			<div>
-				<h2>
-					Register
-				</h2>
-				<form id="generalRegistrationForm" method="post"
-					style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
-					<div>
-						<input type="text" id="registerName" name="name" placeholder="Name" required="true" />
-						<input type="text" id="registerUsername" name="username" placeholder="Username"
-							required="true" />
-						<input type="password" id="registerPassword" name="password" placeholder="Password"
-							required="true" />
-						<input type="country" id="registerCountry" name="country" placeholder="Country"
-							required="true" />
-						<div>
-							<label for="registerAvatar" style="cursor:pointer;">
-								<img id="registerAvatarImg" src="avatars/default-avatar.png"
-									style="width:64px; height:64px; border-radius:8px; border:2px solid #aaa;"
-									alt="Select your avatar" />
-							</label>
-							<input type=" file" id="registerAvatar" name="avatar" accept="image/*"
-								style="display:none;" />
-							<img id="avatarPreview" src="default-avatar.png"
-								style="width:64px; height:64px; display:none;" />
-						</div>
-					</div>
-					<div style="margin-top:20px;">
-						<button type="button" id="showRegisterPassword"
-							class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
-						<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
-						<button type="button" id="generalCancelRegistration"
-							class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
-					</div>
-				</form>
-			</div>
+		<div class="bg-white/80 p-[20px] rounded-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+			<h3 class="mt-0 mb-[15px] text-[18px]">Recent Matches</h3>
+			<ul id="dashboardMatchHistoryList" class="max-h-[200px] overflow-y-auto pl-0 list-none"></ul>
 		</div>
-		<div id="generalLoginModal"
-			style="display:none; position:absolute; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width:300px;">
-			<div style="display:flex; flex-direction:column; height:100%;">
-				<h2>
-					Login
-				</h2>
-				<form id="generalLoginForm" method="post"
-					style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
-					<div>
-						<input type="text" id="loginUsername" name="username" placeholder="Username" required="true" />
-						<input type="password" id="loginPassword" name="password" placeholder="Password"
-							required="true" />
-					</div>
-					<div style="margin-top:20px;">
-						<button type="button" id="showLoginPassword"
-							class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
-						<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
-						<button type="button" id="CancelGeneralLogin"
-							class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
-					</div>
-				</form>
-			</div>
-		</div>
-		<div id="tournamentRegistrationModal"
-			style="display:none; position:absolute; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10; width: 300px;">
-			<div style="display:flex; flex-direction:column; height:100%;">
-				<h2 id="tournamentRegisterHeader">
-					Register Tournament Players
-				</h2>
-				<form id="tournamentRegistrationForm"
-					style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
-					<div>
-						<input type="text" id="tournamentUsername" name="username" placeholder="Username"
-							required="true" />
-						<input type="password" id="tournamentPassword" name="password" placeholder="Password"
-							required="true" />
-					</div>
-					<div style="margin-top:20px;">
-						<button type="button" id="showTournamentPassword"
-							class="bg-blue-500 text-white px-4 py-2 rounded">Show Password</button>
-						<button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Continue</button>
-						<button type="button" id="CancelGeneralTournament"
-							class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Cancel</button>
-					</div>
-				</form>
-			</div>
-		</div>
-		<div id="tournamentResults"
-			style="display:none; position:absolute; top:20%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
-			<h2>Tournament Results</h2>
-			<ol id="placementList"></ol>
-		</div>
-		<button id="tournamentFinishContinue"
-			style="display:none; position:absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);"
-			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
-			Continue
+
+		<button id="closeDashboard" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] bg-gradient-to-br from-[#0061ff] to-[#60efff] font-semibold text-white px-6 py-3 rounded mt-4 block mx-auto text-[16px]">
+			Close
 		</button>
-		<button id="tournamentResetButton"
-			style="display:none; position:absolute; z-index: 2;left: 50%; top: 10%; transform: translateX(-50%);"
-			class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4">
-			Reset Tournament
+	</div>
+
+
+	<div id="globalDashboardView" class="hidden absolute top-[160px] left-1/2 transform -translate-x-1/2 bg-white/95 text-[#2c3e50] p-[30px] rounded-[16px] w-[80%] max-w-[1000px] max-h-[600px] overflow-y-auto z-[5] shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
+		<h2 class="text-center font-bold text-[28px] mb-[20px] text-[#2c3e50]">
+			Global Game Stats
+		</h2>
+		<div class="bg-white/80 p-[20px] rounded-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.1)] mb-[20px]">
+			<h3 class="mt-0 mb-[15px] text-[18px]">Game Activity</h3>
+			<canvas id="globalMatchTypeChart" class="w-full max-h-[250px]"></canvas>
+		</div>
+		<div class="bg-white/80 p-[20px] rounded-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.1)] mb-[20px]">
+			<h3 class="mt-0 mb-[15px] text-[18px]">Leaderboard</h3>
+			<div class="max-h-[200px] overflow-y-auto">
+				<table id="leaderboardTable" class="w-full border-collapse text-left"></table>
+			</div>
+		</div>
+		<div class="bg-white/80 p-[20px] rounded-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+			<h3 class="mt-0 mb-[15px] text-[18px]">Recent Matches</h3>
+			<ul id="globalRecentMatches" class="max-h-[200px] overflow-y-auto pl-0 list-none"></ul>
+		</div>
+		<button id="closeGlobalDashboard" class="transform -translate-y-[2px] shadow-[0_4px_8px_rgba(0,0,0,0.2)] bg-gradient-to-br from-[#0061ff] to-[#60efff] font-semibold text-white px-6 py-3 rounded mt-4 block mx-auto text-[16px]">
+			Close
 		</button>
-		<div>
-			<label for="playSelect">Play</label>
-			<select id="playSelect"
-				style="position:absolute; z-index: 2; left: 75%; top: 70px; transform: translateX(-50%);">
-				<option value="" disabled selected>Play</option>
-				<option value="tournament">Tournament</option>
-				<option value="multiplayer">Multiplayer</option>
-				<option value="1v1">1v1</option>
-			</select>
-			<div id="WinnerScreen"
-				style="display:none; position:absolute; top:30%; left:50%; transform:translateX(-50%); background:white; padding:20px; border-radius:8px; z-index:10;">
-				<h2 id="WinnerScreenText"></h2>
-				<button type="button" id="WinnerScreenContinue"
-					class="bg-gray-500 text-white px-4 py-2 rounded ml-2">Continue</button>
-			</div>
+	</div>
+	<div id="matchHistory" class="hidden absolute top-[calc(140px+620px+70px)] left-1/2 transform -translate-x-1/2 p-[25px] w-[940px] bg-white/10 backdrop-blur-md rounded-[16px] border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
+		<h2 class="mt-0 text-white font-semibold text-[24px] mb-[15px] text-center">
+			Match History
+		</h2>
+		<div class="rounded-[8px] overflow-hidden">
+			<ul id="matchHistoryList" class="w-full max-h-[250px] overflow-y-auto bg-black/40 mx-auto p-5 list-none rounded-[8px]">
+				<li class="p-[12px] text-center text-white/70 border-b border-white/10">
+					Your match history will appear here.
+				</li>
+			</ul>
 		</div>
-		<div>
-			<canvas tabindex='1' id="gameCanvas" class="border-4 border-white"
-				style="position:absolute; left: 50%; top: 120px; transform: translateX(-50%);">
-			</canvas>
-		</div>
-		<div style="position:absolute; top: calc(120px + 620px)">
-			<header style="position:absolute;">Friends</header>
-		</div>
-		<div style="position: absolute; display: flex; flex-direction: row; top: calc(120px + 620px + 20px); left: 50%; transform: translateX(-50%);">
-			<div style="display: flex; gap: 20px;">
-				<ul id="friendList" style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
-					<li>Please login to see friends</li>
-				</ul>
-				<ul id="friendList2" style="width: 200px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
-					<li>Please click a friend to see the history...</li>
-				</ul>
-				<ul style="padding-left: 20px; max-width: 75px; max-height: 65px;">
-					<button style="width: 75px; height: 75px; display: none;" id="addFriend" class="bg-blue-500 text-white px-4 py-2 rounded">Add Friend</button>
-				</ul>
-				<ul id="friendRequestsList" style="width: 250px; height: 75px; overflow-y: auto; padding-left: 20px; border: 1px solid #000000;">
-					<li>Your new friend requests will appear here</li>
-				</ul>
-			</div>
-		</div>
-		<div
-			style="position:absolute; display: flex; top: calc(120px + 620px + 20px + 120px); left: 50%; transform: translateX(-50%);">
-			<input type="text" id="inputMessageBox" placeholder="Please input your message here..."
-				class="border rounded px-2 py-1" style="width: 400px;" />
-			<button id="sendMessage" class="bg-blue-500 text-white px-4 py-2 rounded">Send Message</button>
-		</div>
-		<script type="module" src="/index.js"></script>
-	</body>
-</div>
+	</div>
+	<script type="module" src="/index.js"></script>
+</body>
 
 </html>
 

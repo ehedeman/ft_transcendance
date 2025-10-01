@@ -4,7 +4,13 @@ import { GameInfo } from './serverStructures';
 export function websocketAndSocketMessage(app: FastifyInstance, db: any, game: GameInfo) {
 	function handlePrivateMessage(message: any) {
 		const targetSocket = game.sockets.get(message.target);
-		if (targetSocket) {
+		const stmt2 = db.prepare('SELECT status FROM newFriend WHERE username = ? AND friendname = ?');
+		let status = stmt2.get(message.target, message.from)?.status;
+		if (!status) {
+			status = stmt2.get(message.from, message.target)?.status;
+		}
+		console.log(`Friend status between ${message.from} and ${message.target}: ${status}`);
+		if (targetSocket && status === 'accepted') {
 			targetSocket.send(JSON.stringify(message));
 		}
 		const sourceSocket = game.sockets.get(message.from);
@@ -30,7 +36,7 @@ export function websocketAndSocketMessage(app: FastifyInstance, db: any, game: G
 		}
 	}
 
-	app.get('/ws', { websocket: true }, (socket, req: FastifyRequest) => { // login received
+	app.get('/ws', { websocket: true, preValidation: [app.authenticate] }, (socket, req: FastifyRequest) => { // login received
 		console.log('=== WebSocket Handler Called ===');
 
 		// Extract username from query parameters
@@ -47,6 +53,9 @@ export function websocketAndSocketMessage(app: FastifyInstance, db: any, game: G
 		// Handle connection close
 		socket.on('close', () => {
 			console.log(`User ${username} disconnected`);
+			const stmt2 = db.prepare(`UPDATE users SET status = 'offline' WHERE full_name = ?`);//TODO: I add the database changes here
+			stmt2.run(username);
+			game.sockets.delete(username);
 		});
 
 		game.sockets.set(username, socket);

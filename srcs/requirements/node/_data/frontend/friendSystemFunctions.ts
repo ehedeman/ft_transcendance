@@ -18,7 +18,7 @@ export function getFriendList(username: string) {
 					const listItem = document.createElement("li");
 					listItem.textContent = friend;
 					listItem.id = friend;
-					listItem.style.cursor = "pointer";
+					listItem.className = "cursor-pointer text-white"; // Ensure text is white on black background
 					friendListElement.appendChild(listItem);
 				}
 			}
@@ -42,7 +42,7 @@ export function getFriendRequestList(username: string) {
 			if (game.friendRequestList.length === 0) {
 				const friendRequestListElement = document.getElementById("friendRequestsList");
 				if (friendRequestListElement) {
-					friendRequestListElement.innerHTML = "<li>No friend requests</li>";
+					friendRequestListElement.innerHTML = "<li class='text-white'>No friend requests</li>"; //Remi
 				}
 			}
 			const friendRequestListElement = document.getElementById("friendRequestsList");
@@ -52,7 +52,7 @@ export function getFriendRequestList(username: string) {
 					const listItem = document.createElement("li");
 					listItem.textContent = request;
 					listItem.id = request;
-					listItem.style.cursor = "pointer";
+					listItem.className = "cursor-pointer text-white"; // Ensure text is white on black background
 					friendRequestListElement.appendChild(listItem);
 				}
 			}

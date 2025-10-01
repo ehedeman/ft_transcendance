@@ -162,4 +162,41 @@ export function debugFunctions(app: FastifyInstance, db: any) {
 			reply.status(500).send({ error: 'Database error' });
 		}
 	});
+
+	app.get('/debug/matchHistory', async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			const stmt = db.prepare(`SELECT * FROM matchHistory`);
+			const matchHistory = stmt.all();
+			reply.send({ matchHistory });
+		} catch (err) {
+			reply.status(500).send({ error: 'Database error' });
+		}
+	});
+
+	app.get('/debug/cleanTable/matchHistory', async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			db.prepare(`DELETE FROM matchHistory`).run();
+			reply.send({ message: `Table 'matchHistory' cleaned.` });
+		} catch (err) {
+			reply.status(500).send({ error: 'Database error' });
+		}
+	});
+
+	app.get('/debug/cleanTable/newFriend', async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			db.prepare(`DELETE FROM newFriend`).run();
+			reply.send({ message: `Table 'newFriend' cleaned.` });
+		} catch (err) {
+			reply.status(500).send({ error: 'Database error' });
+		}
+	});
+
+	app.get('/debug/cleanTable/users', async (request: FastifyRequest, reply: FastifyReply) => {
+		try {
+			db.prepare(`DELETE FROM users`).run();
+			reply.send({ message: `Table 'users' cleaned.` });
+		} catch (err) {
+			reply.status(500).send({ error: 'Database error' });
+		}
+	});
 }

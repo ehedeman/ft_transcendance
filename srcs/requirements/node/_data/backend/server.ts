@@ -1,27 +1,47 @@
 import fastify from 'fastify';
+import fs from 'fs';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
 import websocket from '@fastify/websocket';
+import fastifyJwt from '@fastify/jwt';
+import fastifyCookie from "@fastify/cookie";
 import Database from 'better-sqlite3';
 import bcrypt from 'bcrypt'; // for hashing password
 import fastifyMultipart from '@fastify/multipart';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 import { createWriteStream } from 'fs';
+import { FastifyRequest, FastifyReply } from "fastify";
+import { dashboardRoutes } from "./dashboardRoutes.js";
+import { globalStatsRoutes } from "./globalStatsRoutes.js";
 
-export const saltRounds = 10;
+export const saltRounds = 3; // Do not change this again please
 
-export const app = fastify({ logger: true });
+export const app = fastify({
+	logger: true,
+	https: {
+		key: fs.readFileSync("./server.key"),
+		cert: fs.readFileSync("./server.cert")
+	}
+});
 
 await app.register(websocket);
 await app.register(fastifyMultipart);
+await app.register(fastifyJwt, {
+	secret: process.env.JWT_SECRET || "Marlon, Patrick, Yao",
+	cookie: {
+		cookieName: "token",   // <-- Name of the cookie
+		signed: false          // We are not signing cookies separately
+	}
+});
+await app.register(fastifyCookie);
 
 const pump = promisify(pipeline);
 
 // import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { GameInfo, userInfo, loginInfo } from './serverStructures.js';
+import { GameInfo, userInfo } from './serverStructures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,23 +76,48 @@ app.get('/ping', async () => {
 	return { pong: 'it works!' };
 });
 
-export let rounds = 1;
+export let rounds = 3;
 
 export let accaleration = 0.1; // Speed increase factor
 
 import { updateGame, interactWithGame } from './gamePlayServer.js';
 
 setInterval(() => {// TODO: not here
-	updateGame();
+	updateGame(db);
 }, 1000 / 60);
 interactWithGame(app, game);
 
+import { interactWithRemote1v1Game, updateRemote1v1Game } from './remote1v1Game.js'
+setInterval(() => {
+	updateRemote1v1Game(db);
+}, 1000 / 60);
+interactWithRemote1v1Game(app, db, game);
 
+import { interactWithMultiplayerGame, updateMultiplayerGame } from './multiplayerGamelogic.js';
+setInterval(() => {
+	updateMultiplayerGame(db);
+}, 1000 / 60);
+interactWithMultiplayerGame(app, db, game);
+
+// setInterval(() => {
+// 	checkSocketConnections();
+// }, 10000);
+
+app.decorate("authenticate", async function (request: FastifyRequest, reply: FastifyReply) {
+	try {
+		await request.jwtVerify();
+	} catch (err) {
+		reply.code(401).send({ message: "Unauthorized" });
+	}
+});
+
+await dashboardRoutes(app);
+await globalStatsRoutes(app);
 
 app.post("/register", async (request, reply) => {
 	const parts = request.parts();
 	let name = '', username = '', password = '', country = '';
-	let avatarPath = '/avatars/default-avatar.png';
+	let avatarPath = './avatars/default-avatar.png';
 	let avatarUploaded = false;
 
 	for await (const part of parts) {
@@ -132,9 +177,7 @@ app.post("/register", async (request, reply) => {
 	console.log(`User ${username} registered successfully`);
 });
 
-
-
-app.post("/updateUser", async (request, reply) => {
+app.post("/updateUser", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const parts = request.parts();
 
 	let id = "", name = "", username = "", password = "", country = "";
@@ -180,10 +223,10 @@ app.post("/updateUser", async (request, reply) => {
 		}
 
 		const updateQuery = `
-            UPDATE users
-            SET Full_Name = ?, Alias = ?, password_hash = ?, Country = ?, avatar_url = ?
-            WHERE id = ?
-        `;
+			UPDATE users
+			SET Full_Name = ?, Alias = ?, password_hash = ?, Country = ?, avatar_url = ?
+			WHERE id = ?
+		`;
 		db.prepare(updateQuery).run(name, username, password_hash, country, avatarPath, id);
 
 		reply.send({ status: 200, message: "User updated successfully", avatar: avatarPath });
@@ -193,10 +236,10 @@ app.post("/updateUser", async (request, reply) => {
 	}
 });
 
-app.post("/userInfo", async (request, reply) => {
+app.post("/userInfo", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const _username = request.body as { username: string };
 
-	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
+	const stmt = db.prepare(`SELECT * FROM users WHERE  Full_Name = ?`);  // from Alias -> Full_Name  ----> Bug spotted_Pat
 	const user = stmt.get(_username.username) as userInfo;
 
 	if (!user || !user.Alias || !user.Full_Name || !user.Country || !user.avatar_url || !user.password_hash) {
@@ -217,10 +260,40 @@ app.post("/userInfo", async (request, reply) => {
 	});
 })
 
-app.post("/login", async (request, reply) => {
+app.post("/deleteUser", { preValidation: [app.authenticate] }, async (request, reply) => {
+	const { username } = request.body as { username: string };
+
+	const user = db.prepare("SELECT * FROM users WHERE Full_Name = ?").get(username); // From Alias -> full_Name  Pat bug here
+	if (!user) {
+		reply.status(401).send({ status: 401, message: "Invalid username" });
+		return;
+	}
+	db.prepare("DELETE FROM users WHERE  Full_Name = ?").run(username); // From Alias -> full_Name  Pat bug here
+
+	reply.status(200).send({ status: 200, message: "User successfully deleted" });
+});
+
+
+app.post("/logout", { preValidation: [app.authenticate] }, async (request, reply) => {
+	const { username } = request.body as { username: string };
+
+	const stmt = db.prepare(`SELECT * FROM users WHERE Full_Name = ?`);
+	const user = stmt.get(username) as any;
+	if (!user) {
+		reply.status(401).send({ status: 401, message: 'Invalid username' });
+		return;
+	}
+	const stmt2 = db.prepare(`UPDATE users SET status = 'offline' WHERE Full_Name = ?`);
+	stmt2.run(username);
+	game.sockets.get(username)?.close();
+	game.sockets.delete(username);
+	reply.clearCookie("token").send({ status: 200, message: 'Logout successful', user });
+});
+
+app.post("/login", { preValidation: [app.authenticate] }, async (request, reply) => {
 	const { username, password } = request.body as { username: string; password: string };
 
-	const stmt = db.prepare(`SELECT * FROM users WHERE Alias = ?`);
+	const stmt = db.prepare(`SELECT * FROM users WHERE Full_Name = ?`);
 	const user = stmt.get(username) as any;
 
 	if (!user) {
@@ -236,6 +309,47 @@ app.post("/login", async (request, reply) => {
 	reply.send({ status: 200, message: 'Login successful', user });
 });
 
+app.post("/firstlogin", async (request, reply) => {
+	const { username, password } = request.body as { username: string; password: string };
+
+	let stmt = db.prepare(`SELECT * FROM users WHERE Full_Name = ?`);
+	const user = stmt.get(username) as any;
+
+	stmt = db.prepare(`SELECT status FROM users WHERE Full_Name = ?`);
+	const userStatus = stmt.get(username) as any;
+	if (userStatus.status === 'online') {
+		reply.status(401).send({ status: 401, message: 'User is already logged in' });
+		return;
+	}
+
+	if (!user) {
+		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
+		return;
+	}
+
+	const match = await bcrypt.compare(password, user.password_hash);
+	if (!match) {
+		reply.status(401).send({ status: 401, message: 'Invalid username or password' });
+		return;
+	}
+	stmt = db.prepare(`UPDATE users SET status = 'online' WHERE Full_Name = ?`);
+	stmt.run(username);
+	const token = app.jwt.sign({ username }, { expiresIn: '1h' });
+	reply
+		.setCookie("token", token, {
+			path: "/",             // Cookie is valid for all routes
+			httpOnly: true,        // JS can't read the cookie → safer
+			secure: true,          // Only sent over HTTPS ✅ (important in prod)
+			sameSite: "strict",    // Prevents CSRF attacks
+			maxAge: 60 * 60,       // Cookie expires after 1 hour
+		})
+		.send({
+			status: 200,
+			message: "Login successful",
+			user
+		});
+});
+
 import { websocketAndSocketMessage } from './websocketAndSocketMessage.js';
 
 websocketAndSocketMessage(app, db, game);
@@ -247,6 +361,39 @@ debugFunctions(app, db);
 import { friendSystem } from './friendSystem.js';
 
 friendSystem(app, db, game);
+
+import { multiplayerGame } from './multiplayerGameInServer.js';
+
+multiplayerGame(app, db, game);
+
+function makeEveryoneOffline(): void {
+	try {
+		const stmt = db.prepare("UPDATE users SET status = 'offline' WHERE status = 'online'");
+		stmt.run();
+	} catch (error) {
+		console.error("Error setting users to offline:", error);
+	}
+}
+
+makeEveryoneOffline();
+
+app.get('/keepLogin', { preValidation: [app.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+	const token = request.cookies.token;
+	if (!token) {
+		reply.status(401).send({ status: 401, message: 'No token provided' });
+		return;
+	}
+	try {
+		const decoded = app.jwt.verify(token) as { username: string };
+		const username = decoded.username;
+		const stmt = db.prepare(`UPDATE users SET status = 'online' WHERE Full_Name = ?`);
+		stmt.run(username);
+		return { username: username };
+	} catch (err) {
+		reply.status(401).send({ status: 401, message: 'Invalid token' });
+		return;
+	}
+});
 
 app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
 	if (err) throw err;

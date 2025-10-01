@@ -1,3 +1,5 @@
+import { userInfo } from "./serverStructures.js";
+
 export class canvasInfo {
 	width: number;
 	height: number;
@@ -20,7 +22,6 @@ export type PlayerLogin = {
 		username: string;
 		password: string;
 };
-
 
 let canvas = new canvasInfo();// maybe I can delete this
 
@@ -84,6 +85,7 @@ export type Match = {
 };
 
 export enum TournamentStage {
+	Not_Running,
 	Registration,
 	Playing,
 	Regular1,	//	first round -> player1 vs player3
@@ -109,7 +111,7 @@ export class Tournament {
 		this.players = [];
 		this.matches = [];
 		this.currentRound = 0;
-		this.stage = TournamentStage.Registration;
+		this.stage = TournamentStage.Not_Running;
 		this.winners = [];
 		this.losers = [];
 		this.finishScreenRunning = false;
@@ -120,12 +122,50 @@ export class Tournament {
 	}
 }
 
+// from each of those, going back = HOME
+// needs to match "available pages" array
+export enum pageIndex {
+	HOME,
+	SETTINGS,
+	TOURNAMENT,
+	MULTIPLAYER,
+	MATCH,
+	CHECKING_PROFILE,
+	REGISTER,
+	LOGIN,
+	DASHBOARD,
+	GLOBALSTATS,
+
+}	//match = 1v1
+
+// export type pages = {
+// 	page0: string;
+// 	page1: string;
+// 	page2: string;
+// 	page3: string;
+// 	page4: string;
+// 	page5: string;
+// }	//add more as needed
+
+export type gameSnapShot = {
+	players: Player[];
+	websocket?: WebSocket;
+	currentlyLoggedIn: Player;
+}
+
+export type renderInfo = {
+	view: string;
+	info: string;
+	snapShot: gameSnapShot;
+}
 
 
 export class GameInfo {
 	ball: BallInfo;
 	player1Paddle: playerPaddle;
 	player2Paddle: playerPaddle;
+	player3Paddle: playerPaddle;
+	player4Paddle: playerPaddle;
 
 	t: Tournament;
 
@@ -137,8 +177,6 @@ export class GameInfo {
 
 	websocket?: WebSocket;// for the websocket connection
 
-	username: string;
-
 	sendMessageTo: string;
 
 	friendList: string[];
@@ -149,26 +187,46 @@ export class GameInfo {
 
 	rejectedFriendRequests: string[];
 
+	currentlyLoggedIn: Player;
+
+	availablePages: string[];
+
+	gamefinished: boolean;
+
+	userInfoTemp: userInfo;
+
+	localMode: boolean;
+
+	remoteMode: boolean;
+
+	multiplayerMode: boolean;
+
+	multiplayerGameStart: boolean;
+
+	multiplayerName: string[];
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();
 		this.ball = new BallInfo();
 		this.player1Paddle = new playerPaddle();
 		this.player2Paddle = new playerPaddle();
-		
+		this.player3Paddle = new playerPaddle();
+		this.player4Paddle = new playerPaddle();
+
 		this.t = new Tournament();
 
 		this.players = [];
 	
 		this.player1Paddle.x = canvas.width - 100; // Right side
 		this.player2Paddle.x = 100; // Left side
+		this.player3Paddle.x = canvas.width * 3 / 4 - 50; // Middle right
+		this.player4Paddle.x = canvas.width / 4 + 50; // Middle left
 
 		this.ball.ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
 		this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
 
 		this.tournamentLoopActive = false;
-		
-		this.username = "";
 
 		this.sendMessageTo = "";
 
@@ -179,6 +237,35 @@ export class GameInfo {
 		this.friendRequestList = [];
 
 		this.rejectedFriendRequests = [];
+
+		this.currentlyLoggedIn = { name:"default", gamesLost:0, gamesWon: 0, playerscore: 0	};
+	
+		this.availablePages = ["home", "settings", "tournament", "multiplayer", "match", "profile", "register", "login", "dashboard", "globalview"];
+
+		this.gamefinished =false;
+
+		this.userInfoTemp = 
+		{
+			id: 0,
+			Full_Name: "default",
+			Alias : "defaulty",
+			Country : "defaultLand",
+			password_hash : "defaultPassword",
+			avatar_url : "default.png",
+			status : "default",
+			updated_at : "default",
+			created_at : "default",
+		}
+
+		this.localMode = false;
+
+		this.remoteMode = false;
+
+		this.multiplayerMode = false;
+
+		this.multiplayerName = [];
+
+		this.multiplayerGameStart = false;
 	}
 }
 

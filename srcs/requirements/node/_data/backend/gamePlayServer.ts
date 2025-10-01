@@ -2,8 +2,6 @@ import { game, rounds, accaleration } from "./server.js";
 import { GameInfo } from "./serverStructures.js";
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 
-let gameFinished = false;
-
 function touchingPaddle1(): boolean {
 	return (
 		game.ball.ballX - game.ball.ballRadius < game.player1Paddle.x + game.player1Paddle.width &&
@@ -45,17 +43,23 @@ function calculateBallCoords(): void {
 	// Check paddle collisions
 	if (touchingPaddle1() && game.ball.ballSpeedX > 0) {
 		// ballSpeedX *= -1 - accaleration;
-		if (game.ball.ballSpeedX < 30) {
+		if (game.ball.ballSpeedX < 25) {
 			game.ball.ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
 		}
+		if (game.ball.ballSpeedY < 10 && game.ball.ballSpeedY > -10) {
+			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random(); // Add some randomness to vertical speed
+		}
 	} else if (touchingPaddle2() && game.ball.ballSpeedX < 0) {
 		// ballSpeedX *= -1 - accaleration;
-		if (game.ball.ballSpeedX > -30) {
+		if (game.ball.ballSpeedX > -25) {
 			game.ball.ballSpeedX *= -1 - accaleration; // Increase speed on paddle hit
 		} else {
 			game.ball.ballSpeedX *= -1; // Just reverse direction if already fast
+		}
+		if (game.ball.ballSpeedY < 10 && game.ball.ballSpeedY > -10) {
+			game.ball.ballSpeedY *= Math.random() > 0.5 ? (Math.random() + 3) * Math.random() : -(Math.random() + 3) * Math.random();
 		}
 	}
 
@@ -76,22 +80,81 @@ function resetGame(): void {
 	game.player1.playerscore = 0;
 	game.player2.playerscore = 0;
 	resetBall();
-	gameFinished = false;
 }
 
-export function updateGame(): void {
-	if (!gameFinished) {
+function sendGameinfo() {
+	if (game.sockets.has(game.localGameSender)) {
+		const socket = game.sockets.get(game.localGameSender);
+		if (socket && !game.tournamentLoopActive) {
+			socket.send(JSON.stringify({
+				type: "localGameInfo",
+				player1_name: game.player1.name,
+				player2_name: game.player2.name,
+				ballX: game.ball.ballX,
+				ballY: game.ball.ballY,
+				player1_y: game.player1Paddle.y,
+				player2_y: game.player2Paddle.y,
+				player1_score: game.player1.playerscore,
+				player2_score: game.player2.playerscore,
+				gamefinished: game.gameFinished,
+				ballSpeedX: game.ball.ballSpeedX,
+			}));
+		}
+		if (socket && game.tournamentLoopActive) {
+			socket.send(JSON.stringify({
+				type: "tournamentGameInfo",
+				player1_name: game.player1.name,
+				player2_name: game.player2.name,
+				ballX: game.ball.ballX,
+				ballY: game.ball.ballY,
+				player1_y: game.player1Paddle.y,
+				player2_y: game.player2Paddle.y,
+				player1_score: game.player1.playerscore,
+				player2_score: game.player2.playerscore,
+				gamefinished: game.gameFinished,
+				ballSpeedX: game.ball.ballSpeedX,
+			}));
+		}
+	}
+}
+
+export function updateGame(db: any): void {
+	if (game.localMode && !game.gameFinished && !game.remoteMode && !game.multiplayerMode) {
 		if (game.player1.playerscore === rounds) {
-			game.player1.gamesWon++;
-			game.player2.gamesLost++;
-			gameFinished = true;
+			console.log('player1 name:', game.player1.name);
+			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
+			stmt.run(game.player1.name);
+			stmt = db.prepare("UPDATE users SET losses = losses + 1 WHERE full_name = ?");
+			stmt.run(game.player2.name);
+			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, player3, player4, winner, loser, score_player1, score_player2, score_player3, score_player4, matchType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			if (!game.tournamentLoopActive) {
+				stmt.run(game.player1.name, game.player2.name, 'null', 'null', game.player1.name, game.player2.name, game.player1.playerscore, game.player2.playerscore, 0, 0, 'local');
+			} else {
+				stmt.run(game.player1.name, game.player2.name, 'null', 'null', game.player1.name, game.player2.name, game.player1.playerscore, game.player2.playerscore, 0, 0, 'tournament');
+			}
+			game.gameFinished = true;
+			game.localMode = false;
 		}
 		if (game.player2.playerscore === rounds) {
-			game.player2.gamesWon++;
-			game.player1.gamesLost++;
-			gameFinished = true;
+			console.log('player2 name:', game.player2.name);
+			let stmt = db.prepare("UPDATE users SET wins = wins + 1 WHERE full_name = ?");
+			stmt.run(game.player2.name);
+			stmt = db.prepare("UPDATE users SET losses = losses + 1 WHERE full_name = ?");
+			stmt.run(game.player1.name);
+			stmt = db.prepare("INSERT INTO matchHistory (player1, player2, player3, player4, winner, loser, score_player1, score_player2, score_player3, score_player4, matchType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			if (!game.tournamentLoopActive) {
+				stmt.run(game.player1.name, game.player2.name, 'null', 'null', game.player2.name, game.player1.name, game.player1.playerscore, game.player2.playerscore, 0, 0, 'local');
+			} else {
+				stmt.run(game.player1.name, game.player2.name, 'null', 'null', game.player2.name, game.player1.name, game.player1.playerscore, game.player2.playerscore, 0, 0, 'tournament');
+			}
+			game.gameFinished = true;
+			game.localMode = false;
 		}
 		calculateBallCoords();
+		sendGameinfo();
+		if (game.gameFinished) {
+			resetGame();
+		}
 	}
 }
 
@@ -129,29 +192,62 @@ export function interactWithGame(app: FastifyInstance, game: GameInfo) {
 		reply.send({ status: 'Paddle 2 moved down' });
 	});
 
-	app.get('/resetgame', async (request: FastifyRequest, reply: FastifyReply) => {
-		resetGame();
-		reply.type('application/json').send({
-			ballX: game.ball.ballX,
-			ballY: game.ball.ballY,
-			player1_y: game.player1Paddle.y,
-			player2_y: game.player2Paddle.y,
-			player1_score: game.player1.playerscore,
-			player2_score: game.player2.playerscore,
-			gamefinished: gameFinished,
-		});
+	app.get('/makeTheBackendHaveThePlayer', async (request: FastifyRequest, reply: FastifyReply) => {
+		const { username, opponent } = request.query as { username: string; opponent: string };
+		game.player1.name = username;
+		game.player2.name = opponent;
+		game.player1.playerscore = 0;
+		game.player2.playerscore = 0;
+		game.gameFinished = false;
+		reply.send({ status: 'Player added to game' });
 	});
 
-	app.get('/getstatus', async (request: FastifyRequest, reply: FastifyReply) => {
-		reply.type('application/json').send({
-			ballX: game.ball.ballX,
-			ballY: game.ball.ballY,
-			player1_y: game.player1Paddle.y,
-			player2_y: game.player2Paddle.y,
-			player1_score: game.player1.playerscore,
-			player2_score: game.player2.playerscore,
-			gamefinished: gameFinished,
-			ballSpeedX: game.ball.ballSpeedX,
-		});
+	app.get('/localMode', async (request: FastifyRequest, reply: FastifyReply) => {
+		const { sender } = request.query as { sender: string };
+		if (game.localMode || game.remoteMode || game.multiplayerMode || game.tournamentLoopActive) {
+			return reply.status(403).send({ error: 'Game is already in progress' });
+		}
+		game.localGameSender = sender;
+		game.localMode = true;
+		reply.send({ status: 'Local mode activated' });
 	});
+
+	app.get('/endLocalMode', async (request: FastifyRequest, reply: FastifyReply) => {
+		game.localMode = false;
+		reply.send({ status: 'Local mode deactivated' });
+	});
+
+	app.get('/tournamentContinue', async (request: FastifyRequest, reply: FastifyReply) => {
+		const { username, opponent } = request.query as { username: string; opponent: string };
+		game.player1.name = username;
+		game.player2.name = opponent;
+		game.player1.playerscore = 0;
+		game.player2.playerscore = 0;
+		game.localMode = true;
+		game.gameFinished = false;
+		reply.send({ status: 'Tournament continued' });
+	});
+
+	app.get('/startTournament', async (request: FastifyRequest, reply: FastifyReply) => {
+		game.tournamentLoopActive = true;
+		reply.send({ status: 'Tournament started' });
+	});
+
+	app.get("/endTournament", async (request: FastifyRequest, reply: FastifyReply) => {
+		if (game.tournamentLoopActive) {
+			game.localMode = false;
+			game.tournamentLoopActive = false;
+			game.gameFinished = true;
+			resetGame();
+			game.player1.name = "player1";
+			game.player2.name = "player2";
+		}
+		reply.send({ status: 'Tournament ended' });
+	});
+	// 	app.get('/leaveGamePressed', async (request: FastifyRequest, reply: FastifyReply) => {
+	// 		game.localMode = false;
+	// 		resetGame();
+	// 		sendGameinfo();
+	// 		reply.send({ status: 'Left the game.' });
+	// 	});
 }

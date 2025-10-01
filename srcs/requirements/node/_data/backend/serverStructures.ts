@@ -74,9 +74,13 @@ export class GameInfo {
 	ball: BallInfo;
 	player1Paddle: playerPaddle;
 	player2Paddle: playerPaddle;
+	player3Paddle: playerPaddle;
+	player4Paddle: playerPaddle;
 
 	player1: Player;
 	player2: Player;
+	player3: Player;
+	player4: Player;
 
 	rounds: number;	//amounts of rounds to play -> make uneven to avoid draw
 
@@ -84,23 +88,57 @@ export class GameInfo {
 
 	sockets: Map<string, WebSocket>;
 
+	localMode: boolean;
+
+	remoteMode: boolean;
+
+	multiplayerMode: boolean;
+
+	multiplayerName: string[];
+
+	gameFinished: boolean;
+
+	localGameSender: string;
+
+	tournamentLoopActive: boolean;
+
 	constructor() 
 	{
 		this.canvas = new canvasInfo();
 		this.ball = new BallInfo();
 		this.player1Paddle = new playerPaddle();
 		this.player2Paddle = new playerPaddle();
+		this.player3Paddle = new playerPaddle();
+		this.player4Paddle = new playerPaddle();
 		this.player1 = new Player("Player 1");
 		this.player2 = new Player("Player 2");
+		this.player3 = new Player("Player 3");
+		this.player4 = new Player("Player 4");
 		this.player1Paddle.x = canvas.width - 100; // Right side
 		this.player2Paddle.x = 100; // Left side
-	
+		this.player3Paddle.x = canvas.width * 3 / 4 - 50; // Middle right
+		this.player4Paddle.x = canvas.width / 4 + 50; // Middle left
+
 		this.rounds = 1;	//amounts of rounds to play -> make uneven to avoid draw
 
 		this.ball.ballSpeedX = Math.random() > 0.5 ? (Math.random() + 3) : -(Math.random() + 3);
 		this.ball.ballSpeedY = (Math.random() * 2 - 1) * 3;
 
 		this.sockets = new Map<string, WebSocket>();
+
+		this.localMode = false;
+
+		this.remoteMode = false;
+
+		this.multiplayerMode = false;
+
+		this.multiplayerName = [];
+
+		this.gameFinished = true;
+
+		this.localGameSender = "";
+
+		this.tournamentLoopActive = false;
 	}
 }
 export type loginInfo = {
